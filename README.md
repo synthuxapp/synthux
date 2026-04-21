@@ -2,9 +2,6 @@
 
 **AI-powered UX audit in your browser. Open source.**
 
-<p align="center">
-  <img src="extension/assets/logo.svg" width="120" alt="synthux logo">
-</p>
 
 <p align="center">
   <a href="https://synthux.app">Website</a> ·
