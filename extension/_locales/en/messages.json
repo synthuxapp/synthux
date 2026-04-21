@@ -1,0 +1,134 @@
+{
+  "extensionName": {
+    "message": "synthux",
+    "description": "Extension display name"
+  },
+  "extensionDescription": {
+    "message": "AI-powered UX audit in your browser. Evaluate any page with synthetic user profiles and Nielsen's 10 heuristics using local AI.",
+    "description": "Extension description shown in Chrome Web Store and extensions page"
+  },
+  "tabScan": {
+    "message": "Scan",
+    "description": "Tab label for the scan panel"
+  },
+  "tabReport": {
+    "message": "Report",
+    "description": "Tab label for the report panel"
+  },
+  "tabSettings": {
+    "message": "Settings",
+    "description": "Tab label for the settings panel"
+  },
+  "analyzePage": {
+    "message": "Analyze Page",
+    "description": "Main CTA button to start page analysis"
+  },
+  "scanning": {
+    "message": "Scanning...",
+    "description": "Status shown while scanning is in progress"
+  },
+  "analyzing": {
+    "message": "Analyzing...",
+    "description": "Status shown while AI analysis is in progress"
+  },
+  "quickMode": {
+    "message": "Quick",
+    "description": "Quick analysis mode label (2-3 heuristics)"
+  },
+  "deepMode": {
+    "message": "Deep",
+    "description": "Deep analysis mode label (10 heuristics)"
+  },
+  "overallScore": {
+    "message": "Overall UX Score",
+    "description": "Label for the overall UX score"
+  },
+  "issues": {
+    "message": "Issues",
+    "description": "Issues section header"
+  },
+  "recommendations": {
+    "message": "Recommendations",
+    "description": "Recommendations section header"
+  },
+  "critical": {
+    "message": "Critical",
+    "description": "Critical severity label"
+  },
+  "moderate": {
+    "message": "Moderate",
+    "description": "Moderate severity label"
+  },
+  "minor": {
+    "message": "Minor",
+    "description": "Minor severity label"
+  },
+  "copyMarkdown": {
+    "message": "Copy as Markdown",
+    "description": "Button to copy report as Markdown text"
+  },
+  "ollamaEndpoint": {
+    "message": "Ollama Endpoint",
+    "description": "Settings label for Ollama server URL"
+  },
+  "ollamaModel": {
+    "message": "Model",
+    "description": "Settings label for AI model selection"
+  },
+  "testConnection": {
+    "message": "Test Connection",
+    "description": "Button to test Ollama connection"
+  },
+  "connected": {
+    "message": "Connected",
+    "description": "Ollama connection status: connected"
+  },
+  "disconnected": {
+    "message": "Disconnected",
+    "description": "Ollama connection status: disconnected"
+  },
+  "language": {
+    "message": "Language",
+    "description": "Settings label for language selection"
+  },
+  "about": {
+    "message": "About",
+    "description": "About section label"
+  },
+  "profileFirstTime": {
+    "message": "First-Time Visitor",
+    "description": "Synthetic profile: first-time visitor"
+  },
+  "profilePowerUser": {
+    "message": "Power User",
+    "description": "Synthetic profile: experienced power user"
+  },
+  "profileAccessibility": {
+    "message": "Accessibility User",
+    "description": "Synthetic profile: accessibility needs"
+  },
+  "noReportYet": {
+    "message": "No report yet. Go to the Scan tab to analyze a page.",
+    "description": "Placeholder shown when no report is available"
+  },
+  "evaluatingProfile": {
+    "message": "Evaluating as $PROFILE$...",
+    "description": "Progress status showing current profile being evaluated",
+    "placeholders": {
+      "PROFILE": {
+        "content": "$1",
+        "example": "First-Time Visitor"
+      }
+    }
+  },
+  "evaluatingHeuristic": {
+    "message": "Checking: $HEURISTIC$",
+    "description": "Progress status showing current heuristic being evaluated",
+    "placeholders": {
+      "HEURISTIC": {
+        "content": "$1",
+        "example": "Visibility of System Status"
+      }
+    }
+  }
+}

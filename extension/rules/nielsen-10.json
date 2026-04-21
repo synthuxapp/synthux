@@ -1,0 +1,197 @@
+{
+  "name": "Nielsen's 10 Usability Heuristics",
+  "version": "1.0.0",
+  "source": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+  "rules": [
+    {
+      "id": "visibility-of-system-status",
+      "name": { "en": "Visibility of System Status", "tr": "Sistem Durumu Görünürlüğü" },
+      "description": {
+        "en": "The design should always keep users informed about what is going on, through appropriate feedback within a reasonable amount of time.",
+        "tr": "Tasarım, kullanıcıları makul bir süre içinde uygun geri bildirim yoluyla neler olup bittiği hakkında her zaman bilgilendirmelidir."
+      },
+      "weight": 1.0,
+      "automated_checks": ["loading_indicators", "progress_bars", "form_feedback"],
+      "evaluation_guide": "Look for: loading states when content is being fetched, progress indicators for multi-step processes, feedback after user actions (button clicks, form submissions), real-time status updates, cursor changes for interactive elements, toast notifications or alerts for background operations.",
+      "prompt_template": "Evaluate this web page for 'Visibility of System Status'. Does the page provide appropriate feedback to users about what is happening? Consider loading indicators, progress feedback, action confirmations, and state communication.",
+      "scoring_rubric": {
+        "0-20": "Critical violations — users cannot understand system state, no feedback on actions",
+        "21-40": "Major issues — frequent confusion about what is happening, inconsistent feedback",
+        "41-60": "Some feedback present but inconsistent or unclear in important areas",
+        "61-80": "Good feedback in most areas with minor gaps",
+        "81-100": "Excellent — clear and timely feedback throughout all interactions"
+      }
+    },
+    {
+      "id": "match-real-world",
+      "name": { "en": "Match Between System and Real World", "tr": "Sistem-Gerçek Dünya Eşleşmesi" },
+      "description": {
+        "en": "The design should speak the users' language. Use words, phrases, and concepts familiar to the user, rather than internal jargon. Follow real-world conventions, making information appear in a natural and logical order.",
+        "tr": "Tasarım kullanıcıların dilini konuşmalıdır. Dahili jargon yerine kullanıcıya tanıdık kelimeler, ifadeler ve kavramlar kullanılmalıdır."
+      },
+      "weight": 1.0,
+      "automated_checks": ["language_clarity", "icon_meaning", "terminology"],
+      "evaluation_guide": "Look for: user-friendly language vs. technical jargon, recognizable icons and visual metaphors, logical information ordering, culturally appropriate design choices, natural mapping between controls and outcomes.",
+      "prompt_template": "Evaluate this web page for 'Match Between System and Real World'. Does the page use language and conventions that users would naturally understand?",
+      "scoring_rubric": {
+        "0-20": "Heavily jargon-laden, confusing terminology, unrecognizable icons",
+        "21-40": "Frequent use of internal/technical language, some confusing elements",
+        "41-60": "Mixed — some user-friendly language but with notable jargon or unclear elements",
+        "61-80": "Mostly user-friendly with minor terminology issues",
+        "81-100": "Excellent — natural language, intuitive icons, logical information order"
+      }
+    },
+    {
+      "id": "user-control-freedom",
+      "name": { "en": "User Control and Freedom", "tr": "Kullanıcı Kontrolü ve Özgürlük" },
+      "description": {
+        "en": "Users often perform actions by mistake. They need a clearly marked 'emergency exit' to leave the unwanted action without having to go through an extended process.",
+        "tr": "Kullanıcılar sıklıkla hata yapar. İstenmeyen eylemden uzun bir süreç yaşamadan çıkabilecekleri açıkça işaretlenmiş bir 'acil çıkış'a ihtiyaç duyarlar."
+      },
+      "weight": 1.0,
+      "automated_checks": ["back_button", "undo_redo", "cancel_options", "close_buttons"],
+      "evaluation_guide": "Look for: clearly visible back/cancel buttons, undo/redo functionality, ability to dismiss modals and popups easily, confirmation before destructive actions, clear way to go back to previous states.",
+      "prompt_template": "Evaluate this web page for 'User Control and Freedom'. Can users easily undo, redo, or exit unwanted states?",
+      "scoring_rubric": {
+        "0-20": "Users are trapped — no way to undo or go back, forced linear paths",
+        "21-40": "Limited escape routes, difficult to reverse actions",
+        "41-60": "Some control present but not consistently available",
+        "61-80": "Good control in most areas, minor gaps in undo/cancel options",
+        "81-100": "Excellent — clear exit paths, undo available, flexible navigation"
+      }
+    },
+    {
+      "id": "consistency-standards",
+      "name": { "en": "Consistency and Standards", "tr": "Tutarlılık ve Standartlar" },
+      "description": {
+        "en": "Users should not have to wonder whether different words, situations, or actions mean the same thing. Follow platform and industry conventions.",
+        "tr": "Kullanıcılar farklı kelimelerin, durumların veya eylemlerin aynı anlama gelip gelmediğini merak etmek zorunda kalmamalıdır."
+      },
+      "weight": 1.0,
+      "automated_checks": ["css_consistency", "button_styles", "typography", "color_usage"],
+      "evaluation_guide": "Look for: consistent button styles and behavior, uniform typography (font sizes, weights), consistent color coding (same meaning = same color), standard UI patterns (hamburger menu, search icon, etc.), consistent naming across the interface.",
+      "prompt_template": "Evaluate this web page for 'Consistency and Standards'. Are UI elements consistent in appearance and behavior? Are platform/industry conventions followed?",
+      "scoring_rubric": {
+        "0-20": "Wildly inconsistent UI, no discernible design system, confusing patterns",
+        "21-40": "Significant inconsistencies in styling, behavior, or terminology",
+        "41-60": "Some consistency but with notable violations",
+        "61-80": "Mostly consistent with minor deviations",
+        "81-100": "Excellent — uniform design system, consistent patterns and terminology"
+      }
+    },
+    {
+      "id": "error-prevention",
+      "name": { "en": "Error Prevention", "tr": "Hata Önleme" },
+      "description": {
+        "en": "Good error messages are important, but the best designs carefully prevent problems from occurring in the first place. Either eliminate error-prone conditions, or check for them and present users with a confirmation option before they commit to the action.",
+        "tr": "İyi hata mesajları önemlidir, ancak en iyi tasarımlar sorunların oluşmasını dikkatli bir şekilde önler."
+      },
+      "weight": 1.0,
+      "automated_checks": ["form_validation", "confirmation_dialogs", "input_constraints"],
+      "evaluation_guide": "Look for: input validation before submission, confirmation for destructive actions, sensible defaults, input masks/formatting, disabled states for invalid actions, auto-save functionality.",
+      "prompt_template": "Evaluate this web page for 'Error Prevention'. Does the design prevent users from making errors in the first place?",
+      "scoring_rubric": {
+        "0-20": "No error prevention — users can easily trigger errors with no warnings",
+        "21-40": "Minimal prevention, forms accept any input, no confirmations",
+        "41-60": "Some validation present but gaps in important areas",
+        "61-80": "Good prevention in most areas, minor gaps",
+        "81-100": "Excellent — proactive error prevention, smart defaults, clear constraints"
+      }
+    },
+    {
+      "id": "recognition-over-recall",
+      "name": { "en": "Recognition Rather Than Recall", "tr": "Tanıma > Hatırlama" },
+      "description": {
+        "en": "Minimize the user's memory load by making elements, actions, and options visible. The user should not have to remember information from one part of the interface to another.",
+        "tr": "Öğeleri, eylemleri ve seçenekleri görünür kılarak kullanıcının bellek yükünü en aza indirin."
+      },
+      "weight": 1.0,
+      "automated_checks": ["navigation_clarity", "breadcrumbs", "labels", "visible_options"],
+      "evaluation_guide": "Look for: clear and visible navigation options, breadcrumb trails, labels on all interactive elements, visible option menus (rather than requiring recall), contextual help text, recently used items.",
+      "prompt_template": "Evaluate this web page for 'Recognition Rather Than Recall'. Are options and information visible rather than requiring memorization?",
+      "scoring_rubric": {
+        "0-20": "Heavy memory burden, hidden options, unclear where to find things",
+        "21-40": "Users frequently need to recall locations, unclear labels",
+        "41-60": "Some recognition support but important information is hidden",
+        "61-80": "Good visibility of options, minor areas requiring recall",
+        "81-100": "Excellent — all options visible, clear labels, intuitive organization"
+      }
+    },
+    {
+      "id": "flexibility-efficiency",
+      "name": { "en": "Flexibility and Efficiency of Use", "tr": "Esneklik ve Verimlilik" },
+      "description": {
+        "en": "Shortcuts — hidden from novice users — can speed up the interaction for the expert user so that the design can cater to both inexperienced and experienced users. Allow users to tailor frequent actions.",
+        "tr": "Kısayollar, uzman kullanıcı için etkileşimi hızlandırabilir, böylece tasarım hem deneyimsiz hem de deneyimli kullanıcılara hitap edebilir."
+      },
+      "weight": 1.0,
+      "automated_checks": ["shortcuts", "search", "filters", "customization"],
+      "evaluation_guide": "Look for: keyboard shortcuts, search functionality, filter/sort options, customizable dashboards, bulk actions, shortcuts for frequent tasks, typeahead/autocomplete.",
+      "prompt_template": "Evaluate this web page for 'Flexibility and Efficiency of Use'. Does the design cater to both novice and expert users? Are shortcuts and efficient paths available?",
+      "scoring_rubric": {
+        "0-20": "One rigid path for all users, no efficiency features",
+        "21-40": "Very limited flexibility, few shortcuts or efficiency features",
+        "41-60": "Some efficiency features but missing key ones",
+        "61-80": "Good flexibility with search, filters, and some shortcuts",
+        "81-100": "Excellent — multiple paths, keyboard shortcuts, customization, efficient workflows"
+      }
+    },
+    {
+      "id": "aesthetic-minimalist",
+      "name": { "en": "Aesthetic and Minimalist Design", "tr": "Estetik ve Minimalist Tasarım" },
+      "description": {
+        "en": "Interfaces should not contain information that is irrelevant or rarely needed. Every extra unit of information in an interface competes with the relevant units of information and diminishes their relative visibility.",
+        "tr": "Arayüzler ilgisiz veya nadiren gerekli olan bilgi içermemelidir."
+      },
+      "weight": 1.0,
+      "automated_checks": ["visual_complexity", "whitespace", "content_hierarchy"],
+      "evaluation_guide": "Look for: appropriate use of whitespace, clear visual hierarchy, no unnecessary elements or decorations, focused content without clutter, balanced information density, clean and modern aesthetic.",
+      "prompt_template": "Evaluate this web page for 'Aesthetic and Minimalist Design'. Is the interface clean and focused, showing only necessary information? Is there appropriate visual hierarchy?",
+      "scoring_rubric": {
+        "0-20": "Extremely cluttered, overwhelming amount of information, poor visual hierarchy",
+        "21-40": "Visually noisy, too many competing elements, poor whitespace",
+        "41-60": "Somewhat cluttered or has unnecessary elements but functional",
+        "61-80": "Clean design with minor clutter or visual noise",
+        "81-100": "Excellent — clean, focused, beautiful design with perfect visual hierarchy"
+      }
+    },
+    {
+      "id": "error-recovery",
+      "name": { "en": "Help Users Recognize, Diagnose, and Recover from Errors", "tr": "Hata Tanıma ve Kurtarma" },
+      "description": {
+        "en": "Error messages should be expressed in plain language (no error codes), precisely indicate the problem, and constructively suggest a solution.",
+        "tr": "Hata mesajları düz bir dille ifade edilmeli, sorunu kesin olarak belirtmeli ve yapıcı bir çözüm önermelidir."
+      },
+      "weight": 1.0,
+      "automated_checks": ["error_messages", "error_clarity", "recovery_options"],
+      "evaluation_guide": "Look for: clear error messages in plain language, specific indication of what went wrong, constructive suggestions for fixing errors, inline validation with helpful messages, no cryptic error codes.",
+      "prompt_template": "Evaluate this web page for 'Help Users Recognize, Diagnose, and Recover from Errors'. Are error messages clear, specific, and helpful?",
+      "scoring_rubric": {
+        "0-20": "Cryptic error codes, no guidance on how to fix, users are stuck",
+        "21-40": "Vague error messages, limited recovery guidance",
+        "41-60": "Some helpful error messages but inconsistent quality",
+        "61-80": "Good error messages in most areas with minor gaps",
+        "81-100": "Excellent — clear, specific, actionable error messages with recovery paths"
+      }
+    },
+    {
+      "id": "help-documentation",
+      "name": { "en": "Help and Documentation", "tr": "Yardım ve Dokümantasyon" },
+      "description": {
+        "en": "It's best if the system doesn't need any additional explanation. However, it may be necessary to provide documentation to help users understand how to complete their tasks.",
+        "tr": "Sistemin herhangi bir ek açıklamaya ihtiyaç duymaması en iyisidir. Ancak kullanıcıların görevlerini nasıl tamamlayacaklarını anlamalarına yardımcı olmak için dokümantasyon sağlamak gerekebilir."
+      },
+      "weight": 0.8,
+      "automated_checks": ["help_links", "faq", "tooltips", "onboarding"],
+      "evaluation_guide": "Look for: help/FAQ links, contextual tooltips, onboarding flows, search within help content, task-oriented documentation, clear contact/support options.",
+      "prompt_template": "Evaluate this web page for 'Help and Documentation'. Is help easily accessible? Are there tooltips, FAQs, or documentation to guide users?",
+      "scoring_rubric": {
+        "0-20": "No help available, users are completely on their own",
+        "21-40": "Minimal help, hard to find, not contextual",
+        "41-60": "Some help present but not comprehensive or hard to access",
+        "61-80": "Good help resources available, mostly contextual",
+        "81-100": "Excellent — comprehensive, searchable, contextual help and documentation"
+      }
+    }
+  ]
+}

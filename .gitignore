@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build artifacts (bundle is tracked for extension loading)
+# extension/sidepanel/app.bundle.js is tracked intentionally
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Analysis output (user-generated)
+synthux_analysis.md
+
+# Internal planning docs
+implementation_plan.md

@@ -1,0 +1,46 @@
+{
+  "name": "synthux",
+  "version": "1.0.0",
+  "description": "AI-powered UX audit in your browser. Open source.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "build:watch": "node esbuild.config.js --watch",
+    "lint": "eslint src/ extension/",
+    "lint:ext": "npx web-ext lint --source-dir=extension/",
+    "format": "prettier --write \"src/**/*.js\" \"extension/**/*.js\"",
+    "dev": "npm run build:watch"
+  },
+  "keywords": [
+    "ux",
+    "usability",
+    "heuristics",
+    "nielsen",
+    "chrome-extension",
+    "ai",
+    "ollama",
+    "accessibility",
+    "synthetic-users",
+    "open-source"
+  ],
+  "author": "synthuxapp",
+  "license": "MIT",
+  "homepage": "https://synthux.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synthuxapp/synthux.git"
+  },
+  "bugs": {
+    "url": "https://github.com/synthuxapp/synthux/issues"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.4.0",
+    "web-ext": "^8.4.0"
+  },
+  "dependencies": {
+    "lit": "^3.2.0"
+  }
+}

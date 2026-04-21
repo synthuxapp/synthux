@@ -1,0 +1,147 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   synthux — Design System & Global Styles
+   Minimal dark theme, professional UX tool aesthetic
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens ───────────────────────────────────────────────────────── */
+
+:root {
+  /* Colors — Neutral Dark Theme */
+  --sx-bg-primary: #111113;
+  --sx-bg-secondary: #18181b;
+  --sx-bg-tertiary: #202024;
+  --sx-bg-card: #1c1c1f;
+  --sx-bg-hover: #26262a;
+  --sx-bg-input: #141416;
+
+  /* Accent — Blue */
+  --sx-accent: #3b82f6;
+  --sx-accent-dim: rgba(59, 130, 246, 0.12);
+  --sx-accent-hover: #60a5fa;
+
+  /* Status Colors — Muted, professional */
+  --sx-success: #22c55e;
+  --sx-success-dim: rgba(34, 197, 94, 0.10);
+  --sx-warning: #eab308;
+  --sx-warning-dim: rgba(234, 179, 8, 0.10);
+  --sx-error: #ef4444;
+  --sx-error-dim: rgba(239, 68, 68, 0.10);
+
+  /* Score Colors */
+  --sx-score-high: #22c55e;
+  --sx-score-mid: #eab308;
+  --sx-score-low: #ef4444;
+
+  /* Text Colors — Higher contrast */
+  --sx-text-primary: #ededf0;
+  --sx-text-secondary: #b4b4bc;
+  --sx-text-tertiary: #8a8a96;
+  --sx-text-inverse: #111113;
+
+  /* Borders */
+  --sx-border: rgba(255, 255, 255, 0.08);
+  --sx-border-accent: rgba(59, 130, 246, 0.20);
+  --sx-border-hover: rgba(255, 255, 255, 0.14);
+
+  /* Typography */
+  --sx-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sx-font-size-xs: 11px;
+  --sx-font-size-sm: 12px;
+  --sx-font-size-base: 13px;
+  --sx-font-size-md: 14px;
+  --sx-font-size-lg: 16px;
+  --sx-font-size-xl: 20px;
+  --sx-font-size-2xl: 28px;
+
+  /* Spacing */
+  --sx-space-xs: 4px;
+  --sx-space-sm: 8px;
+  --sx-space-md: 12px;
+  --sx-space-lg: 16px;
+  --sx-space-xl: 20px;
+  --sx-space-2xl: 24px;
+  --sx-space-3xl: 32px;
+
+  /* Radii */
+  --sx-radius-sm: 6px;
+  --sx-radius-md: 8px;
+  --sx-radius-lg: 10px;
+  --sx-radius-xl: 12px;
+  --sx-radius-full: 9999px;
+
+  /* Shadows — Subtle */
+  --sx-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --sx-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25);
+
+  /* Transitions */
+  --sx-transition-fast: 150ms ease;
+  --sx-transition-normal: 200ms ease;
+}
+
+/* ─── Global Reset & Base ─────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--sx-bg-primary);
+  color: var(--sx-text-primary);
+  font-family: var(--sx-font-family);
+  font-size: var(--sx-font-size-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sx-bg-tertiary);
+  border-radius: var(--sx-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sx-text-tertiary);
+}
+
+/* ─── Utility Classes ─────────────────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── Animations — Subtle ─────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

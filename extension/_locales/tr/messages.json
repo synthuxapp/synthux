@@ -1,0 +1,134 @@
+{
+  "extensionName": {
+    "message": "synthux",
+    "description": "Eklenti görünen adı"
+  },
+  "extensionDescription": {
+    "message": "Tarayıcınızda AI destekli UX değerlendirmesi. Sentetik kullanıcı profilleri ve Nielsen'ın 10 heuristiğiyle herhangi bir sayfayı lokal AI ile analiz edin.",
+    "description": "Chrome Web Store ve eklentiler sayfasında gösterilen açıklama"
+  },
+  "tabScan": {
+    "message": "Tara",
+    "description": "Tarama paneli sekme etiketi"
+  },
+  "tabReport": {
+    "message": "Rapor",
+    "description": "Rapor paneli sekme etiketi"
+  },
+  "tabSettings": {
+    "message": "Ayarlar",
+    "description": "Ayarlar paneli sekme etiketi"
+  },
+  "analyzePage": {
+    "message": "Sayfayı Analiz Et",
+    "description": "Ana CTA butonu - sayfa analizini başlat"
+  },
+  "scanning": {
+    "message": "Taranıyor...",
+    "description": "Tarama sırasında gösterilen durum"
+  },
+  "analyzing": {
+    "message": "Analiz ediliyor...",
+    "description": "AI analizi sırasında gösterilen durum"
+  },
+  "quickMode": {
+    "message": "Hızlı",
+    "description": "Hızlı analiz modu etiketi (2-3 heuristik)"
+  },
+  "deepMode": {
+    "message": "Detaylı",
+    "description": "Derin analiz modu etiketi (10 heuristik)"
+  },
+  "overallScore": {
+    "message": "Genel UX Skoru",
+    "description": "Genel UX skoru etiketi"
+  },
+  "issues": {
+    "message": "Sorunlar",
+    "description": "Sorunlar bölüm başlığı"
+  },
+  "recommendations": {
+    "message": "Öneriler",
+    "description": "Öneriler bölüm başlığı"
+  },
+  "critical": {
+    "message": "Kritik",
+    "description": "Kritik önem derecesi etiketi"
+  },
+  "moderate": {
+    "message": "Orta",
+    "description": "Orta önem derecesi etiketi"
+  },
+  "minor": {
+    "message": "Düşük",
+    "description": "Düşük önem derecesi etiketi"
+  },
+  "copyMarkdown": {
+    "message": "Markdown Olarak Kopyala",
+    "description": "Raporu Markdown olarak kopyalama butonu"
+  },
+  "ollamaEndpoint": {
+    "message": "Ollama Adresi",
+    "description": "Ollama sunucu URL'si ayar etiketi"
+  },
+  "ollamaModel": {
+    "message": "Model",
+    "description": "AI model seçimi ayar etiketi"
+  },
+  "testConnection": {
+    "message": "Bağlantıyı Test Et",
+    "description": "Ollama bağlantısını test etme butonu"
+  },
+  "connected": {
+    "message": "Bağlı",
+    "description": "Ollama bağlantı durumu: bağlı"
+  },
+  "disconnected": {
+    "message": "Bağlantı Yok",
+    "description": "Ollama bağlantı durumu: bağlı değil"
+  },
+  "language": {
+    "message": "Dil",
+    "description": "Dil seçimi ayar etiketi"
+  },
+  "about": {
+    "message": "Hakkında",
+    "description": "Hakkında bölüm etiketi"
+  },
+  "profileFirstTime": {
+    "message": "İlk Kez Gelen Ziyaretçi",
+    "description": "Sentetik profil: ilk kez gelen"
+  },
+  "profilePowerUser": {
+    "message": "Uzman Kullanıcı",
+    "description": "Sentetik profil: deneyimli kullanıcı"
+  },
+  "profileAccessibility": {
+    "message": "Erişilebilirlik Kullanıcısı",
+    "description": "Sentetik profil: erişilebilirlik ihtiyacı"
+  },
+  "noReportYet": {
+    "message": "Henüz rapor yok. Bir sayfayı analiz etmek için Tara sekmesine gidin.",
+    "description": "Rapor olmadığında gösterilen yer tutucu"
+  },
+  "evaluatingProfile": {
+    "message": "$PROFILE$ olarak değerlendiriliyor...",
+    "description": "Değerlendirilen profili gösteren ilerleme durumu",
+    "placeholders": {
+      "PROFILE": {
+        "content": "$1",
+        "example": "İlk Kez Gelen Ziyaretçi"
+      }
+    }
+  },
+  "evaluatingHeuristic": {
+    "message": "Kontrol: $HEURISTIC$",
+    "description": "Değerlendirilen heuristiği gösteren ilerleme durumu",
+    "placeholders": {
+      "HEURISTIC": {
+        "content": "$1",
+        "example": "Sistem Durumu Görünürlüğü"
+      }
+    }
+  }
+}
