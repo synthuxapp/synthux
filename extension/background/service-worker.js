@@ -48,6 +48,15 @@ async function checkOllamaConnection() {
     if (isConnected) {
       const models = await client.listModels();
       ollamaStatus = { connected: true, models };
+
+      // Auto-fix: if saved model isn't available, switch to first available model
+      const savedModel = settings.ollamaModel;
+      const modelExists = models.some(m => m.name === savedModel);
+      if (!modelExists && models.length > 0) {
+        const newModel = models[0].name;
+        console.warn(`[synthux] Saved model "${savedModel}" not found. Switching to "${newModel}".`);
+        await chrome.storage.local.set({ ollamaModel: newModel });
+      }
     } else {
       ollamaStatus = { connected: false, models: [] };
     }
