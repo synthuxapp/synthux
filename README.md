@@ -27,7 +27,7 @@ No data leaves your machine. No API costs. No signup.
 
 ## 🚀 Features
 
-- 🤖 **Local AI Analysis** — Ollama + Gemma 3/4, runs entirely on your machine
+- 🤖 **Local AI Analysis** — Ollama, LM Studio, or any Ollama-compatible backend (Gemma 4, Qwen, Llama)
 - 📋 **Nielsen's 10 Heuristics** — Industry-standard UX evaluation framework
 - 👥 **Synthetic User Profiles** — First-time visitor, power user, accessibility user
 - ♿ **Automated Accessibility Audit** — WCAG contrast, alt text, heading structure, landmarks
@@ -38,33 +38,55 @@ No data leaves your machine. No API costs. No signup.
 
 ## 📦 Quick Start
 
-### 1. Install Ollama
+### 1. Install a Local AI Backend
+
+**Option A — [Ollama](https://ollama.com)** (recommended)
 
 ```bash
 # macOS
 brew install ollama
-
 # Or download from https://ollama.com
 ```
 
-### 2. Pull a Model
+**Option B — [LM Studio](https://lmstudio.ai)**
+
+Download and install. Start the local server — default endpoint is `http://localhost:1234`. No CORS configuration needed.
+
+### 2. Pull a Model (Ollama only)
 
 ```bash
-ollama pull gemma3
-# or
-ollama pull gemma3:12b  # Higher quality, needs more RAM
+ollama pull gemma4         # Gemma 4 — recommended
+ollama pull qwen3.5        # Qwen 3.5 — alternative
+ollama pull llama4         # Llama 4 — alternative
 ```
 
-### 3. Start Ollama (with Chrome extension support)
+LM Studio users: download a model from the built-in catalog instead.
 
+### 3. Enable Chrome Extension Access (Ollama only)
+
+Ollama blocks browser extension requests by default. Run the command for your platform, then **restart Ollama**:
+
+**macOS (app)**
 ```bash
-# Required: Allow Chrome extension to communicate with Ollama
+launchctl setenv OLLAMA_ORIGINS "*"
+# Then quit and reopen Ollama from the menu bar
+```
+
+**Linux / Terminal**
+```bash
 export OLLAMA_ORIGINS="*"
 ollama serve
-
-# Add to ~/.zshrc for persistence:
-echo 'export OLLAMA_ORIGINS="*"' >> ~/.zshrc
 ```
+
+**Windows (PowerShell)**
+```powershell
+[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")
+# Then restart Ollama
+```
+
+> ⚠️ **Ollama updates may reset this setting.** If you get a CORS error after updating Ollama, repeat this step and restart.
+
+LM Studio users can skip this step.
 
 ### 4. Install Extension
 
@@ -91,7 +113,7 @@ Service Worker (Background)
     ↕ fetch
 Content Script (DOM Extraction) ←→ Active Page
     ↕
-Ollama (localhost:11434) ←→ Gemma 3/4 Model
+Ollama (localhost:11434) / LM Studio (localhost:1234) ←→ Local AI Model
 ```
 
 - **Content Script** extracts DOM structure, accessibility data, navigation, and content metrics
