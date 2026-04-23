@@ -1008,7 +1008,7 @@ var M=globalThis,H=M.ShadowRoot&&(M.ShadyCSS===void 0||M.ShadyCSS.nativeShadow)&
 
       <div class="export-bar">
         <button class="export-btn ${this.copied?"copied":""}" @click="${this._downloadMarkdown}">
-          ${this.copied?"Downloaded \u2713":"Download as Markdown"}
+          ${this.copied?"Downloaded \u2713":"Download design-change.md"}
         </button>
       </div>
     `}_renderHistory(){return!this.history||this.history.length===0?n`

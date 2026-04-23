@@ -591,7 +591,7 @@ export class SynthuxReport extends LitElement {
 
       <div class="export-bar">
         <button class="export-btn ${this.copied ? 'copied' : ''}" @click="${this._downloadMarkdown}">
-          ${this.copied ? 'Downloaded ✓' : 'Download as Markdown'}
+          ${this.copied ? 'Downloaded ✓' : 'Download design-change.md'}
         </button>
       </div>
     `;
