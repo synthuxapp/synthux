@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Feature descriptions updated to mention **LM Studio** and **Qwen** alongside Ollama/Gemma
 - How It Works step 1 broadened: "Install Ollama or LM Studio"
+- How It Works steps now include direct links to [Ollama](https://ollama.com), [LM Studio](https://lmstudio.ai), [Gemma 4](https://ollama.com/library/gemma4), [Qwen 3.6](https://ollama.com/library/qwen3.6), [Llama 4](https://ollama.com/library/llama4), and [GitHub repo](https://github.com/synthuxapp/synthux)
 - `firebase.json` configured with security headers (X-Content-Type-Options, X-Frame-Options, CSP)
 - `.gitignore` updated with Firebase cache exclusions
 
