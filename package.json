@@ -38,7 +38,7 @@
     "esbuild": "^0.25.0",
     "eslint": "^9.0.0",
     "prettier": "^3.4.0",
-    "web-ext": "^8.4.0"
+    "web-ext": "^10.1.0"
   },
   "dependencies": {
     "lit": "^3.2.0"
