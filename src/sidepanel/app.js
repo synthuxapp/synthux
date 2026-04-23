@@ -46,11 +46,9 @@ export class SynthuxApp extends LitElement {
       gap: 8px;
     }
 
-    .logo-text {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      color: var(--sx-text-primary, #ededf0);
+    .logo-img {
+      height: 20px;
+      width: auto;
     }
 
     .status-badge {
@@ -277,7 +275,7 @@ export class SynthuxApp extends LitElement {
       <!-- Header -->
       <div class="header">
         <div class="logo">
-          <span class="logo-text">synthux</span>
+          <img class="logo-img" src="../assets/logo.svg" alt="synthux" />
         </div>
         <div class="status-badge ${isConnected ? 'connected' : 'disconnected'}">
           <span class="status-dot ${isConnected ? 'connected' : 'disconnected'}"></span>

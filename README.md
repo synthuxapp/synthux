@@ -1,6 +1,13 @@
-# synthux
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="extension/assets/logo.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="extension/assets/logo-dark.svg" />
+    <img src="extension/assets/logo-dark.svg" alt="synthux" height="48" />
+  </picture>
+</p>
 
-**AI-powered UX audit in your browser. Open source.**
+<p align="center"><strong>AI-powered UX audit in your browser. Open source.</strong></p>
+
 
 
 <p align="center">
