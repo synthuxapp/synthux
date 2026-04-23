@@ -154,6 +154,13 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 
 [MIT License](LICENSE) — free to use, modify, and distribute.
 
+## 🔒 Security & Privacy
+
+- **Privacy-first:** All analysis runs locally via Ollama. No data leaves your machine. See our [Privacy Policy](PRIVACY.md).
+- **Security policy:** Found a vulnerability? Please report it responsibly. See [SECURITY.md](SECURITY.md).
+- **Automated security:** This project uses Dependabot, CodeQL, and OpenSSF Scorecard for continuous security monitoring.
+- **No telemetry:** synthux does not collect usage data, analytics, or telemetry of any kind.
+
 ## 🔮 Roadmap
 
 - [x] MVP: Chrome Extension + Ollama + Nielsen 10 Heuristics
