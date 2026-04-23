@@ -524,30 +524,33 @@ export class SynthuxSettings extends LitElement {
 
             <div class="setup-step">
               <div class="step-title"><span class="step-number">2</span> Download a model</div>
-              <div class="step-desc">Pull a language model. Recommended: gemma3 (8B, ~5GB). Larger models give better results but need more RAM.</div>
+              <div class="step-desc">Pull a language model. Gemma 4, Qwen, or Llama recommended.</div>
               <div class="code-block">
-                <button class="copy-btn ${this._copiedCmd === 'pull' ? 'copied' : ''}" @click="${() => this._copyCommand('ollama pull gemma3', 'pull')}">${this._copiedCmd === 'pull' ? 'Copied' : 'Copy'}</button>
-                <code>ollama pull gemma3</code>
+                <button class="copy-btn ${this._copiedCmd === 'pull' ? 'copied' : ''}" @click="${() => this._copyCommand('ollama pull gemma4', 'pull')}">${this._copiedCmd === 'pull' ? 'Copied' : 'Copy'}</button>
+                <code>ollama pull gemma4</code>
               </div>
             </div>
 
             <div class="setup-step">
               <div class="step-title"><span class="step-number">3</span> Enable Chrome extension access</div>
-              <div class="step-desc">Ollama blocks browser extensions by default. Run this once to allow synthux to connect:</div>
+              <div class="step-desc">Ollama blocks browser extensions by default. Choose your platform:</div>
+              <div class="step-desc"><strong>macOS (app):</strong></div>
               <div class="code-block">
-                <button class="copy-btn ${this._copiedCmd === 'origins' ? 'copied' : ''}" @click="${() => this._copyCommand('export OLLAMA_ORIGINS="*"\nollama serve', 'origins')}">${this._copiedCmd === 'origins' ? 'Copied' : 'Copy'}</button>
+                <button class="copy-btn ${this._copiedCmd === 'macos' ? 'copied' : ''}" @click="${() => this._copyCommand('launchctl setenv OLLAMA_ORIGINS \\"*\\"', 'macos')}">${this._copiedCmd === 'macos' ? 'Copied' : 'Copy'}</button>
+                <code>launchctl setenv OLLAMA_ORIGINS "*"</code>
+              </div>
+              <div class="step-desc" style="margin-top: 8px;"><strong>Linux / Terminal:</strong></div>
+              <div class="code-block">
+                <button class="copy-btn ${this._copiedCmd === 'linux' ? 'copied' : ''}" @click="${() => this._copyCommand('export OLLAMA_ORIGINS=\\"*\\"\nollama serve', 'linux')}">${this._copiedCmd === 'linux' ? 'Copied' : 'Copy'}</button>
                 <code>export OLLAMA_ORIGINS="*"
 ollama serve</code>
               </div>
             </div>
 
             <div class="setup-step">
-              <div class="step-title"><span class="step-number">4</span> Make it permanent</div>
-              <div class="step-desc">Add the setting to your shell config so Ollama always allows extensions:</div>
-              <div class="code-block">
-                <button class="copy-btn ${this._copiedCmd === 'persist' ? 'copied' : ''}" @click="${() => this._copyCommand('echo \'export OLLAMA_ORIGINS="*"\' >> ~/.zshrc', 'persist')}">${this._copiedCmd === 'persist' ? 'Copied' : 'Copy'}</button>
-                <code>echo 'export OLLAMA_ORIGINS="*"' >> ~/.zshrc</code>
-              </div>
+              <div class="step-title"><span class="step-number">4</span> Restart Ollama</div>
+              <div class="step-desc"><strong>Important:</strong> After running the command, quit Ollama from the menu bar and reopen it for changes to take effect.</div>
+              <div class="step-desc" style="color: var(--sx-warning, #eab308);">\u26a0\ufe0f Ollama updates may reset this setting. If you get a CORS error after updating, repeat step 3 and restart.</div>
             </div>
           </div>
         ` : ''}
