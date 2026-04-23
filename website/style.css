@@ -351,6 +351,20 @@ section {
   font-size: 14px;
 }
 
+.step p a {
+  color: var(--sx-blue);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 126, 255, 0.3);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.2s;
+}
+
+.step p a:hover {
+  text-decoration-color: var(--sx-blue);
+  opacity: 1;
+}
+
 /* ─── Screenshot ─── */
 .screenshot-section {
   background: var(--sx-bg-secondary);
