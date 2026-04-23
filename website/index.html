@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>synthux — AI-Powered UX Audit in Your Browser</title>
+  <meta name="description" content="Open source Chrome extension that evaluates web pages using synthetic user profiles and Nielsen's 10 Usability Heuristics — powered by local AI. 100% private, free forever.">
+  <meta name="keywords" content="UX audit, usability heuristics, Chrome extension, Ollama, local AI, accessibility, Nielsen, open source, synthux">
+  <meta name="author" content="synthux">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://synthux.app/">
+  <meta property="og:title" content="synthux — AI-Powered UX Audit">
+  <meta property="og:description" content="Open source Chrome extension for UX evaluation. Local AI, Nielsen's 10 Heuristics, synthetic user profiles. 100% private.">
+  <meta property="og:image" content="https://synthux.app/assets/og-image.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="synthux — AI-Powered UX Audit">
+  <meta name="twitter:description" content="Open source Chrome extension for UX evaluation. Local AI, 100% private.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "synthux",
+    "description": "AI-powered UX audit Chrome extension using local AI and Nielsen's 10 Usability Heuristics",
+    "url": "https://synthux.app",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Chrome",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "license": "https://opensource.org/licenses/MIT",
+    "author": { "@type": "Organization", "name": "synthux", "url": "https://github.com/synthuxapp" },
+    "softwareVersion": "1.3.0",
+    "downloadUrl": "https://github.com/synthuxapp/synthux"
+  }
+  </script>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LPKF75CVD1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LPKF75CVD1');
+  </script>
+</head>
+<body>
+
+  <!-- ─── Navigation ─── -->
+  <nav class="nav">
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <img src="assets/logo.svg" alt="synthux" height="22">
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features" class="nav-link-desktop" data-i18n="navFeatures">Features</a></li>
+        <li><a href="#how-it-works" class="nav-link-desktop" data-i18n="navHow">How It Works</a></li>
+        <li><a href="#privacy" class="nav-link-desktop" data-i18n="navPrivacy">Privacy</a></li>
+        <li><button class="lang-btn" onclick="toggleLanguage()" data-i18n="langToggle">TR</button></li>
+        <li><a href="https://github.com/synthuxapp/synthux" class="nav-cta" target="_blank">GitHub ★</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ─── Hero ─── -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-badges fade-in">
+        <span class="badge"><span class="dot"></span> <span data-i18n="heroBadgePrivacy">100% Private</span></span>
+        <span class="badge"><span data-i18n="heroBadgeOpenSource">Open Source</span></span>
+        <span class="badge"><span data-i18n="heroBadgeFree">Free Forever</span></span>
+      </div>
+
+      <h1 class="fade-in" data-i18n="heroTagline">AI-powered UX audit in your browser.</h1>
+
+      <p class="hero-subtitle fade-in" data-i18n="heroSubtitle">
+        Open source Chrome extension that evaluates web pages using synthetic user profiles and Nielsen's 10 Usability Heuristics — powered by local AI.
+      </p>
+
+      <div class="hero-ctas fade-in">
+        <a href="https://github.com/synthuxapp/synthux" class="btn-primary" target="_blank">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span data-i18n="heroCtaGithub">View on GitHub</span>
+        </a>
+        <a href="#how-it-works" class="btn-secondary">
+          <span data-i18n="heroCtaInstall">Install Extension</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Features ─── -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header fade-in">
+        <h2 data-i18n="featuresTitle">Features</h2>
+        <p data-i18n="featuresSubtitle">Everything you need for comprehensive UX evaluation.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card fade-in">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2V6a4 4 0 0 1 4-4z"/><rect x="5" y="14" width="14" height="8" rx="2"/><path d="M9 18h6"/></svg></div>
+          <h3 data-i18n="feature1Title">Local AI Analysis</h3>
+          <p data-i18n="feature1Desc">Runs entirely on your machine via Ollama or LM Studio. No API costs, no cloud dependency.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg></div>
+          <h3 data-i18n="feature2Title">Nielsen's 10 Heuristics</h3>
+          <p data-i18n="feature2Desc">Industry-standard UX evaluation framework used by professionals for 30+ years.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h3 data-i18n="feature3Title">Synthetic User Profiles</h3>
+          <p data-i18n="feature3Desc">Evaluate from 3 perspectives: First-Time Visitor, Power User, Accessibility User.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg></div>
+          <h3 data-i18n="feature4Title">Accessibility Audit</h3>
+          <p data-i18n="feature4Desc">Automated WCAG checks for contrast, alt text, heading structure, and more.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
+          <h3 data-i18n="feature5Title">Detailed Scoring</h3>
+          <p data-i18n="feature5Desc">0-100 scores per heuristic with actionable recommendations.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3 data-i18n="feature6Title">Complete Privacy</h3>
+          <p data-i18n="feature6Desc">No telemetry, no analytics, no data collection. Your pages stay on your machine.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── How It Works ─── -->
+  <section id="how-it-works" class="screenshot-section">
+    <div class="container">
+      <div class="section-header fade-in">
+        <h2 data-i18n="howTitle">How It Works</h2>
+        <p data-i18n="howSubtitle">Get started in under 5 minutes.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step fade-in">
+          <div class="step-number">1</div>
+          <h3 data-i18n="howStep1Title">1. Install Ollama or LM Studio</h3>
+          <p data-i18n="howStep1Desc">Download Ollama or LM Studio and pull a model like Gemma, Qwen, or Llama.</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-number">2</div>
+          <h3 data-i18n="howStep2Title">2. Add the Extension</h3>
+          <p data-i18n="howStep2Desc">Install synthux from the Chrome Web Store or load as unpacked.</p>
+        </div>
+        <div class="step fade-in">
+          <div class="step-number">3</div>
+          <h3 data-i18n="howStep3Title">3. Analyze Any Page</h3>
+          <p data-i18n="howStep3Desc">Open the side panel, select profiles, and hit Analyze.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Screenshot ─── -->
+  <section id="screenshot">
+    <div class="container">
+      <div class="section-header fade-in">
+        <h2 data-i18n="screenshotTitle">See It in Action</h2>
+        <p data-i18n="screenshotSubtitle">A clean, professional interface in your browser's side panel.</p>
+      </div>
+      <div class="screenshot-wrapper fade-in">
+        <img src="assets/screenshot.png" alt="synthux Chrome extension side panel showing UX analysis results" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Privacy & Security ─── -->
+  <section id="privacy" class="screenshot-section">
+    <div class="container">
+      <div class="section-header fade-in">
+        <h2 data-i18n="privacyTitle">Privacy & Security</h2>
+        <p data-i18n="privacySubtitle">Built with a privacy-first architecture. No exceptions.</p>
+      </div>
+
+      <div class="privacy-grid">
+        <div class="privacy-item fade-in">
+          <div class="privacy-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <p data-i18n="privacyItem1">All analysis runs locally — no data sent to external servers</p>
+        </div>
+        <div class="privacy-item fade-in">
+          <div class="privacy-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9.5 12.5 2 2 4-4"/></svg></div>
+          <p data-i18n="privacyItem2">No telemetry, no analytics, no tracking in the extension</p>
+        </div>
+        <div class="privacy-item fade-in">
+          <div class="privacy-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <p data-i18n="privacyItem3">Automated security scanning with Dependabot & CodeQL</p>
+        </div>
+        <div class="privacy-item fade-in">
+          <div class="privacy-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <p data-i18n="privacyItem4">Open source — inspect every line of code yourself</p>
+        </div>
+      </div>
+
+      <div style="text-align:center">
+        <a href="https://github.com/synthuxapp/synthux/blob/main/PRIVACY.md" class="btn-secondary" target="_blank" data-i18n="privacyReadMore">Read our Privacy Policy</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Open Source ─── -->
+  <section id="open-source" class="oss-section">
+    <div class="container">
+      <div class="section-header fade-in">
+        <h2 data-i18n="ossTitle">Open Source</h2>
+        <p data-i18n="ossSubtitle">Built in the open. Contributions welcome.</p>
+      </div>
+
+      <p class="oss-desc fade-in" data-i18n="ossDesc">synthux is MIT licensed. Fork it, extend it, make it yours.</p>
+
+      <div class="oss-ctas fade-in">
+        <a href="https://github.com/synthuxapp/synthux" class="btn-primary" target="_blank">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span data-i18n="ossCta">Star on GitHub</span>
+        </a>
+        <a href="https://github.com/synthuxapp/synthux/blob/main/docs/CONTRIBUTING.md" class="btn-secondary" target="_blank" data-i18n="ossContribute">Contributing Guide</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="assets/logo.svg" alt="synthux">
+          <p data-i18n="footerTagline">AI-powered UX audit.</p>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footerResources">Resources</h4>
+          <ul>
+            <li><a href="https://github.com/synthuxapp/synthux/blob/main/docs/getting-started.md" target="_blank" data-i18n="footerDocs">Documentation</a></li>
+            <li><a href="https://github.com/synthuxapp/synthux/blob/main/CHANGELOG.md" target="_blank" data-i18n="footerChangelog">Changelog</a></li>
+            <li><a href="https://github.com/synthuxapp/synthux/blob/main/docs/getting-started.md" target="_blank" data-i18n="footerGettingStarted">Getting Started</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footerLegal">Legal</h4>
+          <ul>
+            <li><a href="https://github.com/synthuxapp/synthux/blob/main/PRIVACY.md" target="_blank" data-i18n="footerPrivacyPolicy">Privacy Policy</a></li>
+            <li><a href="https://github.com/synthuxapp/synthux/blob/main/SECURITY.md" target="_blank" data-i18n="footerSecurityPolicy">Security Policy</a></li>
+            <li><a href="https://github.com/synthuxapp/synthux/blob/main/LICENSE" target="_blank" data-i18n="footerLicense">MIT License</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footerCommunity">Community</h4>
+          <ul>
+            <li><a href="https://github.com/synthuxapp/synthux" target="_blank" data-i18n="footerGithub">GitHub</a></li>
+            <li><a href="https://github.com/synthuxapp/synthux/issues" target="_blank" data-i18n="footerIssues">Issues</a></li>
+            <li><a href="https://github.com/synthuxapp/synthux/blob/main/docs/CONTRIBUTING.md" target="_blank" data-i18n="footerContributing">Contributing</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
+        <button class="lang-btn" onclick="toggleLanguage()" data-i18n="langToggle">TR</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="i18n.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

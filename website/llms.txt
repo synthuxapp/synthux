@@ -1,0 +1,42 @@
+# synthux
+
+> AI-powered UX audit in your browser. Open source.
+
+## What is synthux?
+
+synthux is an open-source Chrome extension that evaluates web pages using synthetic user profiles and Nielsen's 10 Usability Heuristics — powered by local AI (Ollama or LM Studio).
+
+All analysis runs locally on the user's machine. No data is sent to external servers.
+
+## Key Features
+
+- Local AI Analysis via Ollama or LM Studio (Gemma, Qwen, Llama, and more)
+- Nielsen's 10 Usability Heuristics evaluation
+- 3 Synthetic User Profiles: First-Time Visitor, Power User, Accessibility User
+- Automated accessibility audit (WCAG checks)
+- 0-100 scoring per heuristic with actionable recommendations
+- Quick mode (3 heuristics) and Deep mode (10 heuristics)
+- Markdown export for reports
+- 100% private — no telemetry, no analytics, no data collection
+
+## Technical Stack
+
+- Chrome Extension (Manifest V3)
+- Lit Web Components
+- Ollama local AI runtime
+- esbuild bundler
+- MIT License
+
+## Links
+
+- Website: https://synthux.app
+- GitHub: https://github.com/synthuxapp/synthux
+- Documentation: https://github.com/synthuxapp/synthux/blob/main/docs/getting-started.md
+- Privacy Policy: https://github.com/synthuxapp/synthux/blob/main/PRIVACY.md
+- Security Policy: https://github.com/synthuxapp/synthux/blob/main/SECURITY.md
+- Changelog: https://github.com/synthuxapp/synthux/blob/main/CHANGELOG.md
+
+## Contact
+
+- Issues: https://github.com/synthuxapp/synthux/issues
+- Contributing: https://github.com/synthuxapp/synthux/blob/main/docs/CONTRIBUTING.md

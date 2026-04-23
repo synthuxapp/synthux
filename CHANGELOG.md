@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-04-23
+
+### Added
+- **Landing page:** Static site at `website/` with dark glassmorphism theme (Saira + Inter fonts)
+- **Firebase Hosting:** Production deployment to `synthux-app.web.app` with custom domain `synthux.app`
+- **Internationalization:** EN/TR language toggle with `localStorage` persistence (`i18n.js`)
+- **SEO:** Google Analytics (GA4), `robots.txt`, `sitemap.xml`, JSON-LD structured data, Open Graph tags
+- **LLM discoverability:** `llms.txt` for AI crawler context
+- **Professional SVG icons:** Feature section (blue stroke) and Privacy section (green stroke) icon sets
+- **Screenshot composite:** Extension UI preview (Scan + Report panels) for landing page
+
+### Changed
+- Feature descriptions updated to mention **LM Studio** and **Qwen** alongside Ollama/Gemma
+- How It Works step 1 broadened: "Install Ollama or LM Studio"
+- `firebase.json` configured with security headers (X-Content-Type-Options, X-Frame-Options, CSP)
+- `.gitignore` updated with Firebase cache exclusions
+
+---
+
 ## [1.3.0] - 2026-04-23
 
 ### Added
