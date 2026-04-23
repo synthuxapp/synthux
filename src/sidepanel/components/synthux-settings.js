@@ -524,16 +524,18 @@ export class SynthuxSettings extends LitElement {
 
             <div class="setup-step">
               <div class="step-title"><span class="step-number">2</span> Download a model</div>
-              <div class="step-desc">Pull a language model. Gemma 4, Qwen, or Llama recommended.</div>
+              <div class="step-desc">Pull a language model. Any model works — pick one that fits your hardware:</div>
               <div class="code-block">
                 <button class="copy-btn ${this._copiedCmd === 'pull' ? 'copied' : ''}" @click="${() => this._copyCommand('ollama pull gemma4', 'pull')}">${this._copiedCmd === 'pull' ? 'Copied' : 'Copy'}</button>
                 <code>ollama pull gemma4</code>
               </div>
+              <div class="step-desc" style="margin-top: 6px; font-size: 10px; color: var(--sx-text-tertiary, #8a8a96);">Alternatives: <code style="font-size: 10px;">ollama pull qwen3.5</code> or <code style="font-size: 10px;">ollama pull llama4</code></div>
+              <div class="step-desc" style="margin-top: 4px; font-size: 10px; color: var(--sx-text-tertiary, #8a8a96);">Using <strong>LM Studio</strong>? Skip to step 3 — no model pull needed. Change the endpoint in Settings to <code style="font-size: 10px;">http://localhost:1234</code></div>
             </div>
 
             <div class="setup-step">
               <div class="step-title"><span class="step-number">3</span> Enable Chrome extension access</div>
-              <div class="step-desc">Ollama blocks browser extensions by default. Choose your platform:</div>
+              <div class="step-desc">Ollama blocks browser extensions by default. LM Studio users can skip this step.</div>
               <div class="step-desc"><strong>macOS (app):</strong></div>
               <div class="code-block">
                 <button class="copy-btn ${this._copiedCmd === 'macos' ? 'copied' : ''}" @click="${() => this._copyCommand('launchctl setenv OLLAMA_ORIGINS \\"*\\"', 'macos')}">${this._copiedCmd === 'macos' ? 'Copied' : 'Copy'}</button>
@@ -544,6 +546,11 @@ export class SynthuxSettings extends LitElement {
                 <button class="copy-btn ${this._copiedCmd === 'linux' ? 'copied' : ''}" @click="${() => this._copyCommand('export OLLAMA_ORIGINS=\\"*\\"\nollama serve', 'linux')}">${this._copiedCmd === 'linux' ? 'Copied' : 'Copy'}</button>
                 <code>export OLLAMA_ORIGINS="*"
 ollama serve</code>
+              </div>
+              <div class="step-desc" style="margin-top: 8px;"><strong>Windows (PowerShell):</strong></div>
+              <div class="code-block">
+                <button class="copy-btn ${this._copiedCmd === 'win' ? 'copied' : ''}" @click="${() => this._copyCommand('[Environment]::SetEnvironmentVariable(\'OLLAMA_ORIGINS\', \'*\', \'User\')', 'win')}">${this._copiedCmd === 'win' ? 'Copied' : 'Copy'}</button>
+                <code>[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")</code>
               </div>
             </div>
 
