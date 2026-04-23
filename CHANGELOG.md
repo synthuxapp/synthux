@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-04-23
+
+### Added
+- **Security tooling:** Dependabot, CodeQL, OpenSSF Scorecard, npm audit in CI
+- **SECURITY.md:** Responsible disclosure policy with safe harbor provisions
+- **PRIVACY.md:** Chrome Web Store–ready privacy policy documenting local-only processing
+- **Branded identity:** Custom s-icon for extension (16/32/48/128px), white-logo SVG in Side Panel header
+- **README:** Theme-adaptive logo (dark/light), Security & Privacy section
+
+### Changed
+- CI pipeline now includes `npm audit --audit-level=moderate` security check
+- `.gitignore` updated to exclude local font/logo assets
+
+---
+
+## [1.2.0] - 2026-04-21
+
+### Added
+- **JSON Repair Engine:** 5-strategy progressive repair pipeline (direct parse → block extraction → sanitize → aggressive repair → partial extraction)
+- **Retry mechanism:** Auto-retry on Ollama 500 errors with 3s delay
+- **Graceful failure:** Failed heuristics get score 50 instead of crashing the analysis
+- **Periodic health check:** Pings Ollama every 15s, re-checks on tab switch
+- **Terminal log:** Dark monospace log panel during analysis with timestamps, active/completed line states, auto-scroll
+- **Ollama setup guide:** Collapsible 4-step guide in Settings with copy-to-clipboard commands
+- **Error hints:** 403 auto-opens CORS guide, timeout shows "Ollama not running" hint
+
+### Changed
+- **Accent color:** Indigo (#6366f1) → Blue (#3b82f6)
+- **Text contrast:** Boosted all text levels (primary #ededf0, secondary #b4b4bc, tertiary #8a8a96)
+- **Border visibility:** Increased opacity for normal (0.08) and hover (0.14) states
+- **Page info lock:** URL/title freezes during analysis, tab switches don't change displayed page
+- **Time estimates:** Quick ~9 min, Deep ~20 min (based on 31B model benchmarks)
+- **Report URLs:** Shows hostname only instead of full path
+- **Report language:** Renamed "Language" to "Report Language" with compact EN/TR toggle
+
+---
+
+## [1.1.0] - 2026-04-21
+
+### Added
+- **Report History:** Up to 20 saved reports in `chrome.storage.local`
+- **History tab:** 4th tab in navigation (Scan | Report | History | Settings)
+- **History entries:** Score badge, page title, relative timestamp, mode, model info
+- **Load/delete reports:** Click to reload, × to remove from history
+- **Auto-save:** Every completed analysis automatically saved to history
+
+### Changed
+- **LLM Comment Sanitizer:** `sanitizeLLMOutput()` strips `//` and `/* */` comments before JSON parse
+- **Smart Deduplication:** Element + keyword fingerprinting instead of exact description match
+- **Empty Output Filtering:** `isPlaceholder()` removes "No description" / blank entries
+- **Color palette:** Neon cyan/purple → single indigo accent (#6366f1) + neutral grays
+- **Emoji removal:** All emojis replaced with CSS dots and plain text
+- **Logo simplification:** Gradient S icon → text-only "synthux" typemark
+- **Button/card styling:** Gradients → flat solid, glow effects removed
+
+---
+
 ## [1.0.0] - 2026-04-21
 
 ### Added
