@@ -8,6 +8,25 @@
 ## Phase 1 — Quick Wins (v1.5)
 > Mevcut mimariyi değiştirmeden, küçük eklemeler.
 
+### 0. 🏪 Chrome Web Store Yayını
+**Effort:** ~3 gün | **Etki:** Kritik
+
+Extension'ı Chrome Web Store'da yayınlamak — kullanıcıların "Load unpacked" yapmadan kurabilmesi.
+
+- Chrome Developer hesabı ($5 tek seferlik)
+- Privacy policy sayfası hazırla (synthux.app/privacy)
+- Store listing: açıklama, 5 screenshot, promotional banner
+- Manifest permissions justification yazısı (host_permissions, activeTab, sidePanel)
+- `content_security_policy` gözden geçir
+- İlk review süreci: 1–3 iş günü (AI + sayfa erişimi titiz incelenir)
+- Store badge'ini website + README'ye ekle
+
+> ⚠️ **Dikkat:** AI + DOM erişimi olan extension'lar Chrome review'da titiz inceleniyor. Privacy policy ve izin açıklamaları eksiksiz olmalı.
+
+**Bağımlılık:** Yok — mevcut extension yayına hazır
+
+---
+
 ### 1. 📋 Actionable Code Fixes
 **Effort:** ~2 gün | **Etki:** Yüksek
 
@@ -238,6 +257,7 @@ Figma tasarım aşamasında UX audit.
 
 | # | Özellik | Effort | Phase | Etki |
 |:---|:---|:---|:---|:---|
+| 0 | Chrome Web Store Yayını | ~3 gün | v1.5 | 🔴 Kritik |
 | 1 | Actionable Code Fixes | ~2 gün | v1.5 | 🟢 Yüksek |
 | 2 | Önceliklendirme Matrisi | ~2 gün | v1.5 | 🟢 Yüksek |
 | 3 | PDF Rapor | ~3 gün | v1.5 | 🟡 Orta |
