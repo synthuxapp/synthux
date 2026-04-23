@@ -483,22 +483,19 @@ export class SynthuxReport extends LitElement {
     return 'low';
   }
 
-  async _copyMarkdown() {
+  _downloadMarkdown() {
     if (!this.report?.markdown) return;
-    try {
-      await navigator.clipboard.writeText(this.report.markdown);
-      this.copied = true;
-      setTimeout(() => { this.copied = false; }, 2000);
-    } catch {
-      const ta = document.createElement('textarea');
-      ta.value = this.report.markdown;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      this.copied = true;
-      setTimeout(() => { this.copied = false; }, 2000);
-    }
+    const hostname = this._shortenUrl(this.report.url).replace(/[\/:.]/g, '-').replace(/-+/g, '-');
+    const filename = `design-change-${hostname}.md`;
+    const blob = new Blob([this.report.markdown], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.copied = true;
+    setTimeout(() => { this.copied = false; }, 2000);
   }
 
   render() {
@@ -593,8 +590,8 @@ export class SynthuxReport extends LitElement {
       ` : ''}
 
       <div class="export-bar">
-        <button class="export-btn ${this.copied ? 'copied' : ''}" @click="${this._copyMarkdown}">
-          ${this.copied ? 'Copied to clipboard' : 'Copy as Markdown'}
+        <button class="export-btn ${this.copied ? 'copied' : ''}" @click="${this._downloadMarkdown}">
+          ${this.copied ? 'Downloaded ✓' : 'Download as Markdown'}
         </button>
       </div>
     `;
