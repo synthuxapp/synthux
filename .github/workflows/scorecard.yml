@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
+      # Required for checkout
+      contents: read
       # Required for uploading SARIF results
       security-events: write
       # Required for publishing results
@@ -28,7 +30,7 @@ jobs:
           persist-credentials: false
 
       - name: Run OpenSSF Scorecard
-        uses: ossf/scorecard-action@v2
+        uses: ossf/scorecard-action@v2.4.3
         with:
           results_file: results.sarif
           results_format: sarif
