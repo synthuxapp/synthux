@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-04-23
+
+### Added
+- **Multi-platform setup guide** in extension: macOS (`launchctl`), Linux (`export`), Windows (`PowerShell`) CORS instructions
+- **LM Studio support:** endpoint note (`localhost:1234`), "skip CORS step" guidance
+- **Model alternatives:** setup guide now shows Gemma 4, Qwen 3.5, Llama 4 options
+- **Ollama update warning:** ⚠️ CORS may reset after Ollama updates — restart required
+- **`docs/design.md`:** Full design system reference for AI agents (colors, typography, components, layout)
+- **Website CORS note:** How It Works section now includes setup commands + link to full GitHub guide
+- **Auto-fix stale models:** if saved model not found in Ollama, auto-switch to first available
+
+### Changed
+- Export button: clipboard copy → file download as `design-change.md`
+- Button label: "Download as Markdown" → "Download design-change.md"
+- Model links updated: Gemma 4, Qwen 3.6, Llama 4 (latest versions)
+- README Quick Start rewritten: Ollama + LM Studio backends, 3 platforms, model alternatives
+- Architecture diagram updated for LM Studio (`localhost:1234`)
+
+### Fixed
+- **CORS 403 silent failure:** Ollama updates reset `OLLAMA_ORIGINS`, causing analysis to silently fail without errors
+- Setup guide step 2: `gemma3` → `gemma4`
+
+---
+
 ## [1.4.0] - 2026-04-23
 
 ### Added
