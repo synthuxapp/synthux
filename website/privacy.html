@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — synthux</title>
+  <meta name="description" content="synthux privacy policy. All analysis runs locally via Ollama. No data leaves your machine.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/privacy.html">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .privacy-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 64px;
+    }
+    .privacy-container h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .privacy-container .updated {
+      font-size: 13px;
+      color: var(--sx-text-tertiary);
+      margin-bottom: 40px;
+    }
+    .privacy-container h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 40px;
+      margin-bottom: 12px;
+      color: var(--sx-text-primary);
+    }
+    .privacy-container h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      color: var(--sx-text-secondary);
+    }
+    .privacy-container p,
+    .privacy-container li {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--sx-text-secondary);
+      margin-bottom: 12px;
+    }
+    .privacy-container ul {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+    .privacy-container li {
+      margin-bottom: 6px;
+    }
+    .privacy-container strong {
+      color: var(--sx-text-primary);
+    }
+    .privacy-container a {
+      color: var(--sx-blue);
+      text-decoration: none;
+    }
+    .privacy-container a:hover {
+      text-decoration: underline;
+    }
+    .privacy-container .highlight-box {
+      background: var(--sx-bg-card);
+      border: 1px solid var(--sx-border);
+      border-radius: var(--sx-radius-sm);
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .privacy-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .privacy-container th,
+    .privacy-container td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--sx-border);
+    }
+    .privacy-container th {
+      color: var(--sx-text-primary);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .privacy-container td {
+      color: var(--sx-text-secondary);
+    }
+    .privacy-container code {
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--sx-text-tertiary);
+      text-decoration: none;
+      margin-bottom: 24px;
+    }
+    .back-link:hover { color: var(--sx-blue); }
+  </style>
+</head>
+<body>
+  <div class="privacy-container">
+    <a href="/" class="back-link">← Back to synthux.app</a>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: April 24, 2026 · Effective date: April 21, 2026</p>
+
+    <div class="highlight-box">
+      <p style="margin: 0;"><strong>The short version:</strong> synthux does not collect, transmit, or share any personal data. All processing happens locally on your machine.</p>
+    </div>
+
+    <h2>Overview</h2>
+    <p>synthux is an open-source Chrome extension that performs UX/UI analysis using local AI. We are committed to protecting your privacy. This policy explains what data synthux accesses, how it is processed, and what is stored.</p>
+
+    <h2>Data Collection</h2>
+
+    <h3>What synthux accesses</h3>
+    <p>When you initiate an analysis, synthux temporarily reads the following data from the active browser tab:</p>
+    <ul>
+      <li><strong>DOM structure:</strong> HTML headings, forms, links, buttons, navigation elements, and landmarks</li>
+      <li><strong>Accessibility attributes:</strong> ARIA roles, alt text, tab order, and focus indicators</li>
+      <li><strong>Page metadata:</strong> Title, description, language, viewport settings</li>
+      <li><strong>Visual metrics:</strong> Screenshot of the visible area (for report reference only)</li>
+      <li><strong>Performance indicators:</strong> DOM size, image count, script count</li>
+    </ul>
+
+    <h3>What synthux does NOT access</h3>
+    <ul>
+      <li>Passwords, form inputs, or autofill data</li>
+      <li>Cookies or session tokens</li>
+      <li>Browser history or bookmarks</li>
+      <li>Files on your computer</li>
+      <li>Data from other tabs or windows</li>
+      <li>Any data when analysis is not actively running</li>
+    </ul>
+
+    <h2>Data Processing</h2>
+    <p>All analysis is performed <strong>entirely on your local machine</strong> using <a href="https://ollama.com" target="_blank">Ollama</a>, an open-source local AI runtime:</p>
+    <ul>
+      <li>Page data is sent to Ollama running on <code>localhost:11434</code></li>
+      <li>The AI model processes the data locally</li>
+      <li>No data is transmitted to external servers, cloud services, or third parties</li>
+      <li>No API calls are made to remote AI services unless the user explicitly configures a BYOK (Bring Your Own Key) provider</li>
+    </ul>
+
+    <h2>Data Storage</h2>
+    <ul>
+      <li><strong>Analysis reports</strong> are saved in <code>chrome.storage.local</code> (browser-local storage)</li>
+      <li>Reports remain on your device and are never synced or uploaded</li>
+      <li><strong>Settings</strong> (endpoint, model, language) are stored in <code>chrome.storage.local</code></li>
+      <li>You can delete all stored data by removing the extension</li>
+      <li>Maximum 20 reports are retained; older reports are automatically removed</li>
+    </ul>
+
+    <h2>Data Sharing</h2>
+    <p>synthux does <strong>not</strong> share any data with:</p>
+    <ul>
+      <li>The extension developers</li>
+      <li>Third-party analytics services</li>
+      <li>Advertising networks</li>
+      <li>Any external server or API</li>
+    </ul>
+
+    <h2>Permissions Explained</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Permission</th>
+          <th>Purpose</th>
+          <th>Data Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>activeTab</code></td>
+          <td>Read the current page's DOM for analysis</td>
+          <td>Page content accessed only during active analysis</td>
+        </tr>
+        <tr>
+          <td><code>scripting</code></td>
+          <td>Inject the content script that extracts page data</td>
+          <td>Required for DOM reading; runs only when triggered</td>
+        </tr>
+        <tr>
+          <td><code>sidePanel</code></td>
+          <td>Display the analysis UI in Chrome's Side Panel</td>
+          <td>No data access</td>
+        </tr>
+        <tr>
+          <td><code>storage</code></td>
+          <td>Save settings and report history locally</td>
+          <td>Local-only, never synced</td>
+        </tr>
+        <tr>
+          <td><code>tabs</code></td>
+          <td>Read the current tab's URL and title for reports</td>
+          <td>URL/title only; no browsing history</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Host Permissions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Host</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>http://localhost:11434/*</code></td>
+          <td>Communicate with local Ollama AI server</td>
+        </tr>
+        <tr>
+          <td><code>&lt;all_urls&gt;</code></td>
+          <td>Enable analysis on any website the user visits</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Why <code>&lt;all_urls&gt;</code>?</strong> synthux needs to inject a content script to read page structure on any website the user chooses to analyze. This permission is only exercised when the user actively initiates an analysis. The extension does not run background scripts on pages or monitor browsing activity.</p>
+
+    <h2>Children's Privacy</h2>
+    <p>synthux is a developer/designer tool and is not directed at children under 13. We do not knowingly collect data from children.</p>
+
+    <h2>Open Source Transparency</h2>
+    <p>synthux is fully open source under the <a href="https://github.com/synthuxapp/synthux/blob/main/LICENSE" target="_blank">MIT License</a>. You can:</p>
+    <ul>
+      <li><strong>Inspect the source code</strong> at <a href="https://github.com/synthuxapp/synthux" target="_blank">github.com/synthuxapp/synthux</a></li>
+      <li><strong>Verify these claims</strong> by reviewing the codebase</li>
+      <li><strong>Build from source</strong> to ensure the extension matches the published code</li>
+    </ul>
+
+    <h2>Changes to This Policy</h2>
+    <p>We may update this privacy policy from time to time. Changes will be documented in the <a href="https://github.com/synthuxapp/synthux/blob/main/CHANGELOG.md" target="_blank">CHANGELOG</a> and reflected in the "Last updated" date above.</p>
+
+    <h2>Contact</h2>
+    <p>If you have questions about this privacy policy, please <a href="https://github.com/synthuxapp/synthux/issues" target="_blank">open an issue</a> on our GitHub repository.</p>
+
+    <p style="margin-top: 48px; font-size: 12px; color: var(--sx-text-tertiary);">© 2026 synthux. Open source under MIT License.</p>
+  </div>
+</body>
+</html>
