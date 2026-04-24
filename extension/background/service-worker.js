@@ -251,8 +251,18 @@ async function handleStartAnalysis(options) {
 
     return { success: true, report };
   } catch (err) {
-    console.error('[synthux] Analysis failed:', err);
     currentAnalysis = null;
+
+    if (err.message === 'Analysis cancelled') {
+      console.info('[synthux] Analysis cancelled by user');
+      broadcastToSidePanel({
+        type: 'ANALYSIS_CANCELLED',
+        payload: {}
+      });
+      return { cancelled: true };
+    }
+
+    console.error('[synthux] Analysis failed:', err);
 
     broadcastToSidePanel({
       type: 'ANALYSIS_ERROR',
