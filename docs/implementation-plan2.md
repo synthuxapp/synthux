@@ -8,8 +8,8 @@
 ## Phase 1 — Quick Wins (v1.5)
 > Mevcut mimariyi değiştirmeden, küçük eklemeler.
 
-### 0. 🏪 Chrome Web Store Yayını
-**Effort:** ~3 gün | **Etki:** Kritik
+### 0. ✅ Chrome Web Store Yayını — *İncelemede*
+**Effort:** ~3 gün | **Etki:** Kritik | **Gönderim:** 24 Nisan 2026
 
 Extension'ı Chrome Web Store'da yayınlamak — kullanıcıların "Load unpacked" yapmadan kurabilmesi.
 
