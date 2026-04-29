@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('https://raw.githubusercontent.com/synthuxapp/synthux/main/extension/manifest.json')
       .then(r => r.json())
       .then(manifest => {
-        versionBadge.innerHTML = `v${manifest.version} · <a href="https://github.com/synthuxapp/synthux/releases" target="_blank">Changelog</a>`;
+        versionBadge.innerHTML = `v${manifest.version} · <a href="https://github.com/synthuxapp/synthux" target="_blank">Open Source</a>`;
       })
       .catch(() => {});
   }

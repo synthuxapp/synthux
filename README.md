@@ -11,6 +11,7 @@
 
 
 <p align="center">
+  <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm">Chrome Web Store</a> ·
   <a href="https://synthux.app">Website</a> ·
   <a href="docs/getting-started.md">Documentation</a> ·
   <a href="docs/CONTRIBUTING.md">Contributing</a> ·
@@ -92,11 +93,17 @@ No local setup needed. Just enter your API key in Settings:
 
 ### Install Extension
 
+**Option 1 — Chrome Web Store** (recommended)
+
+➡️ [**Install from Chrome Web Store**](https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm)
+
+**Option 2 — From Source** (for development)
+
 1. Clone: `git clone https://github.com/synthuxapp/synthux.git`
-2. Open Chrome → `chrome://extensions`
-3. Enable **Developer mode**
-4. Click **Load unpacked** → Select the `extension/` folder
-5. Click the synthux icon → Side Panel opens
+2. Run `npm install && npm run build`
+3. Open Chrome → `chrome://extensions`
+4. Enable **Developer mode**
+5. Click **Load unpacked** → Select the `extension/` folder
 
 ### Analyze!
 
