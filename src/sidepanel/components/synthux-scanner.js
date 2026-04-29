@@ -518,11 +518,11 @@ export class SynthuxScanner extends LitElement {
       <div class="mode-selector">
         <button class="mode-btn ${this.mode === 'quick' ? 'active' : ''}" @click="${() => this._setMode('quick')}">
           <span class="mode-label">Quick</span>
-          <span class="mode-desc">4 heuristics · ${this._isCloudProvider ? '~5 min' : '~15 min'}</span>
+          <span class="mode-desc">4 heuristics · ${this._isCloudProvider ? '~5 min' : '~25-30 min'}</span>
         </button>
         <button class="mode-btn ${this.mode === 'deep' ? 'active' : ''}" @click="${() => this._setMode('deep')}">
           <span class="mode-label">Deep</span>
-          <span class="mode-desc">10 heuristics · ${this._isCloudProvider ? '~15 min' : '~40 min'}</span>
+          <span class="mode-desc">10 heuristics · ${this._isCloudProvider ? '~15 min' : '~60-75 min'}</span>
         </button>
       </div>
 
