@@ -9,7 +9,7 @@
  * - Monitors Ollama connection status
  */
 
-import { OllamaClient } from '../core/ai-client.js';
+import { AIClient } from '../core/ai-client.js';
 import { Analyzer } from '../core/analyzer.js';
 import { captureScreenshot } from '../core/screenshot.js';
 
@@ -39,22 +39,27 @@ async function checkOllamaConnection() {
   try {
     const settings = await chrome.storage.local.get({
       ollamaEndpoint: 'http://localhost:11434',
-      ollamaModel: 'gemma4:31b'
+      ollamaModel: 'gemma4:31b',
+      providerId: 'ollama',
+      apiKey: ''
     });
 
-    const client = new OllamaClient(settings.ollamaEndpoint);
+    const client = new AIClient(settings.ollamaEndpoint, {
+      provider: settings.providerId,
+      apiKey: settings.apiKey
+    });
     const isConnected = await client.ping();
 
     if (isConnected) {
       const models = await client.listModels();
-      ollamaStatus = { connected: true, models };
+      ollamaStatus = { connected: true, models, provider: settings.providerId };
 
       // Auto-fix: if saved model isn't available, switch to first available model
       const savedModel = settings.ollamaModel;
-      const modelExists = models.some(m => m.name === savedModel);
+      const modelExists = models.some(m => (m.id || m.name) === savedModel);
       if (!modelExists && models.length > 0) {
-        const newModel = models[0].name;
-        console.warn(`[synthux] Saved model "${savedModel}" not found. Switching to "${newModel}".`);
+        const newModel = models[0].id || models[0].name;
+        console.info(`[synthux] Saved model "${savedModel}" not found for ${settings.providerId}. Using "${newModel}".`);
         await chrome.storage.local.set({ ollamaModel: newModel });
       }
     } else {
@@ -113,7 +118,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         ollamaEndpoint: 'http://localhost:11434',
         ollamaModel: 'gemma4:31b',
         language: 'en',
-        analysisMode: 'deep'
+        analysisMode: 'deep',
+        providerId: 'ollama',
+        apiKey: ''
       }).then(sendResponse);
       return true;
 
@@ -172,7 +179,10 @@ async function handleStartAnalysis(options) {
     const settings = await chrome.storage.local.get({
       ollamaEndpoint: 'http://localhost:11434',
       ollamaModel: 'gemma4:31b',
-      analysisMode: 'deep'
+      analysisMode: 'deep',
+      providerId: 'ollama',
+      apiKey: '',
+      enableVision: true
     });
 
     const mode = options?.mode || settings.analysisMode;
@@ -184,6 +194,8 @@ async function handleStartAnalysis(options) {
       model: settings.ollamaModel,
       mode,
       profiles,
+      provider: settings.providerId,
+      apiKey: settings.apiKey,
       onProgress: (progress) => {
         currentAnalysis.progress = progress;
         // Broadcast progress to side panel
@@ -211,13 +223,15 @@ async function handleStartAnalysis(options) {
 
     const pageData = await scanPage(tab.id);
 
-    // Step 2: Capture screenshot
-    broadcastToSidePanel({
-      type: 'ANALYSIS_PROGRESS',
-      payload: { phase: 'scanning', percent: 15, message: 'Capturing screenshot...' }
-    });
-
-    const screenshot = await captureScreenshot(tab.id);
+    // Step 2: Capture screenshot (if vision enabled)
+    let screenshot = null;
+    if (settings.enableVision !== false) {
+      broadcastToSidePanel({
+        type: 'ANALYSIS_PROGRESS',
+        payload: { phase: 'scanning', percent: 15, message: 'Capturing full-page screenshot...' }
+      });
+      screenshot = await captureScreenshot(tab.id);
+    }
 
     // Step 3: Run AI analysis
     broadcastToSidePanel({
@@ -233,14 +247,16 @@ async function handleStartAnalysis(options) {
       timestamp: new Date().toISOString()
     });
 
-    // Step 4: Store report and add to history
+    // Step 4: Store report and add to history (strip screenshot to save storage)
+    const reportForStorage = { ...report };
+    delete reportForStorage.screenshot; // base64 images are too large for chrome.storage
     await chrome.storage.local.set({
-      lastReport: report,
+      lastReport: reportForStorage,
       lastReportTimestamp: Date.now()
     });
 
-    // Save to history (max 20 reports)
-    await addToHistory(report);
+    // Save to history (max 20 reports) — without screenshot
+    await addToHistory(reportForStorage);
 
     currentAnalysis = null;
 

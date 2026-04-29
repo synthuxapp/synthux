@@ -21,38 +21,37 @@
 
 ## ✨ What is synthux?
 
-synthux is an open-source Chrome extension that evaluates web pages using **synthetic user profiles** and **Nielsen's 10 Usability Heuristics** — powered by local AI (Ollama).
+synthux is an open-source Chrome extension that evaluates web pages using **synthetic user profiles** and **Nielsen's 10 Usability Heuristics** — powered by local or cloud AI.
 
-No data leaves your machine. No API costs. No signup.
+Run locally with Ollama for free, or use your own API key with Gemini, OpenAI, or Claude.
 
 ## 🚀 Features
 
-- 🤖 **Local AI Analysis** — Ollama, LM Studio, or any Ollama-compatible backend (Gemma 4, Qwen, Llama)
+- 🤖 **Multi-Provider AI** — Ollama (local), Google Gemini, OpenAI GPT-5, Anthropic Claude
+- 📸 **Vision Analysis** — Full-page screenshot capture for visual layout evaluation (v1.6)
 - 📋 **Nielsen's 10 Heuristics** — Industry-standard UX evaluation framework
 - 👥 **Synthetic User Profiles** — First-time visitor, power user, accessibility user
 - ♿ **Automated Accessibility Audit** — WCAG contrast, alt text, heading structure, landmarks
 - 📊 **Detailed Scoring** — 0-100 scores per heuristic with actionable recommendations
-- 🔓 **100% Private** — Your data never leaves your machine
-- 📝 **Markdown Export** — Copy reports to Notion, GitHub Issues, or any markdown editor
-- ⚡ **Quick & Deep Modes** — Fast 3-heuristic scan or full 10-heuristic analysis
+- 🔧 **Code Fixes** — Concrete before/after code suggestions for each issue
+- ⚡ **Quick Wins** — Priority matrix highlights high-impact, easy-fix issues
+- 💰 **Cost Tracking** — Real-time API cost estimation with verified pricing
+- 📄 **PDF & Markdown Export** — Professional reports for stakeholders
+- 🔓 **100% Private** — BYOK (Bring Your Own Key) — no middleman, no data collection
+- ⚡ **Quick & Deep Modes** — Fast 4-heuristic scan or full 10-heuristic analysis
 
 ## 📦 Quick Start
 
-### 1. Install a Local AI Backend
+### Option A — Local AI (Free)
 
-**Option A — [Ollama](https://ollama.com)** (recommended)
+**1. Install [Ollama](https://ollama.com)**
 
 ```bash
 # macOS
 brew install ollama
-# Or download from https://ollama.com
 ```
 
-**Option B — [LM Studio](https://lmstudio.ai)**
-
-Download and install. Start the local server — default endpoint is `http://localhost:1234`. No CORS configuration needed.
-
-### 2. Pull a Model (Ollama only)
+**2. Pull a model**
 
 ```bash
 ollama pull gemma4         # Gemma 4 — recommended
@@ -60,49 +59,64 @@ ollama pull qwen3.5        # Qwen 3.5 — alternative
 ollama pull llama4         # Llama 4 — alternative
 ```
 
-LM Studio users: download a model from the built-in catalog instead.
+**3. Enable CORS**
 
-### 3. Enable Chrome Extension Access (Ollama only)
-
-Ollama blocks browser extension requests by default. Run the command for your platform, then **restart Ollama**:
-
-**macOS (app)**
 ```bash
+# macOS
 launchctl setenv OLLAMA_ORIGINS "*"
-# Then quit and reopen Ollama from the menu bar
+# Then quit and reopen Ollama
 ```
 
-**Linux / Terminal**
 ```bash
-export OLLAMA_ORIGINS="*"
-ollama serve
+# Linux
+export OLLAMA_ORIGINS="*" && ollama serve
 ```
 
-**Windows (PowerShell)**
 ```powershell
+# Windows
 [Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")
 # Then restart Ollama
 ```
 
-> ⚠️ **Ollama updates may reset this setting.** If you get a CORS error after updating Ollama, repeat this step and restart.
+> ⚠️ **Ollama updates may reset this setting.** If you get a CORS error after updating, repeat and restart.
 
-LM Studio users can skip this step.
+### Option B — Cloud API (BYOK)
 
-### 4. Install Extension
+No local setup needed. Just enter your API key in Settings:
 
-- Clone this repo: `git clone https://github.com/synthuxapp/synthux.git`
-- Open Chrome → `chrome://extensions`
-- Enable "Developer mode"
-- Click "Load unpacked" → Select the `extension/` folder
-- Click the synthux icon → Side Panel opens
+| Provider | Models | Cost (Quick scan) |
+|:--|:--|:--|
+| **Google Gemini** | Gemini 2.5 Flash, Pro | ~$0.05 |
+| **OpenAI** | GPT-5.4, GPT-5.4-mini | ~$0.15 |
+| **Anthropic** | Claude Sonnet 4.6, Haiku 4.5 | ~$0.20 |
 
-### 5. Analyze!
+### Install Extension
+
+1. Clone: `git clone https://github.com/synthuxapp/synthux.git`
+2. Open Chrome → `chrome://extensions`
+3. Enable **Developer mode**
+4. Click **Load unpacked** → Select the `extension/` folder
+5. Click the synthux icon → Side Panel opens
+
+### Analyze!
 
 1. Navigate to any website
 2. Open synthux Side Panel
-3. Select profiles and analysis mode
+3. Select mode (Quick / Deep)
 4. Click **"Analyze Page"**
-5. View results and export as Markdown
+5. View results, filter issues, export as PDF or Markdown
+
+## 📸 Vision Analysis (v1.6)
+
+When enabled, synthux captures a full-page screenshot and sends it alongside the DOM data to vision-capable AI models. This enables:
+
+- **Visual hierarchy analysis** — Are headings and CTAs visually prominent?
+- **Color harmony** — Do colors work well together?
+- **Layout & spacing** — Is whitespace balanced and elements aligned?
+- **CTA visibility** — Are call-to-action buttons discoverable?
+- **Typography** — Is text readable at appropriate sizes?
+
+Toggle in **Settings → Analysis → Screenshot Analysis**.
 
 ## 🏗️ Architecture
 
@@ -113,13 +127,17 @@ Service Worker (Background)
     ↕ fetch
 Content Script (DOM Extraction) ←→ Active Page
     ↕
-Ollama (localhost:11434) / LM Studio (localhost:1234) ←→ Local AI Model
+AI Provider:
+  ├── Ollama (localhost:11434) — Local, free
+  ├── Gemini API — Cloud, BYOK
+  ├── OpenAI API — Cloud, BYOK
+  └── Claude API — Cloud, BYOK
 ```
 
 - **Content Script** extracts DOM structure, accessibility data, navigation, and content metrics
-- **Service Worker** orchestrates analysis: scanning → screenshot → AI evaluation → report
-- **Side Panel** (Lit Web Components) provides premium dark-themed UI for control and viewing
-- **Ollama** runs locally, processing heuristic evaluations with synthetic user personas
+- **Service Worker** orchestrates: scanning → screenshot → AI evaluation → cost calc → report
+- **Side Panel** (Lit Web Components) provides premium dark-themed UI
+- **Vision** captures full-page JPEG (scroll + stitch) for multimodal analysis
 
 ## 🧩 Project Structure
 
@@ -131,6 +149,13 @@ synthuxapp/
 │   ├── content/                # Page scanning content script
 │   ├── sidepanel/              # Side Panel UI (HTML + CSS + bundled JS)
 │   ├── core/                   # Business logic modules
+│   │   ├── analyzer.js         # Analysis orchestrator
+│   │   ├── ai-client.js        # AI provider abstraction
+│   │   ├── providers.js        # Ollama, OpenAI, Gemini, Claude adapters
+│   │   ├── heuristics.js       # Prompt builder + JSON parser
+│   │   ├── screenshot.js       # Full-page capture + stitch
+│   │   ├── cost-calculator.js  # Token cost estimation
+│   │   └── report-generator.js # Markdown + JSON report
 │   ├── rules/                  # Heuristic rule definitions (JSON)
 │   ├── assets/                 # Icons and logo
 │   └── _locales/               # i18n (en, tr)
@@ -163,11 +188,6 @@ npm run format
 
 After building, load the `extension/` folder in Chrome as an unpacked extension.
 
-## 🌍 Supported Languages
-
-- 🇬🇧 English (default)
-- 🇹🇷 Türkçe
-
 ## 🤝 Contributing
 
 We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
@@ -185,16 +205,21 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 
 ## 🔒 Security & Privacy
 
-- **Privacy-first:** All analysis runs locally via Ollama. No data leaves your machine. See our [Privacy Policy](PRIVACY.md).
-- **Security policy:** Found a vulnerability? Please report it responsibly. See [SECURITY.md](SECURITY.md).
-- **Automated security:** This project uses Dependabot, CodeQL, and OpenSSF Scorecard for continuous security monitoring.
+- **Privacy-first:** Local analysis via Ollama never leaves your machine. Cloud providers use your own API key directly — no middleman.
+- **BYOK model:** API keys are stored in Chrome's sandboxed local storage, never transmitted to third parties.
+- **Security policy:** Found a vulnerability? See [SECURITY.md](SECURITY.md).
+- **Automated security:** Dependabot, CodeQL, and OpenSSF Scorecard for continuous monitoring.
 - **No telemetry:** synthux does not collect usage data, analytics, or telemetry of any kind.
 
 ## 🔮 Roadmap
 
 - [x] MVP: Chrome Extension + Ollama + Nielsen 10 Heuristics
-- [ ] BYOK API Key support (OpenAI, Gemini, Claude)
-- [ ] PDF report export
+- [x] BYOK API Key support (OpenAI, Gemini, Claude)
+- [x] PDF report export
+- [x] Code fix suggestions (before/after)
+- [x] Priority matrix (Quick Wins, Critical, Easy Fixes)
+- [x] Vision analysis (screenshot + DOM)
+- [x] Real-time cost estimation
 - [ ] WCAG full audit module
 - [ ] Custom synthetic profiles
 - [ ] Competitor comparison (2 URLs side by side)

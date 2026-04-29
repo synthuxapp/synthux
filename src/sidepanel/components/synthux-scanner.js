@@ -406,6 +406,11 @@ export class SynthuxScanner extends LitElement {
     return url.startsWith('http://') || url.startsWith('https://');
   }
 
+  get _isCloudProvider() {
+    const provider = this.ollamaStatus?.provider || 'ollama';
+    return provider !== 'ollama';
+  }
+
   async _fetchPageInfo() {
     if (this.isAnalyzing) return;
     try {
@@ -497,7 +502,7 @@ export class SynthuxScanner extends LitElement {
         <div class="offline-notice">
           <span class="offline-dot"></span>
           <div>
-            <strong>Ollama not connected.</strong> Check Settings to configure your connection.
+            <strong>AI not connected.</strong> Check Settings to configure your AI provider.
           </div>
         </div>
       ` : ''}
@@ -513,11 +518,11 @@ export class SynthuxScanner extends LitElement {
       <div class="mode-selector">
         <button class="mode-btn ${this.mode === 'quick' ? 'active' : ''}" @click="${() => this._setMode('quick')}">
           <span class="mode-label">Quick</span>
-          <span class="mode-desc">3 heuristics · ~9 min</span>
+          <span class="mode-desc">4 heuristics · ${this._isCloudProvider ? '~5 min' : '~15 min'}</span>
         </button>
         <button class="mode-btn ${this.mode === 'deep' ? 'active' : ''}" @click="${() => this._setMode('deep')}">
           <span class="mode-label">Deep</span>
-          <span class="mode-desc">10 heuristics · ~20 min</span>
+          <span class="mode-desc">10 heuristics · ${this._isCloudProvider ? '~15 min' : '~40 min'}</span>
         </button>
       </div>
 

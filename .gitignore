@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Build artifacts (bundle is tracked for extension loading)
-# extension/sidepanel/app.bundle.js is tracked intentionally
+# Build artifacts (app.js + chunks/ are tracked for extension loading)
+# extension/sidepanel/app.js is tracked intentionally
 
 # OS files
 .DS_Store

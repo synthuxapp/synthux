@@ -6,6 +6,7 @@
  */
 
 import { LitElement, html, css } from 'lit';
+import { getProvider, getProviderList } from '../../../extension/core/providers.js';
 
 export class SynthuxSettings extends LitElement {
   static properties = {
@@ -17,6 +18,9 @@ export class SynthuxSettings extends LitElement {
     connectionState: { type: String },
     showSetupGuide: { type: Boolean },
     errorType: { type: String },
+    providerId: { type: String },
+    apiKey: { type: String },
+    enableVision: { type: Boolean },
     _saved: { type: Boolean, state: true }
   };
 
@@ -312,6 +316,37 @@ export class SynthuxSettings extends LitElement {
       color: var(--sx-warning, #eab308);
     }
 
+    /* ─── API Key ─────────────────────────── */
+    .field-input.api-key {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    .api-key-hint {
+      font-size: 10px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .api-key-hint a {
+      color: var(--sx-accent, #3b82f6);
+      text-decoration: none;
+    }
+
+    .provider-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: var(--sx-accent-dim, rgba(59,130,246,0.08));
+      color: var(--sx-accent, #3b82f6);
+      margin-left: 6px;
+    }
+
     /* ─── About ──────────────────────────────── */
     .about-card {
       text-align: center;
@@ -354,6 +389,44 @@ export class SynthuxSettings extends LitElement {
       color: var(--sx-text-tertiary, #8a8a96);
       margin-top: 10px;
     }
+
+    /* ─── Toggle Switch ──────────────────────── */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--sx-bg-tertiary, #202024);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 22px;
+      transition: all 200ms ease;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 2px;
+      bottom: 2px;
+      background: var(--sx-text-tertiary, #8a8a96);
+      border-radius: 50%;
+      transition: all 200ms ease;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--sx-accent-dim, rgba(59,130,246,0.15));
+      border-color: var(--sx-accent, #3b82f6);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(18px);
+      background: var(--sx-accent, #3b82f6);
+    }
   `;
 
   constructor() {
@@ -366,9 +439,16 @@ export class SynthuxSettings extends LitElement {
     this.connectionState = 'idle';
     this.showSetupGuide = false;
     this.errorType = '';
+    this.providerId = 'ollama';
+    this.apiKey = '';
+    this.enableVision = true;
     this._saved = false;
     this._copiedCmd = '';
     this._loadSettings();
+  }
+
+  get _isCloudProvider() {
+    return this.providerId !== 'ollama';
   }
 
   async _loadSettings() {
@@ -376,12 +456,26 @@ export class SynthuxSettings extends LitElement {
       const settings = await chrome.storage.local.get({
         ollamaEndpoint: 'http://localhost:11434',
         ollamaModel: 'gemma4:31b',
-        language: 'en'
+        language: 'en',
+        providerId: 'ollama',
+        apiKey: '',
+        apiKey_openai: '',
+        apiKey_gemini: '',
+        apiKey_claude: '',
+        enableVision: true
       });
       this.endpoint = settings.ollamaEndpoint;
       this.model = settings.ollamaModel;
       this.language = settings.language;
-      if (this.ollamaStatus?.connected) {
+      this.providerId = settings.providerId;
+      // Load provider-specific API key
+      this.apiKey = settings[`apiKey_${this.providerId}`] || settings.apiKey || '';
+      this.enableVision = settings.enableVision !== false; // default true
+
+      // Load provider-specific models
+      this._updateModelsForProvider();
+
+      if (this.ollamaStatus?.connected && this.providerId === 'ollama') {
         this.models = (this.ollamaStatus.models || []).map(m => m.name || m);
       }
     } catch { /* defaults */ }
@@ -390,33 +484,33 @@ export class SynthuxSettings extends LitElement {
   async _testConnection() {
     this.connectionState = 'testing';
     this.errorType = '';
+    const provider = getProvider(this.providerId);
+
     try {
-      const response = await fetch(`${this.endpoint}/api/tags`, { signal: AbortSignal.timeout(5000) });
-      if (response.ok) {
-        const data = await response.json();
-        this.models = (data.models || []).map(m => m.name);
+      const connected = await provider.ping(this.endpoint, this.apiKey);
+
+      if (connected) {
+        // Fetch models
+        const fetchedModels = await provider.fetchModels(this.endpoint, this.apiKey);
+        this.models = fetchedModels.map(m => m.id || m.name);
         this.connectionState = 'connected';
         this.errorType = '';
         if (this.models.length > 0 && !this.models.includes(this.model)) {
           this.model = this.models[0];
         }
         this.dispatchEvent(new CustomEvent('status-changed', {
-          detail: { connected: true, models: data.models || [] }
+          detail: { connected: true, models: fetchedModels, provider: this.providerId }
         }));
-      } else if (response.status === 403) {
-        this.connectionState = 'failed';
-        this.errorType = 'cors';
-        this.showSetupGuide = true;
-        this.dispatchEvent(new CustomEvent('status-changed', { detail: { connected: false, models: [] } }));
       } else {
         this.connectionState = 'failed';
-        this.errorType = 'unknown';
+        this.errorType = this._isCloudProvider ? 'auth' : 'offline';
+        if (!this._isCloudProvider) this.showSetupGuide = true;
         this.dispatchEvent(new CustomEvent('status-changed', { detail: { connected: false, models: [] } }));
       }
     } catch (err) {
       this.connectionState = 'failed';
-      this.errorType = err.name === 'TimeoutError' ? 'timeout' : 'offline';
-      this.showSetupGuide = true;
+      this.errorType = err.name === 'TimeoutError' ? 'timeout' : (this._isCloudProvider ? 'auth' : 'offline');
+      if (!this._isCloudProvider) this.showSetupGuide = true;
       this.dispatchEvent(new CustomEvent('status-changed', { detail: { connected: false, models: [] } }));
     }
     setTimeout(() => { 
@@ -424,15 +518,92 @@ export class SynthuxSettings extends LitElement {
     }, 3000);
   }
 
-  async _saveSettings() {
+  _updateModelsForProvider() {
+    const provider = getProvider(this.providerId);
+    if (this.providerId === 'ollama') {
+      this.endpoint = 'http://localhost:11434';
+      // Use live Ollama models if available, otherwise empty
+      if (this.ollamaStatus?.connected && this.ollamaStatus?.provider === 'ollama') {
+        this.models = (this.ollamaStatus.models || []).map(m => m.name || m.id || m);
+      } else {
+        this.models = [];
+      }
+      // Reset to first available or default
+      this.model = this.models[0] || 'gemma4:31b';
+    } else {
+      this.endpoint = provider.defaultEndpoint;
+      this.models = (provider.models || []).map(m => m.id);
+      if (this.models.length > 0 && !this.models.includes(this.model)) {
+        this.model = this.models[0];
+      }
+    }
+    this.connectionState = 'idle';
+  }
+
+  async _onProviderChange(e) {
+    this.providerId = e.target.value;
+    // Restore previously saved key for this provider
     try {
+      const stored = await chrome.storage.local.get(`apiKey_${this.providerId}`);
+      this.apiKey = stored[`apiKey_${this.providerId}`] || '';
+    } catch {
+      this.apiKey = '';
+    }
+    this._updateModelsForProvider();
+    this._autoSave();
+    // Auto-test if key exists
+    if (this.apiKey && this.providerId !== 'ollama') {
+      this._testConnection();
+    }
+  }
+
+  _onApiKeyBlur() {
+    if (this.apiKey && this.apiKey.length > 5) {
+      this._autoSave();
+      this._testConnection();
+    }
+  }
+
+  _onModelChange(e) {
+    this.model = e.target.value;
+    this._autoSave();
+  }
+
+  _onLanguageChange(lang) {
+    this.language = lang;
+    this._autoSave();
+  }
+
+  _onEndpointBlur() {
+    this._autoSave();
+  }
+
+  async _autoSave() {
+    try {
+      const saveData = {
+        ollamaEndpoint: this.endpoint,
+        ollamaModel: this.model,
+        language: this.language,
+        providerId: this.providerId,
+        apiKey: this.apiKey,
+        enableVision: this.enableVision
+      };
+      // Also save key per-provider so it persists across switches
+      if (this.providerId !== 'ollama' && this.apiKey) {
+        saveData[`apiKey_${this.providerId}`] = this.apiKey;
+      }
       await chrome.runtime.sendMessage({
         type: 'SAVE_SETTINGS',
-        payload: { ollamaEndpoint: this.endpoint, ollamaModel: this.model, language: this.language }
+        payload: saveData
       });
       this._saved = true;
-      setTimeout(() => { this._saved = false; }, 2000);
-    } catch (err) { console.error('[synthux] Failed to save:', err); }
+      clearTimeout(this._savedTimer);
+      this._savedTimer = setTimeout(() => { this._saved = false; }, 2000);
+    } catch (err) { console.error('[synthux] Auto-save failed:', err); }
+  }
+
+  async _saveSettings() {
+    await this._autoSave();
   }
 
   async _copyCommand(text, id) {
@@ -459,28 +630,56 @@ export class SynthuxSettings extends LitElement {
         if (this.errorType === 'cors') return 'Blocked (CORS)';
         if (this.errorType === 'timeout') return 'Timed out';
         if (this.errorType === 'offline') return 'Not reachable';
+        if (this.errorType === 'auth') return 'Invalid API key';
         return 'Connection failed';
       default: return 'Test Connection';
     }
   }
 
+  _getApiKeyHint() {
+    switch (this.providerId) {
+      case 'openai': return html`Get your key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>`;
+      case 'gemini': return html`Get your key at <a href="https://aistudio.google.com/apikey" target="_blank">AI Studio</a>`;
+      case 'claude': return html`Get your key at <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>`;
+      default: return '';
+    }
+  }
+
   render() {
+    const providers = getProviderList();
+
     return html`
       <div class="section">
-        <div class="section-header">Connection</div>
+        <div class="section-header">AI Provider</div>
         <div class="settings-card">
           <div class="field">
-            <label class="field-label">Endpoint</label>
-            <input class="field-input" type="url" .value="${this.endpoint}" @input="${(e) => this.endpoint = e.target.value}" placeholder="http://localhost:11434" />
+            <label class="field-label">Provider</label>
+            <select class="field-select" .value="${this.providerId}" @change="${this._onProviderChange}">
+              ${providers.map(p => html`<option value="${p.id}" ?selected="${p.id === this.providerId}">${p.icon} ${p.name}</option>`)}
+            </select>
           </div>
+
+          ${this._isCloudProvider ? html`
+            <div class="field">
+              <label class="field-label">API Key</label>
+              <input class="field-input api-key" type="password" .value="${this.apiKey}" @input="${(e) => this.apiKey = e.target.value}" @blur="${this._onApiKeyBlur}" placeholder="Enter API key..." />
+              <div class="api-key-hint">${this._getApiKeyHint()}</div>
+            </div>
+          ` : html`
+            <div class="field">
+              <label class="field-label">Endpoint</label>
+              <input class="field-input" type="url" .value="${this.endpoint}" @input="${(e) => this.endpoint = e.target.value}" @blur="${this._onEndpointBlur}" placeholder="http://localhost:11434" />
+            </div>
+          `}
+
           <div class="field">
             <label class="field-label">Model</label>
             ${this.models.length > 0 ? html`
-              <select class="field-select" .value="${this.model}" @change="${(e) => this.model = e.target.value}">
+              <select class="field-select" .value="${this.model}" @change="${this._onModelChange}">
                 ${this.models.map(m => html`<option value="${m}" ?selected="${m === this.model}">${m}</option>`)}
               </select>
             ` : html`
-              <input class="field-input" type="text" .value="${this.model}" @input="${(e) => this.model = e.target.value}" placeholder="gemma4:31b" />
+              <input class="field-input" type="text" .value="${this.model}" @input="${(e) => this.model = e.target.value}" @blur="${() => this._autoSave()}" placeholder="gemma4:31b" />
             `}
           </div>
           <button class="test-btn ${this.connectionState}" @click="${this._testConnection}" ?disabled="${this.connectionState === 'testing'}">${this._getTestLabel()}</button>
@@ -495,7 +694,16 @@ export class SynthuxSettings extends LitElement {
           </div>
         ` : ''}
 
-        ${this.errorType === 'offline' || this.errorType === 'timeout' ? html`
+        ${this.errorType === 'auth' ? html`
+          <div class="error-hint">
+            <span class="error-hint-dot"></span>
+            <div>
+              <strong>Invalid API key.</strong> Check your API key and try again.
+            </div>
+          </div>
+        ` : ''}
+
+        ${(this.errorType === 'offline' || this.errorType === 'timeout') && !this._isCloudProvider ? html`
           <div class="error-hint">
             <span class="error-hint-dot"></span>
             <div>
@@ -505,6 +713,7 @@ export class SynthuxSettings extends LitElement {
         ` : ''}
       </div>
 
+      ${!this._isCloudProvider ? html`
       <div class="setup-guide">
         <button class="setup-toggle" @click="${() => this.showSetupGuide = !this.showSetupGuide}">
           Ollama Setup Guide
@@ -562,22 +771,29 @@ ollama serve</code>
           </div>
         ` : ''}
       </div>
+      ` : ''}
 
       <div class="section">
-        <div class="section-header">Report Language</div>
-        <div class="lang-options" style="gap: 4px;">
-          <button class="lang-btn ${this.language === 'en' ? 'active' : ''}" @click="${() => this.language = 'en'}" style="padding: 6px 12px; font-size: 11px;">EN</button>
-          <button class="lang-btn ${this.language === 'tr' ? 'active' : ''}" @click="${() => this.language = 'tr'}" style="padding: 6px 12px; font-size: 11px;">TR</button>
+        <div class="section-header">Analysis</div>
+        <div class="settings-card" style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 13px; font-weight: 500; color: var(--sx-text-primary, #ededf0);">Screenshot Analysis</div>
+            <div style="font-size: 11px; color: var(--sx-text-tertiary, #8a8a96); margin-top: 2px;">Send page screenshot to AI for visual analysis</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" .checked="${this.enableVision}" @change="${(e) => { this.enableVision = e.target.checked; this._autoSave(); }}" />
+            <span class="toggle-slider"></span>
+          </label>
         </div>
       </div>
 
-      <button class="save-btn ${this._saved ? 'saved' : ''}" @click="${this._saveSettings}">${this._saved ? 'Saved' : 'Save Settings'}</button>
+      <div class="save-indicator ${this._saved ? 'visible' : ''}" style="text-align: center; padding: 8px; font-size: 11px; color: var(--sx-success, #22c55e); opacity: ${this._saved ? '1' : '0'}; transition: opacity 300ms ease;">✓ Auto-saved</div>
 
       <div class="section" style="margin-top: 32px;">
         <div class="section-header">About</div>
         <div class="settings-card about-card">
           <div class="about-name">synthux</div>
-          <div class="about-version">v1.0.0</div>
+          <div class="about-version">v1.5.0</div>
           <div class="about-desc">AI-powered UX audit. Open source. Privacy first.</div>
           <div class="about-links">
             <a class="about-link" href="https://synthux.app" target="_blank">Website</a>

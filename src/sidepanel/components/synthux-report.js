@@ -15,7 +15,9 @@ export class SynthuxReport extends LitElement {
     showHistory: { type: Boolean },
     activeProfile: { type: String },
     expandedHeuristic: { type: String },
-    copied: { type: Boolean }
+    copied: { type: Boolean },
+    activeFilter: { type: String },
+    copiedFix: { type: String }
   };
 
   static styles = css`
@@ -241,6 +243,148 @@ export class SynthuxReport extends LitElement {
       font-family: 'SF Mono', Monaco, monospace;
     }
 
+    /* ─── Code Fix Block ──────────────────────── */
+    .code-fix-block {
+      margin-top: 6px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+    }
+
+    .code-fix-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      background: rgba(59,130,246,0.08);
+      font-size: 10px;
+      color: var(--sx-accent, #3b82f6);
+    }
+
+    .code-fix-copy {
+      padding: 2px 6px;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      border-radius: 3px;
+      background: transparent;
+      color: var(--sx-text-tertiary, #8a8a96);
+      font-size: 9px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 150ms ease;
+    }
+
+    .code-fix-copy:hover {
+      color: var(--sx-accent, #3b82f6);
+      border-color: var(--sx-accent, #3b82f6);
+    }
+
+    .code-fix-copy.copied {
+      color: var(--sx-success, #22c55e);
+      border-color: rgba(34,197,94,0.3);
+    }
+
+    .code-fix-pre {
+      padding: 8px;
+      background: rgba(0,0,0,0.3);
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--sx-text-secondary, #b4b4bc);
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+    }
+
+    .code-fix-label {
+      font-size: 9px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      padding: 2px 8px 0;
+      background: rgba(0,0,0,0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .code-fix-label:first-of-type { padding-top: 4px; }
+
+    /* ─── Priority Badge ──────────────────────── */
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 600;
+      margin-left: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .priority-badge.quick-win {
+      background: rgba(234,179,8,0.12);
+      color: #eab308;
+    }
+
+    .priority-badge.high {
+      background: var(--sx-error-dim, rgba(239,68,68,0.10));
+      color: var(--sx-error, #ef4444);
+    }
+
+    .effort-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 9px;
+      margin-left: 3px;
+    }
+
+    .effort-tag.easy {
+      background: var(--sx-success-dim, rgba(34,197,94,0.10));
+      color: var(--sx-success, #22c55e);
+    }
+
+    .effort-tag.hard {
+      background: var(--sx-error-dim, rgba(239,68,68,0.10));
+      color: var(--sx-text-tertiary, #8a8a96);
+    }
+
+    /* ─── Filter Bar ─────────────────────────── */
+    .filter-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+    }
+
+    .filter-btn {
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      background: transparent;
+      color: var(--sx-text-tertiary, #8a8a96);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 150ms ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--sx-border-hover, rgba(255,255,255,0.10));
+      color: var(--sx-text-secondary, #b4b4bc);
+    }
+
+    .filter-btn.active {
+      background: var(--sx-accent-dim, rgba(59,130,246,0.08));
+      border-color: var(--sx-accent, #3b82f6);
+      color: var(--sx-accent, #3b82f6);
+    }
+
+    .filter-count {
+      font-weight: 700;
+    }
+
     /* ─── Positives ──────────────────────────── */
     .positive-item {
       display: flex;
@@ -357,6 +501,24 @@ export class SynthuxReport extends LitElement {
       border-color: rgba(34, 197, 94, 0.2);
     }
 
+    .export-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .export-actions .export-btn {
+      flex: 1;
+    }
+
+    .export-btn.pdf {
+      border-color: rgba(59,130,246,0.2);
+      color: var(--sx-accent, #3b82f6);
+    }
+
+    .export-btn.pdf:hover {
+      background: rgba(59,130,246,0.06);
+    }
+
     /* ─── History List ────────────────────────── */
     .history-list {
       display: flex;
@@ -462,6 +624,8 @@ export class SynthuxReport extends LitElement {
     this.activeProfile = '';
     this.expandedHeuristic = '';
     this.copied = false;
+    this.activeFilter = 'all';
+    this.copiedFix = '';
   }
 
   updated(changedProperties) {
@@ -498,6 +662,25 @@ export class SynthuxReport extends LitElement {
     setTimeout(() => { this.copied = false; }, 2000);
   }
 
+  async _downloadPDF() {
+    if (!this.report) return;
+    try {
+      // Lazy load PDF module to avoid ~800KB bundle bloat
+      const { generatePDF } = await import('../../../extension/core/pdf-export.js');
+      const blob = generatePDF(this.report);
+      const hostname = this._shortenUrl(this.report.url).replace(/[\/:.]/g, '-').replace(/-+/g, '-');
+      const filename = `synthux-report-${hostname}.pdf`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('[synthux] PDF generation failed:', err);
+    }
+  }
+
   render() {
     // History mode
     if (this.showHistory) {
@@ -522,6 +705,7 @@ export class SynthuxReport extends LitElement {
         <div class="report-meta">
           ${this._shortenUrl(r.url)}${r.model ? html`<br>${r.model} · ` : ''}${r.mode === 'deep' ? 'Deep' : 'Quick'}
           ${r.timestamp ? html` · ${new Date(r.timestamp).toLocaleString()}` : ''}
+          ${r.costSummary ? html`<br><span style="color: ${r.costSummary.isLocal ? 'var(--sx-success, #22c55e)' : 'var(--sx-warning, #eab308)'}">${r.costSummary.formatted}</span>` : ''}
         </div>
       </div>
 
@@ -535,25 +719,55 @@ export class SynthuxReport extends LitElement {
       </div>
 
       ${activeResults ? html`
+        ${this._renderFilterBar(activeResults)}
         <div class="section-header">Evaluations</div>
         <div class="heuristic-list">
-          ${(activeResults.evaluations || []).map(ev => html`
+          ${(activeResults.evaluations || []).map(ev => {
+            const filteredIssues = this._filterIssues(ev.issues || []);
+            // Hide cards with no matching issues when filter is active
+            if (this.activeFilter !== 'all' && filteredIssues.length === 0) return '';
+            // Auto-expand when filter is active
+            const isExpanded = this.activeFilter !== 'all' || this.expandedHeuristic === ev.heuristicId;
+            return html`
             <div class="heuristic-card">
               <div class="heuristic-header" @click="${() => this._toggleHeuristic(ev.heuristicId)}">
                 <span class="heuristic-score-badge ${this._getScoreClass(ev.score)}">${ev.score}</span>
                 <span class="heuristic-name">${ev.heuristicName?.en || ev.heuristicId}</span>
-                <span class="heuristic-chevron ${this.expandedHeuristic === ev.heuristicId ? 'open' : ''}">▶</span>
+                <span class="heuristic-chevron ${isExpanded ? 'open' : ''}">▶</span>
               </div>
-              ${this.expandedHeuristic === ev.heuristicId ? html`
+              ${isExpanded ? html`
                 <div class="heuristic-detail">
                   <div class="heuristic-summary">${ev.summary}</div>
-                  ${(ev.issues || []).map(issue => html`
+                  ${filteredIssues.map(issue => html`
                     <div class="issue-item">
                       <span class="severity-dot ${issue.severity}"></span>
                       <div class="issue-content">
-                        <div class="issue-desc">${issue.description}</div>
+                        <div class="issue-desc">
+                          ${issue.description}
+                          ${issue.isQuickWin ? html`<span class="priority-badge quick-win">⚡ Quick Win</span>` : 
+                            issue.priority === 'high' ? html`<span class="priority-badge high">HIGH</span>` : ''}
+                          ${issue.fixEffort === 'easy' ? html`<span class="effort-tag easy">Easy fix</span>` :
+                            issue.fixEffort === 'hard' ? html`<span class="effort-tag hard">Hard</span>` : ''}
+                        </div>
                         ${issue.element ? html`<div class="issue-element">${issue.element}</div>` : ''}
                         ${issue.recommendation ? html`<div class="issue-recommendation">${issue.recommendation}</div>` : ''}
+                        ${issue.codeFix ? html`
+                          <div class="code-fix-block">
+                            <div class="code-fix-header">
+                              <span>${issue.codeFix.language.toUpperCase()} fix</span>
+                              <button class="code-fix-copy ${this.copiedFix === issue.element ? 'copied' : ''}" 
+                                @click="${(e) => { e.stopPropagation(); this._copyFix(issue); }}">
+                                ${this.copiedFix === issue.element ? 'Copied ✓' : 'Copy'}
+                              </button>
+                            </div>
+                            ${issue.codeFix.before ? html`
+                              <div class="code-fix-label">Before</div>
+                              <pre class="code-fix-pre">${issue.codeFix.before}</pre>
+                            ` : ''}
+                            <div class="code-fix-label">After</div>
+                            <pre class="code-fix-pre">${issue.codeFix.after}</pre>
+                          </div>
+                        ` : ''}
                       </div>
                     </div>
                   `)}
@@ -566,7 +780,7 @@ export class SynthuxReport extends LitElement {
                 </div>
               ` : ''}
             </div>
-          `)}
+          `})}
         </div>
       ` : ''}
 
@@ -590,9 +804,14 @@ export class SynthuxReport extends LitElement {
       ` : ''}
 
       <div class="export-bar">
-        <button class="export-btn ${this.copied ? 'copied' : ''}" @click="${this._downloadMarkdown}">
-          ${this.copied ? 'Downloaded ✓' : 'Download design-change.md'}
-        </button>
+        <div class="export-actions">
+          <button class="export-btn ${this.copied ? 'copied' : ''}" @click="${this._downloadMarkdown}">
+            ${this.copied ? 'Downloaded ✓' : '↓ Markdown'}
+          </button>
+          <button class="export-btn pdf" @click="${this._downloadPDF}">
+            ↓ PDF
+          </button>
+        </div>
       </div>
     `;
   }
@@ -652,6 +871,60 @@ export class SynthuxReport extends LitElement {
       if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
       return d.toLocaleDateString();
     } catch { return ''; }
+  }
+
+  _copyFix(issue) {
+    if (!issue.codeFix) return;
+    const text = issue.codeFix.after;
+    navigator.clipboard.writeText(text).then(() => {
+      this.copiedFix = issue.element;
+      setTimeout(() => { this.copiedFix = ''; }, 2000);
+    });
+  }
+
+  _filterIssues(issues) {
+    if (this.activeFilter === 'all') return issues;
+    return issues.filter(issue => {
+      switch (this.activeFilter) {
+        case 'quick-wins': return issue.isQuickWin || (issue.priority === 'high' && issue.fixEffort === 'easy');
+        case 'critical': return issue.severity === 'critical';
+        case 'easy-fixes': return issue.fixEffort === 'easy';
+        default: return true;
+      }
+    });
+  }
+
+  _getFilterCounts(activeResults) {
+    const allIssues = (activeResults.evaluations || []).flatMap(ev => ev.issues || []);
+    return {
+      all: allIssues.length,
+      quickWins: allIssues.filter(i => i.isQuickWin || (i.priority === 'high' && i.fixEffort === 'easy')).length,
+      critical: allIssues.filter(i => i.severity === 'critical').length,
+      easyFixes: allIssues.filter(i => i.fixEffort === 'easy').length
+    };
+  }
+
+  _renderFilterBar(activeResults) {
+    const counts = this._getFilterCounts(activeResults);
+    if (counts.all === 0) return '';
+
+    const filters = [
+      { id: 'all', label: 'All', count: counts.all },
+      { id: 'quick-wins', label: '⚡ Quick Wins', count: counts.quickWins },
+      { id: 'critical', label: '🔴 Critical', count: counts.critical },
+      { id: 'easy-fixes', label: 'Easy Fixes', count: counts.easyFixes }
+    ];
+
+    return html`
+      <div class="filter-bar">
+        ${filters.map(f => html`
+          <button class="filter-btn ${this.activeFilter === f.id ? 'active' : ''}"
+            @click="${() => this.activeFilter = f.id}">
+            ${f.label} <span class="filter-count">${f.count}</span>
+          </button>
+        `)}
+      </div>
+    `;
   }
 }
 

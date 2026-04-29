@@ -46,8 +46,22 @@ export function selectHeuristics(rules, mode = 'deep', profileId = null) {
  * Build an evaluation prompt for a single heuristic + profile combination
  * Strict JSON-only output instructions to prevent comment leakage
  */
-export function buildPrompt(heuristic, profile, pageData) {
+export function buildPrompt(heuristic, profile, pageData, hasVision = false) {
   const pageSummary = summarizePageData(pageData);
+
+  const visionBlock = hasVision ? `
+## Visual Analysis (Screenshot Attached)
+A screenshot of the page is attached. Analyze BOTH the structural DOM data AND the visual screenshot together.
+Pay special attention to:
+- Visual hierarchy: Are headings, CTAs, and key content visually prominent?
+- Color harmony: Do colors work well together? Is contrast sufficient?
+- Layout & spacing: Is whitespace balanced? Are elements aligned properly?
+- CTA visibility: Are call-to-action buttons visually discoverable?
+- Typography: Is text readable? Are font sizes appropriate?
+- Visual clutter: Is the page too busy or well-organized?
+- Responsive feel: Does the layout look intentional and well-structured?
+Include visual observations in your issue descriptions when relevant (e.g., "The CTA button blends into the background").
+` : '';
 
   const prompt = `You are a UX evaluation expert. Evaluate the following web page against the heuristic "${heuristic.name.en}".
 
@@ -62,7 +76,7 @@ ${Object.entries(heuristic.scoring_rubric).map(([range, desc]) => `- ${range}: $
 
 ## Page Data
 ${pageSummary}
-
+${visionBlock}
 ## Your Perspective
 ${profile.systemPrompt}
 
@@ -72,6 +86,8 @@ ${profile.systemPrompt}
 3. Every field must have a meaningful, non-empty value. Do not leave any field blank.
 4. Each issue must have a clear description, the affected element, and a specific recommendation.
 5. Score must be a number between 0 and 100.
+6. For each issue, provide a concrete code fix showing the before/after code change. Use CSS, HTML, or JavaScript as appropriate.
+7. For each issue, rate the priority (impact on users: high/medium/low) and fix_effort (how hard it is to fix: easy/moderate/hard).${hasVision ? '\n8. When the screenshot reveals visual issues not apparent from DOM data alone, include them as findings.' : ''}
 
 ## Required JSON Structure
 {
@@ -80,9 +96,16 @@ ${profile.systemPrompt}
   "issues": [
     {
       "severity": "critical",
+      "priority": "high",
+      "fix_effort": "easy",
       "description": "Form inputs in the search section have no associated label elements",
       "element": "input.search-field",
-      "recommendation": "Add a visible label element or aria-label attribute to each form input"
+      "recommendation": "Add a visible label element or aria-label attribute to each form input",
+      "code_fix": {
+        "language": "html",
+        "before": "<input type=\\"text\\" class=\\"search-field\\" placeholder=\\"Search...\\">",
+        "after": "<label for=\\"search\\">Search</label>\\n<input type=\\"text\\" id=\\"search\\" class=\\"search-field\\" placeholder=\\"Search...\\">"
+      }
     }
   ],
   "positives": ["Clear navigation structure", "Good use of breadcrumbs"],
@@ -112,13 +135,23 @@ export function parseEvaluation(response) {
 
     // Validate and normalize — filter out invalid/empty issues
     const validIssues = (data.issues || [])
-      .map(issue => ({
-        severity: ['critical', 'moderate', 'minor'].includes(issue.severity) 
-          ? issue.severity : 'moderate',
-        description: String(issue.description || '').trim(),
-        element: String(issue.element || '').trim(),
-        recommendation: String(issue.recommendation || '').trim()
-      }))
+      .map(issue => {
+        const priority = ['high', 'medium', 'low'].includes(issue.priority)
+          ? issue.priority : 'medium';
+        const fixEffort = ['easy', 'moderate', 'hard'].includes(issue.fix_effort)
+          ? issue.fix_effort : 'moderate';
+        return {
+          severity: ['critical', 'moderate', 'minor'].includes(issue.severity) 
+            ? issue.severity : 'moderate',
+          priority,
+          fixEffort,
+          isQuickWin: priority === 'high' && fixEffort === 'easy',
+          description: String(issue.description || '').trim(),
+          element: String(issue.element || '').trim(),
+          recommendation: String(issue.recommendation || '').trim(),
+          codeFix: parseCodeFix(issue.code_fix)
+        };
+      })
       .filter(issue => {
         if (!issue.description || issue.description.length < 5) return false;
         if (isPlaceholder(issue.description)) return false;
@@ -230,16 +263,44 @@ function tryParseJSON(text) {
     } catch {}
   }
 
-  // Strategy 5: Extract score at minimum
+  // Strategy 5: Extract fields individually from malformed JSON
   const scoreMatch = text.match(/"score"\s*:\s*(\d+)/);
   const summaryMatch = text.match(/"summary"\s*:\s*"([^"]+)"/);
+  const justificationMatch = text.match(/"score_justification"\s*:\s*"([^"]+)"/);
   if (scoreMatch) {
+    // Try to extract issues array even if full parse failed
+    let issues = [];
+    const issuesBlockMatch = text.match(/"issues"\s*:\s*\[([\s\S]*?)\]/);
+    if (issuesBlockMatch) {
+      try {
+        const cleaned = sanitizeLLMOutput(`[${issuesBlockMatch[1]}]`);
+        issues = JSON.parse(cleaned);
+      } catch {
+        // Extract individual issue objects
+        const issueMatches = issuesBlockMatch[1].match(/\{[^{}]*\}/g);
+        if (issueMatches) {
+          issues = issueMatches.map(m => {
+            try { return JSON.parse(sanitizeLLMOutput(m)); } catch { return null; }
+          }).filter(Boolean);
+        }
+      }
+    }
+
+    // Try to extract positives
+    let positives = [];
+    const positivesMatch = text.match(/"positives"\s*:\s*\[([\s\S]*?)\]/);
+    if (positivesMatch) {
+      try {
+        positives = JSON.parse(`[${positivesMatch[1]}]`);
+      } catch {}
+    }
+
     return {
       score: parseInt(scoreMatch[1]),
-      summary: summaryMatch ? summaryMatch[1] : 'Partial parse',
-      issues: [],
-      positives: [],
-      score_justification: 'Extracted from malformed response'
+      summary: summaryMatch ? summaryMatch[1] : 'Evaluation completed (recovered)',
+      issues,
+      positives,
+      score_justification: justificationMatch ? justificationMatch[1] : 'Recovered from malformed response'
     };
   }
 
@@ -303,6 +364,27 @@ function isPlaceholder(str) {
   ];
   
   return placeholders.includes(s);
+}
+
+/**
+ * Parse and validate a code_fix object from AI output
+ */
+function parseCodeFix(codeFix) {
+  if (!codeFix || typeof codeFix !== 'object') return null;
+
+  const language = String(codeFix.language || 'css').toLowerCase();
+  const before = String(codeFix.before || '').trim();
+  const after = String(codeFix.after || '').trim();
+
+  // Need at least the 'after' code to be useful
+  if (!after || after.length < 3 || isPlaceholder(after)) return null;
+
+  const validLangs = ['css', 'html', 'javascript', 'js', 'jsx', 'scss'];
+  return {
+    language: validLangs.includes(language) ? language : 'css',
+    before: before || '',
+    after
+  };
 }
 
 // ─── Data Helpers ────────────────────────────────────────────────────────────

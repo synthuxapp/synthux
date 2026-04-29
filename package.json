@@ -41,6 +41,7 @@
     "web-ext": "^8.4.0"
   },
   "dependencies": {
+    "jspdf": "^4.2.1",
     "lit": "^3.2.0"
   }
 }

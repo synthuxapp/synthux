@@ -188,13 +188,8 @@ export class SynthuxApp extends LitElement {
 
   async _checkOllamaStatus() {
     try {
-      const response = await fetch('http://localhost:11434/api/tags', { signal: AbortSignal.timeout(3000) });
-      if (response.ok) {
-        const data = await response.json();
-        this.ollamaStatus = { connected: true, models: data.models || [] };
-      } else {
-        this.ollamaStatus = { connected: false, models: [] };
-      }
+      const status = await chrome.runtime.sendMessage({ type: 'GET_OLLAMA_STATUS' });
+      this.ollamaStatus = status || { connected: false, models: [] };
     } catch {
       this.ollamaStatus = { connected: false, models: [] };
     }

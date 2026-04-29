@@ -17,25 +17,30 @@ export function generateReport(data) {
     timestamp,
     model,
     mode,
-    overallScore,
-    profileResults,
-    accessibilityResults,
-    issues,
-    screenshot
-  } = data;
-
-  return {
-    version: '1.0.0',
-    url,
-    title,
-    timestamp,
-    model,
-    mode,
+    provider,
     overallScore,
     profileResults,
     accessibilityResults,
     issues,
     screenshot,
+    costSummary
+  } = data;
+
+  return {
+    version: '1.6.0',
+    url,
+    title,
+    timestamp,
+    model,
+    mode,
+    provider: provider || 'ollama',
+    overallScore,
+    profileResults,
+    accessibilityResults,
+    issues,
+    // screenshot intentionally excluded — too large for storage, used only during AI analysis
+    visionEnabled: !!screenshot,
+    costSummary: costSummary || null,
     markdown: generateMarkdown(data),
     json: generateJSON(data)
   };
@@ -67,8 +72,11 @@ function generateMarkdown(data) {
   lines.push(`| **URL** | ${url} |`);
   lines.push(`| **Page Title** | ${title || 'N/A'} |`);
   lines.push(`| **Date** | ${new Date(timestamp).toLocaleString()} |`);
-  lines.push(`| **AI Model** | ${model} (Ollama) |`);
+  lines.push(`| **AI Model** | ${model} (${data.provider || 'Ollama'}) |`);
   lines.push(`| **Mode** | ${mode === 'deep' ? '🔬 Deep (10 heuristics)' : '⚡ Quick (3 heuristics)'} |`);
+  if (data.costSummary) {
+    lines.push(`| **Cost** | ${data.costSummary.formatted} |`);
+  }
   lines.push('');
 
   // Overall Score
@@ -101,9 +109,25 @@ function generateMarkdown(data) {
       lines.push('**Issues:**');
       profileIssues.forEach(issue => {
         const icon = issue.severity === 'critical' ? '🔴' : issue.severity === 'moderate' ? '🟡' : '🟢';
-        lines.push(`- ${icon} **[${issue.severity}]** ${issue.description}`);
+        const priorityTag = issue.priority === 'high' ? ' **[HIGH]**' : issue.priority === 'low' ? ' [low]' : '';
+        const effortTag = issue.fixEffort === 'easy' ? ' ⚡' : issue.fixEffort === 'hard' ? ' 🔧' : '';
+        const qwTag = (issue.priority === 'high' && issue.fixEffort === 'easy') ? ' 🏆 Quick Win' : '';
+        lines.push(`- ${icon} **[${issue.severity}]**${priorityTag}${effortTag}${qwTag} ${issue.description}`);
         lines.push(`  - Element: ${issue.element}`);
         lines.push(`  - 💡 Recommendation: ${issue.recommendation}`);
+        if (issue.codeFix) {
+          lines.push(`  - **Fix (${issue.codeFix.language}):**`);
+          if (issue.codeFix.before) {
+            lines.push(`    \`\`\`${issue.codeFix.language}`);
+            lines.push(`    /* Before */`);
+            lines.push(`    ${issue.codeFix.before}`);
+            lines.push(`    \`\`\``);
+          }
+          lines.push(`    \`\`\`${issue.codeFix.language}`);
+          lines.push(`    /* After */`);
+          lines.push(`    ${issue.codeFix.after}`);
+          lines.push(`    \`\`\``);
+        }
       });
       lines.push('');
     }
@@ -139,6 +163,22 @@ function generateMarkdown(data) {
   if (issues.length > 0) {
     lines.push('---');
     lines.push('');
+
+    // Quick Wins section
+    const quickWins = issues.filter(i => i.isQuickWin);
+    if (quickWins.length > 0) {
+      lines.push('## ⚡ Quick Wins — High Impact, Easy Fix');
+      lines.push('');
+      quickWins.forEach(issue => {
+        lines.push(`1. **${issue.description}**`);
+        lines.push(`   - ${issue.recommendation}`);
+        if (issue.codeFix) {
+          lines.push(`   - Fix (${issue.codeFix.language}): \`${issue.codeFix.after}\``);
+        }
+      });
+      lines.push('');
+    }
+
     lines.push('## 🎯 Priority Issues');
     lines.push('');
     
@@ -220,8 +260,12 @@ function generateJSON(data) {
     },
     topIssues: data.issues.slice(0, 10).map(i => ({
       severity: i.severity,
+      priority: i.priority,
+      fixEffort: i.fixEffort,
+      isQuickWin: i.isQuickWin || false,
       description: i.description,
-      recommendation: i.recommendation
+      recommendation: i.recommendation,
+      codeFix: i.codeFix || null
     }))
   };
 }

@@ -5,9 +5,11 @@ const isWatch = process.argv.includes('--watch');
 const buildOptions = {
   entryPoints: ['src/sidepanel/app.js'],
   bundle: true,
-  outfile: 'extension/sidepanel/app.bundle.js',
+  outdir: 'extension/sidepanel',
   format: 'esm',
   target: 'chrome120',
+  splitting: true,
+  chunkNames: 'chunks/[name]-[hash]',
   minify: !isWatch,
   sourcemap: isWatch ? 'inline' : false,
   logLevel: 'info',
