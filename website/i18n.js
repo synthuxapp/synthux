@@ -6,7 +6,7 @@ const translations = {
     navPrivacy: 'Privacy',
     heroSubtitle: 'Open source Chrome extension that evaluates web pages using synthetic user profiles, Nielsen\'s 10 Usability Heuristics, and visual analysis — powered by local AI or your own API key.',
     heroCtaGithub: 'View on GitHub',
-    heroCtaInstall: 'Install Extension',
+    heroCtaInstall: 'Add to Chrome',
     heroBadgePrivacy: '100% Private',
     heroBadgeOpenSource: 'Open Source',
     heroBadgeFree: 'Free Forever',
@@ -69,6 +69,7 @@ const translations = {
     compareDeep: 'Deep Scan',
     compareCost: 'Cost',
     comparePrivacy: 'Privacy',
+    compareSetup: 'Setup',
   },
   tr: {
     heroTagline: 'Tarayıcınızda yapay zeka destekli UX denetimi.',
@@ -77,7 +78,7 @@ const translations = {
     navPrivacy: 'Gizlilik',
     heroSubtitle: 'Sentetik kullanıcı profilleri, Nielsen\'in 10 Sezgiseli ve görsel analiz ile web sayfalarını değerlendiren açık kaynak Chrome uzantısı — yerel veya bulut AI.',
     heroCtaGithub: 'GitHub\'da İncele',
-    heroCtaInstall: 'Uzantıyı Yükle',
+    heroCtaInstall: 'Chrome\'a Ekle',
     heroBadgePrivacy: '100% Gizli',
     heroBadgeOpenSource: 'Açık Kaynak',
     heroBadgeFree: 'Tamamen Ücretsiz',
@@ -140,6 +141,7 @@ const translations = {
     compareDeep: 'Derin Tarama',
     compareCost: 'Maliyet',
     comparePrivacy: 'Gizlilik',
+    compareSetup: 'Kurulum',
   }
 };
 

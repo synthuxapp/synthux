@@ -36,4 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
         : 'rgba(10, 10, 12, 0.8)';
     }, { passive: true });
   }
+
+  // Fetch latest version from GitHub manifest.json
+  const versionBadge = document.getElementById('version-badge');
+  if (versionBadge) {
+    fetch('https://raw.githubusercontent.com/synthuxapp/synthux/main/extension/manifest.json')
+      .then(r => r.json())
+      .then(manifest => {
+        versionBadge.innerHTML = `v${manifest.version} · <a href="https://github.com/synthuxapp/synthux/releases" target="_blank">Changelog</a>`;
+      })
+      .catch(() => {});
+  }
 });
