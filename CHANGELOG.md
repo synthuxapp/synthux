@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-04-29
+
+### Added
+- **Vision Analysis:** Full-page screenshot capture (3-chunk stitch) for multimodal AI evaluation of visual hierarchy, color harmony, CTA visibility, and layout balance
+- **Multi-Provider AI:** Support for Google Gemini, OpenAI, and Anthropic Claude alongside Ollama — BYOK (Bring Your Own Key) model
+- **Cost Calculator:** Real-time token usage tracking and cost estimation with verified April 2026 pricing for all providers
+- **PDF Export:** Professional PDF report generation with scores, code fixes, priority matrix, and cost summary
+- **Markdown Export:** Downloadable `.md` reports for developer workflows
+- **Code Fix Suggestions:** Concrete before/after HTML/CSS snippets for each identified issue
+- **Quick Win indicators:** Issues tagged as quick wins for easy prioritization
+- **GPT-5.5 pricing support** in cost calculator
+- **Vision-aware heuristic prompts:** AI evaluates both DOM structure and visual screenshots simultaneously
+- **Chrome Web Store listing:** Extension published at `cgldigellmojaejmnhjhpbfccncbmnhm`
+
+### Changed
+- **Hero CTA:** Primary button now links to Chrome Web Store ("Add to Chrome"), GitHub moved to secondary
+- **Website comparison section:** New unified table layout (Local vs Cloud) showing speed, cost, privacy, and setup differences
+- **Website version badge:** Auto-fetches latest version from GitHub `manifest.json`
+- **How It Works:** Step 2 now links to Chrome Web Store + GitHub
+- **README:** Added Chrome Web Store link to header nav and install section (Option 1: Store, Option 2: Source)
+- **Time estimates:** Updated to real benchmarks — Quick ~25-30 min (local) / ~5 min (cloud), Deep ~60-75 min (local) / ~15 min (cloud)
+- **Gemini config:** `thinkingBudget: 0` for 60-80% output token reduction without quality loss
+- **Max tokens:** Increased to 4096 for all providers for detailed reports
+- **Heuristic count label:** Fixed "3 heuristics" → "4 heuristics" per profile in Quick mode
+- **Features grid:** Expanded from 6 to 8 cards (added Vision Analysis and PDF Export)
+- **Firebase cache:** CSS/JS reduced from immutable/1yr to 1hr TTL + cache-busting query params
+
+### Fixed
+- **Gemini thinking tokens:** `thoughtsTokenCount` now correctly aggregated into output tokens for accurate billing
+- **Gemini pricing:** Corrected to $0.30/$2.50 per 1M tokens (input/output)
+- **Claude pricing:** Fixed Opus ($5/$25) and Haiku ($1/$5) rates
+- **Report filters:** Quick Wins, Critical Issues, and Easy Fixes now correctly filter and expand cards
+- **Storage quota overflow:** Screenshots stripped before persisting analysis results to `chrome.storage.local`
+- **Screenshot rate limiting:** 600ms delay between captures to avoid `MAX_CAPTURE_VISIBLE_TAB_CALLS_PER_SECOND`
+- **JSON parser:** Added partial parse recovery for truncated AI responses
+- **Cost debug logging:** Console now shows granular breakdown (input + output + thinking tokens) per scan
+
+### Removed
+- **Report Language setting:** Removed non-functional EN/TR language toggle from Settings (was never wired to analysis pipeline)
+
+---
+
+## [1.5.0] - 2026-04-24
+
+### Added
+- **Provider abstraction layer:** `providers.js` with unified interface for Ollama, Gemini, OpenAI, and Claude
+- **API key management:** Secure storage of provider API keys in `chrome.storage.local`
+- **Settings UI:** Provider selector, API key inputs, model selection, and vision toggle in Settings panel
+- **ESBuild bundler:** Code splitting with dynamic imports for PDF/html2canvas chunks
+- **Accessibility audit module:** Automated WCAG checks for contrast, alt text, heading structure
+
+### Changed
+- **Architecture:** Monolithic `app.bundle.js` → ESBuild with chunk splitting (`app.js` + `chunks/`)
+- **Manifest:** Updated `sidepanel.default_path` from `app.bundle.js` to chunked `app.js`
+- **Chrome Web Store submission:** Resolved host permissions compliance (`activeTab` instead of `<all_urls>`)
+
+---
+
 ## [1.4.1] - 2026-04-23
 
 ### Added
