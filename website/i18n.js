@@ -63,6 +63,12 @@ const translations = {
     footerContributing: 'Contributing',
     footerCopyright: '© 2026 synthux. Open source under MIT License.',
     langToggle: 'TR',
+    compareTitle: 'Local vs Cloud',
+    compareSubtitle: 'Choose the setup that fits your workflow.',
+    compareQuick: 'Quick Scan',
+    compareDeep: 'Deep Scan',
+    compareCost: 'Cost',
+    comparePrivacy: 'Privacy',
   },
   tr: {
     heroTagline: 'Tarayıcınızda yapay zeka destekli UX denetimi.',
@@ -128,6 +134,12 @@ const translations = {
     footerContributing: 'Katkıda Bulunma',
     footerCopyright: '© 2026 synthux. MIT Lisansı altında açık kaynak.',
     langToggle: 'EN',
+    compareTitle: 'Yerel vs Bulut',
+    compareSubtitle: 'İş akışınıza uygun kurulumu seçin.',
+    compareQuick: 'Hızlı Tarama',
+    compareDeep: 'Derin Tarama',
+    compareCost: 'Maliyet',
+    comparePrivacy: 'Gizlilik',
   }
 };
 
