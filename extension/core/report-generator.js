@@ -73,7 +73,8 @@ function generateMarkdown(data) {
   lines.push(`| **Page Title** | ${title || 'N/A'} |`);
   lines.push(`| **Date** | ${new Date(timestamp).toLocaleString()} |`);
   lines.push(`| **AI Model** | ${model} (${data.provider || 'Ollama'}) |`);
-  lines.push(`| **Mode** | ${mode === 'deep' ? '🔬 Deep (10 heuristics)' : '⚡ Quick (3 heuristics)'} |`);
+  const modeLabel = mode === 'deep' ? '🔬 Deep (10 heuristics)' : mode === 'custom' ? '🎯 Custom' : '⚡ Quick (3 heuristics)';
+  lines.push(`| **Mode** | ${modeLabel} |`);
   if (data.costSummary) {
     lines.push(`| **Cost** | ${data.costSummary.formatted} |`);
   }
@@ -89,6 +90,19 @@ function generateMarkdown(data) {
     lines.push('');
     lines.push(`### ${pr.profile.icon} ${pr.profile.name.en} — ${pr.score}/100`);
     lines.push('');
+
+    // Custom profile details
+    if (pr.profile.custom) {
+      const details = [];
+      if (pr.profile.ageRange) details.push(`**Age:** ${pr.profile.ageRange}`);
+      if (pr.profile.techLevel) details.push(`**Tech Level:** ${pr.profile.techLevel}`);
+      if (pr.profile.disabilities?.length) details.push(`**Disabilities:** ${pr.profile.disabilities.join(', ')}`);
+      if (pr.profile.goal) details.push(`**Goal:** ${pr.profile.goal}`);
+      if (details.length > 0) {
+        lines.push(`> 👤 **Custom Profile** — ${details.join(' · ')}`);
+        lines.push('');
+      }
+    }
 
     // Heuristic scores table
     lines.push('| Heuristic | Score | Status |');
@@ -157,6 +171,30 @@ function generateMarkdown(data) {
       lines.push(`| ${check.name} | ${icon} ${check.status} | ${check.message} |`);
     });
     lines.push('');
+
+    // WCAG violations from axe-core
+    if (accessibilityResults.wcagViolations?.length > 0) {
+      lines.push(`### WCAG Violations (axe-core) — ${accessibilityResults.wcagViolations.length} issue${accessibilityResults.wcagViolations.length > 1 ? 's' : ''}`);
+      lines.push('');
+      accessibilityResults.wcagViolations.forEach(v => {
+        const impactIcon = v.impact === 'critical' ? '🔴' : v.impact === 'serious' ? '🟡' : v.impact === 'moderate' ? '🔵' : '⚪';
+        lines.push(`- ${impactIcon} **[${v.impact}]** ${v.help}`);
+        lines.push(`  - ${v.description}`);
+        if (v.tags?.length) lines.push(`  - WCAG: ${v.tags.join(', ')}`);
+        if (v.nodes?.length) {
+          v.nodes.slice(0, 3).forEach(n => {
+            lines.push(`  - Element: \`${n.target || n.html}\``);
+          });
+        }
+        if (v.helpUrl) lines.push(`  - [Learn more](${v.helpUrl})`);
+      });
+      lines.push('');
+    }
+
+    if (accessibilityResults.wcagPasses) {
+      lines.push(`> ✓ ${accessibilityResults.wcagPasses} WCAG rules passed`);
+      lines.push('');
+    }
   }
 
   // Priority Matrix (top issues)

@@ -29,8 +29,19 @@ if (window.__synthux_injected__) {
       } catch (err) {
         sendResponse({ error: err.message });
       }
+      return false; // synchronous response
     }
-    return false; // synchronous response
+
+    if (message.type === 'RUN_AXE_AUDIT') {
+      runAxeAudit(message.options || {}).then(result => {
+        sendResponse(result);
+      }).catch(err => {
+        sendResponse({ error: err.message });
+      });
+      return true; // async response
+    }
+
+    return false;
   });
 }
 
@@ -562,5 +573,63 @@ function checkFocusIndicators() {
     note: removesOutlines 
       ? 'Warning: CSS rules detected that remove focus outlines'
       : 'No obvious focus indicator removal detected'
+  };
+}
+
+// ─── axe-core WCAG Audit ─────────────────────────────────────────────────────
+
+async function runAxeAudit(options = {}) {
+  // Inject axe-core if not already loaded
+  if (typeof window.axe === 'undefined') {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = chrome.runtime.getURL('content/axe.min.js');
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load axe-core'));
+      document.head.appendChild(script);
+    });
+  }
+
+  // Wait for axe to be available
+  if (typeof window.axe === 'undefined') {
+    throw new Error('axe-core not available after injection');
+  }
+
+  // Run axe audit
+  const axeOptions = {
+    runOnly: {
+      type: 'tag',
+      values: options.tags || ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice']
+    },
+    resultTypes: ['violations', 'passes', 'incomplete']
+  };
+
+  const results = await window.axe.run(document, axeOptions);
+
+  // Return structured results
+  return {
+    violations: (results.violations || []).map(v => ({
+      id: v.id,
+      impact: v.impact, // critical, serious, moderate, minor
+      description: v.description,
+      help: v.help,
+      helpUrl: v.helpUrl,
+      tags: v.tags.filter(t => t.startsWith('wcag')),
+      nodes: v.nodes.slice(0, 10).map(n => ({
+        html: n.html?.substring(0, 200),
+        target: n.target?.[0] || '',
+        failureSummary: n.failureSummary?.substring(0, 300)
+      }))
+    })),
+    passes: results.passes?.length || 0,
+    incomplete: (results.incomplete || []).map(v => ({
+      id: v.id,
+      impact: v.impact,
+      description: v.description,
+      help: v.help,
+      nodes: v.nodes?.length || 0
+    })),
+    timestamp: Date.now(),
+    url: window.location.href
   };
 }

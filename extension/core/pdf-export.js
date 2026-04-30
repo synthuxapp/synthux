@@ -123,7 +123,7 @@ export function generatePDF(report) {
     `URL: ${report.url || 'N/A'}`,
     `Page: ${sanitize(report.title) || 'Untitled'}`,
     `Date: ${report.timestamp ? new Date(report.timestamp).toLocaleString() : 'N/A'}`,
-    `Model: ${report.model || 'N/A'} - Mode: ${report.mode === 'deep' ? 'Deep (10 heuristics)' : 'Quick (3 heuristics)'}`,
+    `Model: ${report.model || 'N/A'} - Mode: ${report.mode === 'deep' ? 'Deep (10 heuristics)' : report.mode === 'custom' ? 'Custom' : 'Quick (3 heuristics)'}`,
   ];
   metaLines.forEach(line => {
     const wrapped = doc.splitTextToSize(line, metaMaxW);
@@ -167,6 +167,24 @@ export function generatePDF(report) {
     doc.setTextColor(...COLORS.white);
     doc.text(`${profileName} - ${pr.score}/100`, margin, y);
     y += 7;
+
+    // Custom profile details subtitle
+    if (pr.profile.custom) {
+      const parts = [];
+      if (pr.profile.ageRange) parts.push(`Age: ${pr.profile.ageRange}`);
+      if (pr.profile.techLevel) parts.push(`Tech: ${pr.profile.techLevel}`);
+      if (pr.profile.disabilities?.length) parts.push(`Needs: ${pr.profile.disabilities.join(', ')}`);
+      if (pr.profile.goal) parts.push(`Goal: ${pr.profile.goal}`);
+      if (parts.length > 0) {
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLORS.textSecondary);
+        const subtitle = sanitize(`Custom Profile - ${parts.join(' | ')}`);
+        const lines = doc.splitTextToSize(subtitle, contentWidth);
+        doc.text(lines, margin, y);
+        y += lines.length * 4 + 2;
+      }
+    }
 
     // Heuristic table
     const evaluations = pr.evaluations || [];
@@ -339,6 +357,59 @@ export function generatePDF(report) {
     });
 
     y += 4;
+
+    // WCAG violations from axe-core
+    if (a11y.wcagViolations?.length > 0) {
+      ensureSpace(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...COLORS.white);
+      doc.text(sanitize(`WCAG Violations (${a11y.wcagViolations.length})`), margin, y);
+      y += 6;
+
+      a11y.wcagViolations.forEach(v => {
+        ensureSpace(10);
+        const impactColor = v.impact === 'critical' ? COLORS.error :
+                           v.impact === 'serious' ? COLORS.warning :
+                           v.impact === 'moderate' ? COLORS.accent : COLORS.textTertiary;
+        
+        doc.setFillColor(...impactColor);
+        doc.circle(margin + 2, y - 1, 1, 'F');
+        
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...impactColor);
+        doc.text(sanitize(`[${v.impact}]`), margin + 5, y);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...COLORS.textPrimary);
+        const helpText = sanitize(v.help || '');
+        const helpLines = doc.splitTextToSize(helpText, contentWidth - 25);
+        doc.text(helpLines[0] || '', margin + 25, y);
+        y += 4;
+
+        // Show first affected element
+        if (v.nodes?.[0]) {
+          doc.setFont('courier', 'normal');
+          doc.setFontSize(6);
+          doc.setTextColor(...COLORS.textTertiary);
+          const elText = sanitize(v.nodes[0].target || v.nodes[0].html || '');
+          doc.text(elText.substring(0, 80), margin + 5, y);
+          y += 3.5;
+        }
+        y += 1;
+      });
+    }
+
+    if (a11y.wcagPasses) {
+      ensureSpace(6);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...COLORS.success);
+      doc.text(sanitize(`${a11y.wcagPasses} WCAG rules passed`), margin, y);
+      y += 5;
+    }
   }
 
   // ─── Footer ──────────────────────────────────────────────────────────

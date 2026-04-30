@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "default_locale": "en",
 
   "permissions": [
@@ -47,6 +47,13 @@
     "48": "assets/icons/icon-48.png",
     "128": "assets/icons/icon-128.png"
   },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["content/axe.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
 
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"

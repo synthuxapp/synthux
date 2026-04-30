@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-04-30
+
+### Added
+- **WCAG Full Audit (axe-core):** Automated WCAG 2.2 AA compliance testing via axe-core dynamic injection. Violations with impact severity, affected elements, and WCAG references shown in report UI, Markdown, and PDF
+- **Custom Synthetic User Profiles:** Create up to 5 custom personas with age range, tech savviness, accessibility needs, and goals — evaluated alongside built-in profiles
+- **Custom Analysis Mode:** Third mode alongside Quick/Deep — select specific heuristics to evaluate via toggle chips
+- **Dynamic Time Estimates:** Analysis duration now calculated based on selected profile count × heuristic count × provider speed (local ~4 min/call, cloud ~30s/call)
+- **Kebab Menu:** Vertical 3-dot dropdown menu for custom profile edit/delete actions
+- **Profile Form Improvements:** Descriptive labels with helper text (Persona Name, Age Range, Tech Savviness, Accessibility Needs, Goal)
+- **WCAG in Reports:** Violations section in PDF with impact-colored dots, element selectors; Markdown with WCAG tags and "Learn more" links
+
+### Changed
+- **Accessibility Score:** Weighted blend of rule-based checks (40%) and axe-core results (60%) for more accurate scoring
+- **Settings Cleanup:** Removed redundant profile management section from Settings (consolidated into Scanner tab)
+- **Quick Mode:** Corrected label from "4 heuristics" to "3 heuristics"
+- **Time Estimates:** Updated to realistic values; dynamic calculation replaces static ranges
+
+### Fixed
+- **PDF Export Crash:** Fixed `COLORS.secondary is not iterable` error (undefined key → `COLORS.textSecondary`)
+- **PDF Text Overflow:** Custom profile subtitle now wraps within page width using `splitTextToSize`
+- **Custom Profile in Reports:** Full persona context (age, tech, disabilities, goal) now included in Markdown, PDF, and report UI
+
+---
+
 ## [1.6.0] - 2026-04-29
 
 ### Added

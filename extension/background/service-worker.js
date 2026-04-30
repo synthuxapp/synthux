@@ -187,6 +187,7 @@ async function handleStartAnalysis(options) {
 
     const mode = options?.mode || settings.analysisMode;
     const profiles = options?.profiles || ['first-time', 'power-user', 'accessibility'];
+    const customHeuristics = options?.heuristics || null;
 
     // Create analyzer
     const analyzer = new Analyzer({
@@ -194,6 +195,7 @@ async function handleStartAnalysis(options) {
       model: settings.ollamaModel,
       mode,
       profiles,
+      heuristics: customHeuristics,
       provider: settings.providerId,
       apiKey: settings.apiKey,
       onProgress: (progress) => {
@@ -231,6 +233,34 @@ async function handleStartAnalysis(options) {
         payload: { phase: 'scanning', percent: 15, message: 'Capturing full-page screenshot...' }
       });
       screenshot = await captureScreenshot(tab.id);
+    }
+
+    // Step 2b: Run axe-core WCAG audit (non-blocking)
+    let axeResults = null;
+    try {
+      broadcastToSidePanel({
+        type: 'ANALYSIS_PROGRESS',
+        payload: { phase: 'scanning', percent: 18, message: 'Running WCAG audit (axe-core)...' }
+      });
+      axeResults = await new Promise((resolve, reject) => {
+        chrome.tabs.sendMessage(tab.id, { type: 'RUN_AXE_AUDIT' }, (response) => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+          } else if (response?.error) {
+            reject(new Error(response.error));
+          } else {
+            resolve(response);
+          }
+        });
+      });
+      console.info(`[synthux] axe-core: ${axeResults?.violations?.length || 0} violations, ${axeResults?.passes || 0} passes`);
+    } catch (axeErr) {
+      console.warn('[synthux] axe-core audit skipped:', axeErr.message);
+    }
+
+    // Attach axe results to pageData for the analyzer
+    if (axeResults) {
+      pageData.axeResults = axeResults;
     }
 
     // Step 3: Run AI analysis

@@ -121,14 +121,23 @@ When evaluating, focus on:
 };
 
 /**
- * Get profile by ID
+ * Get profile by ID (built-in or custom)
  */
 export function getProfile(id) {
   return PROFILES[id] || null;
 }
 
 /**
- * Get all profile IDs
+ * Get profile by ID — checks custom profiles too
+ */
+export async function getProfileAsync(id) {
+  if (PROFILES[id]) return PROFILES[id];
+  const customs = await getCustomProfiles();
+  return customs.find(p => p.id === id) || null;
+}
+
+/**
+ * Get all profile IDs (built-in only)
  */
 export function getProfileIds() {
   return Object.keys(PROFILES);
@@ -144,4 +153,116 @@ export function getProfilesForDisplay(lang = 'en') {
     name: p.name[lang] || p.name.en,
     description: p.description[lang] || p.description.en
   }));
+}
+
+// ─── Custom Profiles ─────────────────────────────────────────────────────────
+
+const MAX_CUSTOM_PROFILES = 5;
+
+/**
+ * Get custom profiles from storage
+ */
+export async function getCustomProfiles() {
+  try {
+    const data = await chrome.storage.local.get({ customProfiles: [] });
+    return data.customProfiles || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Save a new custom profile (max 5)
+ */
+export async function saveCustomProfile(profile) {
+  const customs = await getCustomProfiles();
+  if (customs.length >= MAX_CUSTOM_PROFILES) {
+    throw new Error(`Maximum ${MAX_CUSTOM_PROFILES} custom profiles allowed`);
+  }
+
+  const newProfile = {
+    id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    icon: '👤',
+    custom: true,
+    name: { en: profile.name, tr: profile.name },
+    description: { en: profile.description || '', tr: profile.description || '' },
+    // Custom persona attributes
+    ageRange: profile.ageRange || '25-35',
+    techLevel: profile.techLevel || 'medium',
+    disabilities: profile.disabilities || [],
+    goal: profile.goal || '',
+    priorityHeuristics: profile.priorityHeuristics || [],
+    weight: 1.0,
+    // Generate system prompt from attributes
+    systemPrompt: buildCustomSystemPrompt(profile)
+  };
+
+  customs.push(newProfile);
+  await chrome.storage.local.set({ customProfiles: customs });
+  return newProfile;
+}
+
+/**
+ * Delete a custom profile by ID
+ */
+export async function deleteCustomProfile(id) {
+  const customs = await getCustomProfiles();
+  const filtered = customs.filter(p => p.id !== id);
+  await chrome.storage.local.set({ customProfiles: filtered });
+  return filtered;
+}
+
+/**
+ * Get all profiles: built-in + custom (async)
+ */
+export async function getAllProfiles() {
+  const builtIn = Object.values(PROFILES);
+  const customs = await getCustomProfiles();
+  return [...builtIn, ...customs];
+}
+
+/**
+ * Build a system prompt from custom profile attributes
+ */
+export function buildCustomSystemPrompt(profile) {
+  const techLabels = {
+    low: 'not very comfortable with technology, prefers simple interfaces',
+    medium: 'moderately comfortable with technology, uses common apps regularly',
+    high: 'very tech-savvy, comfortable with complex interfaces and shortcuts'
+  };
+
+  const ageLabels = {
+    '18-25': 'a young adult (18-25) who is digitally native',
+    '25-35': 'an adult (25-35) with regular internet experience',
+    '35-50': 'a middle-aged adult (35-50) with moderate tech familiarity',
+    '50-65': 'an older adult (50-65) who may prefer larger text and simpler layouts',
+    '65+': 'a senior user (65+) who needs high contrast, large click targets, and simple navigation'
+  };
+
+  const disabilityDescriptions = {
+    vision: 'low vision — needs high contrast, large text, and screen reader support',
+    hearing: 'hearing impairment — relies on captions and visual cues instead of audio',
+    motor: 'motor disability — uses keyboard or switch device, needs large click targets',
+    cognitive: 'cognitive disability — needs simple language, clear structure, and minimal distractions',
+    none: 'no disabilities'
+  };
+
+  const age = ageLabels[profile.ageRange] || ageLabels['25-35'];
+  const tech = techLabels[profile.techLevel] || techLabels['medium'];
+  const disabilities = (profile.disabilities || []).length > 0
+    ? profile.disabilities.map(d => disabilityDescriptions[d] || d).join('; ')
+    : disabilityDescriptions.none;
+  const goal = profile.goal || 'browsing the page to accomplish a task';
+
+  return `You are ${age}. You are ${tech}.
+Your accessibility needs: ${disabilities}.
+Your goal on this page: ${goal}.
+
+When evaluating this web page, adopt this persona fully. Consider:
+- How would someone with your age, tech level, and abilities experience this page?
+- Are there barriers that would prevent you from accomplishing your goal?
+- Is the language, layout, and interaction design appropriate for your profile?
+- Would you feel confident, confused, or frustrated using this page?
+
+Evaluate from YOUR perspective — not as a generic user.`;
 }

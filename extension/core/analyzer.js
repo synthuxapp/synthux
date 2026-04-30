@@ -9,7 +9,7 @@
 
 import { AIClient } from './ai-client.js';
 import { loadHeuristics, selectHeuristics, buildPrompt, parseEvaluation, calculateOverallScore } from './heuristics.js';
-import { getProfile, PROFILES } from './profiles.js';
+import { getProfile, getProfileAsync, PROFILES } from './profiles.js';
 import { runAccessibilityChecks } from './accessibility.js';
 import { generateReport } from './report-generator.js';
 import { calculateCost, aggregateCosts } from './cost-calculator.js';
@@ -20,6 +20,7 @@ export class Analyzer {
     this.model = options.model || 'gemma4:31b';
     this.mode = options.mode || 'deep';
     this.profileIds = options.profiles || ['first-time', 'power-user', 'accessibility'];
+    this.customHeuristics = options.heuristics || null; // custom mode: array of heuristic IDs
     this.onProgress = options.onProgress || (() => {});
     this.cancelled = false;
 
@@ -48,6 +49,26 @@ export class Analyzer {
     this.reportProgress('accessibility', 20, 'Running accessibility checks...');
     const accessibilityResults = runAccessibilityChecks(pageData);
 
+    // Merge axe-core results if available
+    if (pageData.axeResults) {
+      const axe = pageData.axeResults;
+      accessibilityResults.wcagViolations = axe.violations || [];
+      accessibilityResults.wcagPasses = axe.passes || 0;
+      accessibilityResults.wcagIncomplete = axe.incomplete || [];
+
+      // Recalculate score: blend rule-based + axe
+      const axeViolationCount = axe.violations?.length || 0;
+      const axePassCount = axe.passes || 0;
+      const axeTotal = axeViolationCount + axePassCount;
+      if (axeTotal > 0) {
+        const axeScore = Math.round((axePassCount / axeTotal) * 100);
+        // Weighted blend: 40% rule-based, 60% axe-core
+        accessibilityResults.score = Math.round(
+          accessibilityResults.score * 0.4 + axeScore * 0.6
+        );
+      }
+    }
+
     // Step 3: Run AI evaluation for each profile
     const profileResults = {};
     const totalProfiles = this.profileIds.length;
@@ -56,10 +77,18 @@ export class Analyzer {
       if (this.cancelled) throw new Error('Analysis cancelled');
 
       const profileId = this.profileIds[pi];
-      const profile = getProfile(profileId);
+      const profile = await getProfileAsync(profileId);
       if (!profile) continue;
 
-      const heuristics = selectHeuristics(rules, this.mode, profileId);
+      let heuristics;
+      if (this.customHeuristics && this.customHeuristics.length > 0) {
+        // Custom mode: filter by selected heuristic IDs
+        const allRules = rules.rules || [];
+        heuristics = allRules.filter(r => this.customHeuristics.includes(r.id));
+        if (heuristics.length === 0) heuristics = allRules.slice(0, 3); // fallback
+      } else {
+        heuristics = selectHeuristics(rules, this.mode, profileId);
+      }
       const totalHeuristics = heuristics.length;
       const evaluations = [];
 
@@ -138,7 +167,13 @@ export class Analyzer {
           id: profile.id,
           icon: profile.icon,
           name: profile.name,
-          description: profile.description
+          description: profile.description,
+          // Custom profile metadata (if applicable)
+          custom: profile.custom || false,
+          ageRange: profile.ageRange || null,
+          techLevel: profile.techLevel || null,
+          disabilities: profile.disabilities || null,
+          goal: profile.goal || null
         },
         score: profileScore,
         evaluations

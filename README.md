@@ -29,17 +29,18 @@ Run locally with Ollama for free, or use your own API key with Gemini, OpenAI, o
 ## 🚀 Features
 
 - 🤖 **Multi-Provider AI** — Ollama (local), Google Gemini, OpenAI GPT-5, Anthropic Claude
-- 📸 **Vision Analysis** — Full-page screenshot capture for visual layout evaluation (v1.6)
+- 📸 **Vision Analysis** — Full-page screenshot capture for visual layout evaluation
 - 📋 **Nielsen's 10 Heuristics** — Industry-standard UX evaluation framework
-- 👥 **Synthetic User Profiles** — First-time visitor, power user, accessibility user
-- ♿ **Automated Accessibility Audit** — WCAG contrast, alt text, heading structure, landmarks
+- 👥 **Synthetic User Profiles** — 3 built-in + up to 5 custom personas (age, tech level, accessibility needs, goals)
+- ♿ **WCAG Audit (axe-core)** — Automated WCAG 2.2 AA compliance testing with impact severity and fix references
 - 📊 **Detailed Scoring** — 0-100 scores per heuristic with actionable recommendations
 - 🔧 **Code Fixes** — Concrete before/after code suggestions for each issue
 - ⚡ **Quick Wins** — Priority matrix highlights high-impact, easy-fix issues
 - 💰 **Cost Tracking** — Real-time API cost estimation with verified pricing
 - 📄 **PDF & Markdown Export** — Professional reports for stakeholders
 - 🔓 **100% Private** — BYOK (Bring Your Own Key) — no middleman, no data collection
-- ⚡ **Quick & Deep Modes** — Fast 4-heuristic scan or full 10-heuristic analysis
+- ⚡ **Quick, Deep & Custom Modes** — 3-heuristic scan, full 10-heuristic analysis, or pick your own
+- ⏱️ **Dynamic Time Estimates** — Realistic duration based on profile count × heuristics × provider speed
 
 ## 📦 Quick Start
 
@@ -109,7 +110,7 @@ No local setup needed. Just enter your API key in Settings:
 
 1. Navigate to any website
 2. Open synthux Side Panel
-3. Select mode (Quick / Deep)
+3. Select mode (Quick / Deep / Custom)
 4. Click **"Analyze Page"**
 5. View results, filter issues, export as PDF or Markdown
 
@@ -227,8 +228,10 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 - [x] Priority matrix (Quick Wins, Critical, Easy Fixes)
 - [x] Vision analysis (screenshot + DOM)
 - [x] Real-time cost estimation
-- [ ] WCAG full audit module
-- [ ] Custom synthetic profiles
+- [x] WCAG full audit module (axe-core)
+- [x] Custom synthetic profiles
+- [ ] History diff (compare past reports)
+- [ ] Annotated screenshots
 - [ ] Competitor comparison (2 URLs side by side)
 - [ ] Figma plugin version
 - [ ] Sectoral rule packs (e-commerce, fintech, SaaS)

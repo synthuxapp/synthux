@@ -7,6 +7,7 @@
 
 import { LitElement, html, css } from 'lit';
 import { getProvider, getProviderList } from '../../../extension/core/providers.js';
+import { getCustomProfiles, saveCustomProfile, deleteCustomProfile } from '../../../extension/core/profiles.js';
 
 export class SynthuxSettings extends LitElement {
   static properties = {
@@ -21,7 +22,9 @@ export class SynthuxSettings extends LitElement {
     providerId: { type: String },
     apiKey: { type: String },
     enableVision: { type: Boolean },
-    _saved: { type: Boolean, state: true }
+    _saved: { type: Boolean, state: true },
+    _customProfiles: { type: Array, state: true },
+    _showProfileForm: { type: Boolean, state: true }
   };
 
   static styles = css`
@@ -444,7 +447,10 @@ export class SynthuxSettings extends LitElement {
     this.enableVision = true;
     this._saved = false;
     this._copiedCmd = '';
+    this._customProfiles = [];
+    this._showProfileForm = false;
     this._loadSettings();
+    this._loadCustomProfiles();
   }
 
   get _isCloudProvider() {
@@ -604,6 +610,53 @@ export class SynthuxSettings extends LitElement {
 
   async _saveSettings() {
     await this._autoSave();
+  }
+
+  async _loadCustomProfiles() {
+    try {
+      this._customProfiles = await getCustomProfiles();
+    } catch {
+      this._customProfiles = [];
+    }
+  }
+
+  async _saveProfile() {
+    const name = this.shadowRoot.getElementById('cp-name')?.value?.trim();
+    if (!name) return;
+
+    const ageRange = this.shadowRoot.getElementById('cp-age')?.value || '25-35';
+    const techLevel = this.shadowRoot.getElementById('cp-tech')?.value || 'medium';
+    const goal = this.shadowRoot.getElementById('cp-goal')?.value?.trim() || '';
+    const disabilityCheckboxes = this.shadowRoot.querySelectorAll('.cp-disability:checked');
+    const disabilities = Array.from(disabilityCheckboxes).map(cb => cb.value);
+
+    try {
+      await saveCustomProfile({
+        name,
+        description: `${ageRange}, ${techLevel} tech${goal ? ` — ${goal}` : ''}`,
+        ageRange,
+        techLevel,
+        disabilities,
+        goal,
+        priorityHeuristics: [] // uses all heuristics by default
+      });
+      this._showProfileForm = false;
+      await this._loadCustomProfiles();
+      // Notify scanner to reload profiles
+      this.dispatchEvent(new CustomEvent('profiles-changed', { bubbles: true, composed: true }));
+    } catch (err) {
+      console.error('[synthux] Failed to save profile:', err);
+    }
+  }
+
+  async _deleteProfile(id) {
+    try {
+      await deleteCustomProfile(id);
+      await this._loadCustomProfiles();
+      this.dispatchEvent(new CustomEvent('profiles-changed', { bubbles: true, composed: true }));
+    } catch (err) {
+      console.error('[synthux] Failed to delete profile:', err);
+    }
   }
 
   async _copyCommand(text, id) {
@@ -789,11 +842,12 @@ ollama serve</code>
 
       <div class="save-indicator ${this._saved ? 'visible' : ''}" style="text-align: center; padding: 8px; font-size: 11px; color: var(--sx-success, #22c55e); opacity: ${this._saved ? '1' : '0'}; transition: opacity 300ms ease;">✓ Auto-saved</div>
 
+
       <div class="section" style="margin-top: 32px;">
         <div class="section-header">About</div>
         <div class="settings-card about-card">
           <div class="about-name">synthux</div>
-          <div class="about-version">v1.5.0</div>
+          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '1.7.0'}</div>
           <div class="about-desc">AI-powered UX audit. Open source. Privacy first.</div>
           <div class="about-links">
             <a class="about-link" href="https://synthux.app" target="_blank">Website</a>

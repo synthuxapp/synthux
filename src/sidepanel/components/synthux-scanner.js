@@ -6,6 +6,7 @@
  */
 
 import { LitElement, html, css } from 'lit';
+import { getCustomProfiles, saveCustomProfile, deleteCustomProfile } from '../../../extension/core/profiles.js';
 import './synthux-score.js';
 
 export class SynthuxScanner extends LitElement {
@@ -16,7 +17,12 @@ export class SynthuxScanner extends LitElement {
     pageInfo: { type: Object },
     selectedProfiles: { type: Array },
     mode: { type: String },
-    logEntries: { type: Array }
+    logEntries: { type: Array },
+    customProfiles: { type: Array },
+    _showProfileForm: { type: Boolean, state: true },
+    _editingProfile: { type: Object, state: true },
+    _openMenuId: { type: String, state: true },
+    _selectedHeuristics: { type: Array, state: true }
   };
 
   static styles = css`
@@ -131,6 +137,186 @@ export class SynthuxScanner extends LitElement {
     .profile-card.selected .profile-check::after {
       content: '✓';
       font-weight: 700;
+    }
+
+    .profile-actions {
+      position: relative;
+      margin-left: 4px;
+    }
+
+    .kebab-btn {
+      background: none;
+      border: none;
+      color: var(--sx-text-tertiary, #8a8a96);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: all 0.15s;
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+
+    .kebab-btn:hover {
+      background: var(--sx-bg-card-hover, rgba(255,255,255,0.05));
+      color: var(--sx-text-primary, #ededf0);
+    }
+
+    .profile-dropdown {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 4px;
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px solid var(--sx-border-hover, rgba(255,255,255,0.10));
+      border-radius: 8px;
+      padding: 4px;
+      min-width: 110px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      padding: 7px 10px;
+      background: none;
+      border: none;
+      border-radius: 5px;
+      color: var(--sx-text-secondary, #b4b4bc);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.1s;
+      text-align: left;
+    }
+
+    .dropdown-item:hover {
+      background: var(--sx-bg-card-hover, rgba(255,255,255,0.05));
+      color: var(--sx-text-primary, #ededf0);
+    }
+
+    .dropdown-item.danger:hover {
+      background: rgba(239,68,68,0.1);
+      color: #ef4444;
+    }
+
+    .add-profile-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 12px;
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px dashed var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 150ms ease;
+      color: var(--sx-text-tertiary, #8a8a96);
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    .add-profile-btn:hover {
+      border-color: var(--sx-border-hover, rgba(255,255,255,0.10));
+      color: var(--sx-text-secondary, #b4b4bc);
+    }
+
+    .profile-form {
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px solid var(--sx-accent, #3b82f6);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .pf-field { margin-bottom: 8px; }
+    .pf-field:last-child { margin-bottom: 0; }
+
+    .pf-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--sx-text-secondary, #b4b4bc);
+      margin-bottom: 3px;
+    }
+
+    .pf-hint {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--sx-text-tertiary, #8a8a96);
+      margin-bottom: 4px;
+    }
+
+    .pf-input {
+      width: 100%;
+      padding: 6px 8px;
+      background: var(--sx-bg-main, #121214);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 6px;
+      color: var(--sx-text-primary, #ededf0);
+      font-size: 12px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .pf-input:focus {
+      outline: none;
+      border-color: var(--sx-accent, #3b82f6);
+    }
+
+    .pf-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pf-row > * { flex: 1; }
+
+    .pf-checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 3px;
+    }
+
+    .pf-check-label {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      color: var(--sx-text-secondary, #b4b4bc);
+      cursor: pointer;
+    }
+
+    .pf-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .pf-save {
+      flex: 1;
+      padding: 7px;
+      background: var(--sx-accent, #3b82f6);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .pf-cancel {
+      padding: 7px 12px;
+      background: none;
+      color: var(--sx-text-tertiary, #8a8a96);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
     }
 
     /* ─── Mode Selector ──────────────────────── */
@@ -364,12 +550,24 @@ export class SynthuxScanner extends LitElement {
     this.selectedProfiles = ['first-time', 'power-user', 'accessibility'];
     this.mode = 'deep';
     this.logEntries = [];
+    this.customProfiles = [];
+    this._showProfileForm = false;
+    this._editingProfile = null;
+    this._openMenuId = null;
+    this._selectedHeuristics = [];
 
     this._fetchPageInfo();
+    this._loadCustomProfiles();
     chrome.tabs?.onActivated?.addListener(() => this._fetchPageInfo());
     chrome.tabs?.onUpdated?.addListener((_, info) => {
       if (info.status === 'complete') this._fetchPageInfo();
     });
+
+    // Listen for custom profile changes from settings
+    window.addEventListener('profiles-changed', () => this._loadCustomProfiles());
+    // Close dropdown on outside click
+    this._onDocClick = () => { this._openMenuId = null; };
+    document.addEventListener('click', this._onDocClick);
   }
 
   updated(changedProperties) {
@@ -411,6 +609,47 @@ export class SynthuxScanner extends LitElement {
     return provider !== 'ollama';
   }
 
+  get _allHeuristics() {
+    return [
+      { id: 'visibility-of-system-status', name: { en: 'Visibility of System Status' } },
+      { id: 'match-real-world', name: { en: 'Match Real World' } },
+      { id: 'user-control-freedom', name: { en: 'User Control & Freedom' } },
+      { id: 'consistency-standards', name: { en: 'Consistency & Standards' } },
+      { id: 'error-prevention', name: { en: 'Error Prevention' } },
+      { id: 'recognition-over-recall', name: { en: 'Recognition > Recall' } },
+      { id: 'flexibility-efficiency', name: { en: 'Flexibility & Efficiency' } },
+      { id: 'aesthetic-minimalist', name: { en: 'Aesthetic & Minimalist' } },
+      { id: 'error-recovery', name: { en: 'Error Recovery' } },
+      { id: 'help-documentation', name: { en: 'Help & Documentation' } }
+    ];
+  }
+
+  _toggleHeuristic(id) {
+    if (this.isAnalyzing) return;
+    const list = [...this._selectedHeuristics];
+    const idx = list.indexOf(id);
+    if (idx > -1) {
+      list.splice(idx, 1);
+    } else {
+      list.push(id);
+    }
+    this._selectedHeuristics = list;
+  }
+
+  /**
+   * Estimate analysis time based on heuristic count, profile count, and provider
+   * Local: ~4 min per heuristic per profile
+   * Cloud: ~0.5 min per heuristic per profile
+   */
+  _estimateTime(heuristicCount) {
+    const profiles = this.selectedProfiles?.length || 1;
+    const perCall = this._isCloudProvider ? 0.5 : 4; // minutes per API call
+    const totalMin = Math.round(heuristicCount * profiles * perCall);
+    if (totalMin < 1) return '<1 min';
+    if (totalMin >= 60) return `${Math.round(totalMin / 60)}h ${totalMin % 60}min`;
+    return `${totalMin} min`;
+  }
+
   async _fetchPageInfo() {
     if (this.isAnalyzing) return;
     try {
@@ -423,6 +662,14 @@ export class SynthuxScanner extends LitElement {
       }
     } catch {
       this.pageInfo = { title: 'Unable to detect page', url: '' };
+    }
+  }
+
+  async _loadCustomProfiles() {
+    try {
+      this.customProfiles = await getCustomProfiles();
+    } catch {
+      this.customProfiles = [];
     }
   }
 
@@ -448,7 +695,13 @@ export class SynthuxScanner extends LitElement {
     try {
       await chrome.runtime.sendMessage({
         type: 'START_ANALYSIS',
-        payload: { mode: this.mode, profiles: this.selectedProfiles }
+        payload: {
+          mode: this.mode,
+          profiles: this.selectedProfiles,
+          ...(this.mode === 'custom' && this._selectedHeuristics.length > 0
+            ? { heuristics: this._selectedHeuristics }
+            : {})
+        }
       });
     } catch (err) {
       console.error('[synthux] Failed to start analysis:', err);
@@ -463,7 +716,7 @@ export class SynthuxScanner extends LitElement {
     this.dispatchEvent(new CustomEvent('analysis-end'));
   }
 
-  _renderProfileCard(id, name, desc) {
+  _renderProfileCard(id, name, desc, isCustom = false) {
     const isSelected = this.selectedProfiles.includes(id);
     return html`
       <div 
@@ -475,17 +728,137 @@ export class SynthuxScanner extends LitElement {
         @keydown="${(e) => e.key === 'Enter' && this._toggleProfile(id)}"
       >
         <div class="profile-details">
-          <div class="profile-name">${name}</div>
+          <div class="profile-name">${name}${isCustom ? html`<span style="font-size: 9px; background: var(--sx-blue-dim, rgba(0,126,255,0.1)); color: var(--sx-blue, #007eff); padding: 1px 6px; border-radius: 8px; margin-left: 6px; font-weight: 600; vertical-align: middle;">Custom</span>` : ''}</div>
           <div class="profile-desc">${desc}</div>
         </div>
+        ${isCustom ? html`
+          <div class="profile-actions">
+            <button class="kebab-btn" @click="${(e) => { e.stopPropagation(); this._openMenuId = this._openMenuId === id ? null : id; }}" title="Options">⋮</button>
+            ${this._openMenuId === id ? html`
+              <div class="profile-dropdown">
+                <button class="dropdown-item" @click="${(e) => { e.stopPropagation(); this._openMenuId = null; this._editProfile(id); }}">✎ Edit</button>
+                <button class="dropdown-item danger" @click="${(e) => { e.stopPropagation(); this._openMenuId = null; this._removeProfile(id); }}">✕ Delete</button>
+              </div>
+            ` : ''}
+          </div>
+        ` : ''}
         <div class="profile-check"></div>
       </div>
     `;
   }
 
+  _renderProfileForm() {
+    const ep = this._editingProfile;
+    return html`
+      <div class="profile-form">
+        <div class="pf-field">
+          <label class="pf-label">Persona Name *</label>
+          <span class="pf-hint">Give this synthetic user a name</span>
+          <input type="text" class="pf-input" id="pf-name" placeholder="e.g. Senior Executive" maxlength="40" .value="${ep?.name?.en || ''}" />
+        </div>
+        <div class="pf-row">
+          <div class="pf-field">
+            <label class="pf-label">Age Range</label>
+            <select class="pf-input" id="pf-age">
+              ${['18-25','25-35','35-50','50-65','65+'].map(v => html`<option value="${v}" ?selected="${(ep?.ageRange || '25-35') === v}">${v}</option>`)}
+            </select>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Tech Savviness</label>
+            <select class="pf-input" id="pf-tech">
+              ${['low','medium','high'].map(v => html`<option value="${v}" ?selected="${(ep?.techLevel || 'medium') === v}">${v === 'low' ? 'Low — basic user' : v === 'medium' ? 'Medium — regular' : 'High — power user'}</option>`)}
+            </select>
+          </div>
+        </div>
+        <div class="pf-field">
+          <label class="pf-label">Accessibility Needs</label>
+          <span class="pf-hint">Does this persona have any disabilities?</span>
+          <div class="pf-checks">
+            ${[['vision','Low Vision'],['hearing','Hearing'],['motor','Motor'],['cognitive','Cognitive']].map(([d, label]) => html`
+              <label class="pf-check-label">
+                <input type="checkbox" class="pf-disability" value="${d}" ?checked="${(ep?.disabilities || []).includes(d)}" />
+                ${label}
+              </label>
+            `)}
+          </div>
+        </div>
+        <div class="pf-field">
+          <label class="pf-label">Goal</label>
+          <span class="pf-hint">What is this person trying to do on the page?</span>
+          <input type="text" class="pf-input" id="pf-goal" placeholder="e.g. Find pricing and compare plans" maxlength="100" .value="${ep?.goal || ''}" />
+        </div>
+        <div class="pf-actions">
+          <button class="pf-save" @click="${this._handleSaveProfile}">${ep ? 'Update' : 'Create'}</button>
+          <button class="pf-cancel" @click="${() => { this._showProfileForm = false; this._editingProfile = null; }}">Cancel</button>
+        </div>
+      </div>
+    `;
+  }
+
+  _editProfile(id) {
+    const cp = this.customProfiles.find(p => p.id === id);
+    if (!cp) return;
+    this._editingProfile = cp;
+    this._showProfileForm = true;
+  }
+
+  async _removeProfile(id) {
+    try {
+      await deleteCustomProfile(id);
+      // Remove from selected if present
+      this.selectedProfiles = this.selectedProfiles.filter(p => p !== id);
+      await this._loadCustomProfiles();
+    } catch (err) {
+      console.error('[synthux] Failed to delete profile:', err);
+    }
+  }
+
+  async _handleSaveProfile() {
+    const name = this.shadowRoot.getElementById('pf-name')?.value?.trim();
+    if (!name) return;
+
+    const ageRange = this.shadowRoot.getElementById('pf-age')?.value || '25-35';
+    const techLevel = this.shadowRoot.getElementById('pf-tech')?.value || 'medium';
+    const goal = this.shadowRoot.getElementById('pf-goal')?.value?.trim() || '';
+    const disabilities = Array.from(this.shadowRoot.querySelectorAll('.pf-disability:checked')).map(cb => cb.value);
+
+    try {
+      if (this._editingProfile) {
+        // Delete old, save new (update)
+        await deleteCustomProfile(this._editingProfile.id);
+      }
+      const newProfile = await saveCustomProfile({
+        name,
+        description: `${ageRange}, ${techLevel} tech${goal ? ` — ${goal}` : ''}`,
+        ageRange,
+        techLevel,
+        disabilities,
+        goal,
+        priorityHeuristics: []
+      });
+
+      // If editing, replace the old ID in selectedProfiles
+      if (this._editingProfile) {
+        const idx = this.selectedProfiles.indexOf(this._editingProfile.id);
+        if (idx > -1) {
+          const newSelected = [...this.selectedProfiles];
+          newSelected[idx] = newProfile.id;
+          this.selectedProfiles = newSelected;
+        }
+      }
+
+      this._showProfileForm = false;
+      this._editingProfile = null;
+      await this._loadCustomProfiles();
+    } catch (err) {
+      console.error('[synthux] Failed to save profile:', err);
+    }
+  }
+
   render() {
     const isConnected = this.ollamaStatus?.connected;
-    const canAnalyze = isConnected && this._isAnalyzablePage && this.selectedProfiles.length > 0;
+    const customValid = this.mode !== 'custom' || this._selectedHeuristics.length > 0;
+    const canAnalyze = isConnected && this._isAnalyzablePage && this.selectedProfiles.length > 0 && customValid;
 
     return html`
       ${this.pageInfo ? html`
@@ -512,19 +885,49 @@ export class SynthuxScanner extends LitElement {
         ${this._renderProfileCard('first-time', 'First-Time Visitor', 'New to the site, exploring for the first time')}
         ${this._renderProfileCard('power-user', 'Power User', 'Experienced, focused on speed and efficiency')}
         ${this._renderProfileCard('accessibility', 'Accessibility User', 'Relies on screen reader and keyboard')}
+        ${this.customProfiles.map(cp => this._renderProfileCard(cp.id, `${cp.name.en}`, cp.description?.en || 'Custom profile', true))}
+        ${this._showProfileForm ? this._renderProfileForm() : html`
+          ${this.customProfiles.length < 5 ? html`
+            <button class="add-profile-btn" @click="${() => { this._editingProfile = null; this._showProfileForm = true; }}">+ Add Custom Profile</button>
+          ` : ''}
+        `}
       </div>
 
       <div class="section-header">Mode</div>
       <div class="mode-selector">
         <button class="mode-btn ${this.mode === 'quick' ? 'active' : ''}" @click="${() => this._setMode('quick')}">
           <span class="mode-label">Quick</span>
-          <span class="mode-desc">4 heuristics · ${this._isCloudProvider ? '~5 min' : '~25-30 min'}</span>
+          <span class="mode-desc">3 heuristics · ~${this._estimateTime(3)}</span>
         </button>
         <button class="mode-btn ${this.mode === 'deep' ? 'active' : ''}" @click="${() => this._setMode('deep')}">
           <span class="mode-label">Deep</span>
-          <span class="mode-desc">10 heuristics · ${this._isCloudProvider ? '~15 min' : '~60-75 min'}</span>
+          <span class="mode-desc">10 heuristics · ~${this._estimateTime(10)}</span>
+        </button>
+        <button class="mode-btn ${this.mode === 'custom' ? 'active' : ''}" @click="${() => this._setMode('custom')}">
+          <span class="mode-label">Custom</span>
+          <span class="mode-desc">${this._selectedHeuristics.length || 0} selected${this._selectedHeuristics.length > 0 ? ` · ~${this._estimateTime(this._selectedHeuristics.length)}` : ''}</span>
         </button>
       </div>
+
+      ${this.mode === 'custom' ? html`
+        <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px;">
+          ${this._allHeuristics.map(h => {
+            const isOn = this._selectedHeuristics.includes(h.id);
+            return html`
+              <button
+                style="
+                  padding: 4px 10px; font-size: 11px; border-radius: 12px; cursor: pointer;
+                  font-family: inherit; transition: all 0.15s; border: 1px solid;
+                  background: ${isOn ? 'var(--sx-accent-dim, rgba(59,130,246,0.1))' : 'var(--sx-bg-card, #1c1c1f)'};
+                  border-color: ${isOn ? 'var(--sx-accent, #3b82f6)' : 'var(--sx-border, rgba(255,255,255,0.06))'};
+                  color: ${isOn ? 'var(--sx-accent, #3b82f6)' : 'var(--sx-text-tertiary, #8a8a96)'};
+                "
+                @click="${() => this._toggleHeuristic(h.id)}"
+              >${h.name?.en || h.id}</button>
+            `;
+          })}
+        </div>
+      ` : ''}
 
       ${this.isAnalyzing ? html`
         <button class="analyze-btn analyzing" disabled>Analyzing...</button>

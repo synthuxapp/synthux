@@ -711,8 +711,8 @@ export class SynthuxReport extends LitElement {
 
       <div class="profile-tabs">
         ${Object.entries(r.profileResults || {}).map(([id, pr]) => html`
-          <button class="profile-tab ${this.activeProfile === id ? 'active' : ''}" @click="${() => this.activeProfile = id}">
-            <span>${pr.profile.name?.en || id}</span>
+          <button class="profile-tab ${this.activeProfile === id ? 'active' : ''}" @click="${() => this.activeProfile = id}" title="${pr.profile.custom ? `${pr.profile.ageRange || ''} · ${pr.profile.techLevel || ''} tech${pr.profile.goal ? ` · ${pr.profile.goal}` : ''}` : pr.profile.description?.en || ''}">
+            <span>${pr.profile.name?.en || id}${pr.profile.custom ? html`<span style="font-size: 8px; background: rgba(0,126,255,0.1); color: #007eff; padding: 0 4px; border-radius: 4px; margin-left: 4px; vertical-align: middle;">C</span>` : ''}</span>
             <span class="profile-tab-score">${pr.score}</span>
           </button>
         `)}
@@ -801,6 +801,39 @@ export class SynthuxReport extends LitElement {
             `)}
           </div>
         </div>
+
+        ${(r.accessibilityResults.wcagViolations?.length > 0) ? html`
+          <div class="section-header">WCAG Violations <span style="font-weight: 400; font-size: 10px; text-transform: none; letter-spacing: 0; color: var(--sx-text-tertiary, #8a8a96);">(axe-core)</span></div>
+          <div class="a11y-section">
+            ${r.accessibilityResults.wcagViolations.map(v => html`
+              <div class="a11y-card" style="margin-bottom: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                  <span style="
+                    font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 4px;
+                    background: ${v.impact === 'critical' ? 'rgba(239,68,68,0.15)' : v.impact === 'serious' ? 'rgba(234,179,8,0.15)' : v.impact === 'moderate' ? 'rgba(59,130,246,0.15)' : 'rgba(138,138,150,0.15)'};
+                    color: ${v.impact === 'critical' ? '#ef4444' : v.impact === 'serious' ? '#eab308' : v.impact === 'moderate' ? '#3b82f6' : '#8a8a96'};
+                  ">${v.impact}</span>
+                  ${v.tags?.length ? html`<span style="font-size: 9px; color: var(--sx-text-tertiary, #8a8a96);">${v.tags.join(', ')}</span>` : ''}
+                </div>
+                <div style="font-size: 12px; font-weight: 500; color: var(--sx-text-primary, #ededf0); margin-bottom: 3px;">${v.help}</div>
+                <div style="font-size: 11px; color: var(--sx-text-tertiary, #8a8a96); margin-bottom: 4px;">${v.description}</div>
+                ${v.nodes?.length ? html`
+                  <div style="font-size: 10px; color: var(--sx-text-tertiary, #8a8a96); margin-bottom: 3px;">Affected elements (${v.nodes.length}):</div>
+                  ${v.nodes.slice(0, 3).map(n => html`
+                    <div style="font-size: 10px; font-family: monospace; background: var(--sx-bg-main, #121214); padding: 4px 6px; border-radius: 4px; margin-bottom: 2px; color: var(--sx-text-secondary, #b4b4bc); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${n.target || n.html}</div>
+                  `)}
+                ` : ''}
+                ${v.helpUrl ? html`<a href="${v.helpUrl}" target="_blank" rel="noopener" style="font-size: 10px; color: var(--sx-accent, #3b82f6); text-decoration: none;">Learn more →</a>` : ''}
+              </div>
+            `)}
+          </div>
+        ` : ''}
+
+        ${r.accessibilityResults.wcagPasses ? html`
+          <div style="font-size: 11px; color: var(--sx-text-tertiary, #8a8a96); padding: 4px 0; margin-bottom: 12px;">
+            ✓ ${r.accessibilityResults.wcagPasses} WCAG rules passed
+          </div>
+        ` : ''}
       ` : ''}
 
       <div class="export-bar">
