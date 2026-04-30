@@ -2,25 +2,73 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* ─── Tokens ─── */
+/* ─── Dark Theme (default) ─── */
 :root {
-  --sx-blue: #007eff;
-  --sx-blue-dim: rgba(0, 126, 255, 0.12);
-  --sx-blue-glow: rgba(0, 126, 255, 0.25);
-  --sx-bg-primary: #0a0a0c;
-  --sx-bg-secondary: #111114;
+  --sx-blue: #3b82f6;
+  --sx-blue-dim: rgba(59, 130, 246, 0.10);
+  --sx-blue-glow: rgba(59, 130, 246, 0.20);
+  --sx-bg-primary: #09090b;
+  --sx-bg-secondary: #0f0f12;
   --sx-bg-card: rgba(255, 255, 255, 0.03);
   --sx-bg-card-hover: rgba(255, 255, 255, 0.06);
-  --sx-text-primary: #ededf0;
+  --sx-text-primary: #fafafa;
   --sx-text-secondary: #a1a1aa;
   --sx-text-tertiary: #71717a;
-  --sx-border: rgba(255, 255, 255, 0.08);
+  --sx-border: rgba(255, 255, 255, 0.07);
   --sx-border-hover: rgba(255, 255, 255, 0.14);
   --sx-radius: 16px;
   --sx-radius-sm: 10px;
   --sx-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --sx-max-width: 1120px;
   --sx-success: #22c55e;
+  --sx-nav-bg: rgba(9, 9, 11, 0.82);
+  --sx-nav-bg-scroll: rgba(9, 9, 11, 0.96);
+  --sx-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+/* ─── Light Theme ─── */
+[data-theme="light"] {
+  --sx-blue: #2563eb;
+  --sx-blue-dim: rgba(37, 99, 235, 0.08);
+  --sx-blue-glow: rgba(37, 99, 235, 0.15);
+  --sx-bg-primary: #ffffff;
+  --sx-bg-secondary: #f4f4f5;
+  --sx-bg-card: rgba(0, 0, 0, 0.02);
+  --sx-bg-card-hover: rgba(0, 0, 0, 0.05);
+  --sx-text-primary: #18181b;
+  --sx-text-secondary: #52525b;
+  --sx-text-tertiary: #a1a1aa;
+  --sx-border: rgba(0, 0, 0, 0.08);
+  --sx-border-hover: rgba(0, 0, 0, 0.14);
+  --sx-success: #16a34a;
+  --sx-nav-bg: rgba(255, 255, 255, 0.82);
+  --sx-nav-bg-scroll: rgba(255, 255, 255, 0.96);
+  --sx-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  color-scheme: light;
+}
+
+/* ─── System preference (auto) ─── */
+@media (prefers-color-scheme: light) {
+  [data-theme="system"] {
+    --sx-blue: #2563eb;
+    --sx-blue-dim: rgba(37, 99, 235, 0.08);
+    --sx-blue-glow: rgba(37, 99, 235, 0.15);
+    --sx-bg-primary: #ffffff;
+    --sx-bg-secondary: #f4f4f5;
+    --sx-bg-card: rgba(0, 0, 0, 0.02);
+    --sx-bg-card-hover: rgba(0, 0, 0, 0.05);
+    --sx-text-primary: #18181b;
+    --sx-text-secondary: #52525b;
+    --sx-text-tertiary: #a1a1aa;
+    --sx-border: rgba(0, 0, 0, 0.08);
+    --sx-border-hover: rgba(0, 0, 0, 0.14);
+    --sx-success: #16a34a;
+    --sx-nav-bg: rgba(255, 255, 255, 0.82);
+    --sx-nav-bg-scroll: rgba(255, 255, 255, 0.96);
+    --sx-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    color-scheme: light;
+  }
 }
 
 /* ─── Reset ─── */
@@ -37,6 +85,7 @@ body {
   color: var(--sx-text-primary);
   line-height: 1.6;
   overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
 }
 
 a { color: var(--sx-blue); text-decoration: none; transition: opacity 0.2s; }
@@ -63,7 +112,7 @@ section {
   right: 0;
   z-index: 100;
   padding: 16px 0;
-  background: rgba(10, 10, 12, 0.8);
+  background: var(--sx-nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--sx-border);
@@ -84,7 +133,7 @@ section {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 24px;
   list-style: none;
 }
 
@@ -113,7 +162,8 @@ section {
   opacity: 1;
 }
 
-.lang-btn {
+/* ─── Theme & Lang Buttons ─── */
+.lang-btn, .theme-btn {
   background: var(--sx-bg-card);
   border: 1px solid var(--sx-border);
   color: var(--sx-text-secondary);
@@ -124,11 +174,20 @@ section {
   cursor: pointer;
   font-family: var(--sx-font);
   transition: all 0.2s;
+  line-height: 1;
 }
 
-.lang-btn:hover {
+.lang-btn:hover, .theme-btn:hover {
   background: var(--sx-bg-card-hover);
   color: var(--sx-text-primary);
+}
+
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
 }
 
 /* ─── Hero ─── */
@@ -178,6 +237,12 @@ section {
   height: 6px;
   border-radius: 50%;
   background: var(--sx-success);
+}
+
+.badge-new {
+  background: var(--sx-blue-dim);
+  border-color: var(--sx-blue);
+  color: var(--sx-blue);
 }
 
 .hero h1 {
@@ -278,6 +343,7 @@ section {
   border: 1px solid var(--sx-border);
   border-radius: var(--sx-radius);
   transition: all 0.25s;
+  position: relative;
 }
 
 .feature-card:hover {
@@ -308,6 +374,21 @@ section {
   color: var(--sx-text-secondary);
   font-size: 14px;
   line-height: 1.6;
+}
+
+.feature-new {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--sx-blue-dim);
+  color: var(--sx-blue);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 /* ─── How It Works ─── */
@@ -355,7 +436,7 @@ section {
   color: var(--sx-blue);
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: rgba(0, 126, 255, 0.3);
+  text-decoration-color: rgba(59, 130, 246, 0.3);
   text-underline-offset: 2px;
   transition: text-decoration-color 0.2s;
 }
@@ -375,7 +456,7 @@ section {
 
 .hero-version a {
   color: var(--sx-text-tertiary);
-  border-bottom: 1px dashed rgba(255,255,255,0.15);
+  border-bottom: 1px dashed var(--sx-border);
   transition: color 0.2s;
 }
 
@@ -383,7 +464,7 @@ section {
 
 /* ─── Compare Table ─── */
 .compare-table {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
   border: 1px solid var(--sx-border);
   border-radius: var(--sx-radius);
@@ -393,7 +474,7 @@ section {
 
 .compare-header {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr 1fr;
   border-bottom: 1px solid var(--sx-border);
 }
 
@@ -425,13 +506,13 @@ section {
 
 .compare-row {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr 1fr;
   border-bottom: 1px solid var(--sx-border);
   transition: background 0.15s;
 }
 
 .compare-row:last-child { border-bottom: none; }
-.compare-row:hover { background: rgba(255,255,255,0.02); }
+.compare-row:hover { background: var(--sx-bg-card-hover); }
 
 .compare-row .compare-col-label {
   padding: 14px 24px;
@@ -461,6 +542,13 @@ section {
 .compare-free { color: var(--sx-success); font-weight: 600; }
 .compare-highlight { color: var(--sx-blue); font-weight: 600; }
 
+.compare-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--sx-text-tertiary);
+  margin-top: 16px;
+}
+
 /* ─── Screenshot ─── */
 .screenshot-section {
   background: var(--sx-bg-secondary);
@@ -474,7 +562,7 @@ section {
   border-radius: var(--sx-radius);
   overflow: hidden;
   border: 1px solid var(--sx-border);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--sx-shadow);
 }
 
 .screenshot-wrapper img {

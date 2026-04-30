@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply saved language
   applyLanguage(getLanguage());
 
+  // Apply saved theme
+  applyTheme(getSavedTheme());
+
   // Scroll fade-in observer
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -32,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (nav) {
     window.addEventListener('scroll', () => {
       nav.style.background = window.scrollY > 40
-        ? 'rgba(10, 10, 12, 0.95)'
-        : 'rgba(10, 10, 12, 0.8)';
+        ? 'var(--sx-nav-bg-scroll)'
+        : 'var(--sx-nav-bg)';
     }, { passive: true });
   }
 
@@ -48,3 +51,30 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(() => {});
   }
 });
+
+/* ─── Theme System ─── */
+const THEME_KEY = 'synthux_theme';
+const THEMES = ['system', 'light', 'dark'];
+const THEME_ICONS = { system: '◑', light: '☀️', dark: '🌙' };
+
+function getSavedTheme() {
+  return localStorage.getItem(THEME_KEY) || 'system';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem(THEME_KEY, theme);
+
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.textContent = THEME_ICONS[theme] || '◑';
+    btn.title = `Theme: ${theme}`;
+  }
+}
+
+function cycleTheme() {
+  const current = getSavedTheme();
+  const idx = THEMES.indexOf(current);
+  const next = THEMES[(idx + 1) % THEMES.length];
+  applyTheme(next);
+}

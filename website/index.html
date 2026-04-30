@@ -67,6 +67,7 @@
         <li><a href="#features" class="nav-link-desktop" data-i18n="navFeatures">Features</a></li>
         <li><a href="#how-it-works" class="nav-link-desktop" data-i18n="navHow">How It Works</a></li>
         <li><a href="#privacy" class="nav-link-desktop" data-i18n="navPrivacy">Privacy</a></li>
+        <li><button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">☀️</button></li>
         <li><button class="lang-btn" onclick="toggleLanguage()" data-i18n="langToggle">TR</button></li>
         <li><a href="https://github.com/synthuxapp/synthux" class="nav-cta" target="_blank">GitHub ★</a></li>
       </ul>
@@ -79,13 +80,13 @@
       <div class="hero-badges fade-in">
         <span class="badge"><span class="dot"></span> <span data-i18n="heroBadgePrivacy">100% Private</span></span>
         <span class="badge"><span data-i18n="heroBadgeOpenSource">Open Source</span></span>
-        <span class="badge"><span data-i18n="heroBadgeFree">Free Forever</span></span>
+        <span class="badge badge-new">v1.7 — WCAG Audit + Custom Profiles</span>
       </div>
 
       <h1 class="fade-in" data-i18n="heroTagline">AI-powered UX audit in your browser.</h1>
 
       <p class="hero-subtitle fade-in" data-i18n="heroSubtitle">
-        Open source Chrome extension that evaluates web pages using synthetic user profiles, Nielsen's 10 Usability Heuristics, and visual analysis — powered by local AI or your own API key.
+        Open source Chrome extension that evaluates web pages using synthetic user profiles, Nielsen's 10 Usability Heuristics, WCAG audit, and vision analysis — powered by local AI or your own API key.
       </p>
 
       <div class="hero-ctas fade-in">
@@ -112,44 +113,52 @@
 
       <div class="features-grid">
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4v1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2V6a4 4 0 0 1 4-4z"/><rect x="5" y="14" width="14" height="8" rx="2"/><path d="M9 18h6"/></svg></div>
-          <h3 data-i18n="feature1Title">Multi-Provider AI</h3>
-          <p data-i18n="feature1Desc">Local via Ollama (free) or cloud with your own API key — Gemini, OpenAI, or Claude. BYOK, no middleman.</p>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><path d="M12 2a4 4 0 0 1 4 4v1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2V6a4 4 0 0 1 4-4z"/><rect x="5" y="14" width="14" height="8" rx="2"/><path d="M9 18h6"/></svg></div>
+          <h3>Multi-Provider AI</h3>
+          <p>Local via Ollama (free) or cloud with your own API key — Gemini, OpenAI, or Claude. BYOK, no middleman.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M2 17l3.5-3.5a1 1 0 0 1 1.4 0L12 18"/></svg></div>
-          <h3 data-i18n="feature7Title">Vision Analysis</h3>
-          <p data-i18n="feature7Desc">Full-page screenshot capture. AI analyzes visual hierarchy, color harmony, CTA visibility alongside DOM data.</p>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg></div>
+          <h3>Nielsen's 10 Heuristics</h3>
+          <p>Industry-standard UX evaluation framework with weighted scoring and actionable recommendations.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg></div>
-          <h3 data-i18n="feature2Title">Nielsen's 10 Heuristics</h3>
-          <p data-i18n="feature2Desc">Industry-standard UX evaluation framework used by professionals for 30+ years.</p>
+          <span class="feature-new">New</span>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>WCAG Audit (axe-core)</h3>
+          <p>Automated WCAG 2.2 AA compliance testing. Violations with impact severity, affected elements, and fix references.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <h3 data-i18n="feature3Title">Synthetic User Profiles</h3>
-          <p data-i18n="feature3Desc">Built-in profiles + create custom personas with age, tech level, accessibility needs, and goals. Up to 5 custom profiles.</p>
+          <span class="feature-new">New</span>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
+          <h3>Custom User Profiles</h3>
+          <p>Create up to 5 custom personas with age, tech level, accessibility needs, and goals — alongside 3 built-in profiles.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg></div>
-          <h3 data-i18n="feature4Title">WCAG Audit (axe-core)</h3>
-          <p data-i18n="feature4Desc">Full WCAG 2.2 AA compliance audit via axe-core. Violations with impact severity, affected elements, and fix references.</p>
+          <span class="feature-new">New</span>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
+          <h3>Custom Analysis Mode</h3>
+          <p>Quick, Deep, or Custom — pick specific heuristics via toggle chips. Dynamic time estimates based on your selection.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6M9 15l3 3 3-3"/></svg></div>
-          <h3 data-i18n="feature8Title">PDF & Markdown Export</h3>
-          <p data-i18n="feature8Desc">Professional reports with code fixes, cost estimates, and priority matrix. Share with stakeholders.</p>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><rect x="2" y="3" width="20" height="14" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M2 17l3.5-3.5a1 1 0 0 1 1.4 0L12 18"/></svg></div>
+          <h3>Vision Analysis</h3>
+          <p>Full-page screenshot capture. AI evaluates visual hierarchy, color harmony, and CTA visibility alongside DOM data.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
-          <h3 data-i18n="feature5Title">Custom Analysis Mode</h3>
-          <p data-i18n="feature5Desc">Quick, Deep, or Custom — pick specific heuristics to evaluate. Dynamic time estimates based on your selection.</p>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6M9 15l3 3 3-3"/></svg></div>
+          <h3>PDF & Markdown Export</h3>
+          <p>Professional reports with scores, code fixes, cost estimates, and priority matrix. Share with stakeholders.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#007eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-          <h3 data-i18n="feature6Title">Complete Privacy</h3>
-          <p data-i18n="feature6Desc">BYOK model — API keys stay in your browser. No middleman, no telemetry, no data collection.</p>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
+          <h3>Detailed Scoring</h3>
+          <p>0-100 scores per heuristic with code fix suggestions, quick win indicators, and priority matrix.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Complete Privacy</h3>
+          <p>BYOK model — API keys stay in your browser. No middleman, no telemetry, no data collection.</p>
         </div>
       </div>
     </div>
@@ -171,32 +180,38 @@
         </div>
         <div class="compare-body">
           <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareQuick">Quick Scan</div>
-            <div class="compare-col">~15-20 min</div>
+            <div class="compare-col-label">Quick (3 heuristics)</div>
+            <div class="compare-col">~12-20 min</div>
             <div class="compare-col compare-highlight">~2-3 min</div>
           </div>
           <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareDeep">Deep Scan</div>
+            <div class="compare-col-label">Deep (10 heuristics)</div>
             <div class="compare-col">~40-60 min</div>
             <div class="compare-col compare-highlight">~5-8 min</div>
           </div>
           <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareCost">Cost</div>
+            <div class="compare-col-label">Custom mode</div>
+            <div class="compare-col">~4 min × heuristic</div>
+            <div class="compare-col compare-highlight">~30s × heuristic</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-col-label">Cost</div>
             <div class="compare-col compare-free">Free</div>
             <div class="compare-col">~$0.05 – $0.30</div>
           </div>
           <div class="compare-row">
-            <div class="compare-col-label" data-i18n="comparePrivacy">Privacy</div>
+            <div class="compare-col-label">Privacy</div>
             <div class="compare-col compare-free">100% on-device</div>
             <div class="compare-col">Your key, direct API</div>
           </div>
           <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareSetup">Setup</div>
+            <div class="compare-col-label">Setup</div>
             <div class="compare-col">Install Ollama + model</div>
             <div class="compare-col compare-highlight">API key only</div>
           </div>
         </div>
       </div>
+      <p class="compare-note">Times shown per profile. Selecting multiple profiles multiplies the duration proportionally.</p>
     </div>
   </section>
   <!-- ─── How It Works ─── -->
@@ -221,7 +236,7 @@
         <div class="step fade-in">
           <div class="step-number">3</div>
           <h3 data-i18n="howStep3Title">3. Analyze Any Page</h3>
-          <p data-i18n="howStep3Desc">Open the side panel, select Quick or Deep mode, and hit Analyze. Get scores, code fixes, and exportable reports.</p>
+          <p>Open the side panel, select Quick, Deep, or Custom mode, and hit Analyze. Get scores, WCAG audit, code fixes, and exportable reports.</p>
         </div>
       </div>
       <p class="setup-note fade-in" style="text-align: center; font-size: 13px; color: #71717a; margin-top: 24px; line-height: 1.7;">
