@@ -70,6 +70,13 @@ function applyTheme(theme) {
     btn.textContent = THEME_ICONS[theme] || '◑';
     btn.title = `Theme: ${theme}`;
   }
+
+  // Swap logo src based on resolved theme
+  const isLight = theme === 'light' || 
+    (theme === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches);
+  document.querySelectorAll('.logo-img').forEach(img => {
+    img.src = isLight ? 'assets/logo-dark.svg' : 'assets/logo.svg';
+  });
 }
 
 function cycleTheme() {
