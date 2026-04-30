@@ -88,6 +88,12 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
+/* Logo: invert white logo to dark in light themes */
+[data-theme="light"] .logo-img { filter: brightness(0); }
+@media (prefers-color-scheme: light) {
+  [data-theme="system"] .logo-img { filter: brightness(0); }
+}
+
 a { color: var(--sx-blue); text-decoration: none; transition: opacity 0.2s; }
 a:hover { opacity: 0.85; }
 
@@ -623,6 +629,36 @@ section {
   justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
+}
+
+/* ─── Providers / Works With ─── */
+.providers-label {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--sx-text-tertiary);
+  margin-bottom: 28px;
+}
+
+.providers-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.provider-logo {
+  color: var(--sx-text-tertiary);
+  opacity: 0.5;
+  transition: opacity 0.25s, color 0.25s;
+}
+
+.provider-logo:hover {
+  opacity: 1;
+  color: var(--sx-text-primary);
 }
 
 /* ─── Footer ─── */

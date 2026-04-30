@@ -9,6 +9,7 @@
   <meta name="author" content="synthux">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://synthux.app/">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -61,7 +62,10 @@
   <nav class="nav">
     <div class="container">
       <a href="#" class="nav-logo">
-        <img src="assets/logo.svg" alt="synthux" height="22">
+        <picture>
+          <source media="(prefers-color-scheme: light)" srcset="assets/logo-dark.svg">
+          <img src="assets/logo.svg" alt="synthux" height="22" class="logo-img">
+        </picture>
       </a>
       <ul class="nav-links">
         <li><a href="#features" class="nav-link-desktop" data-i18n="navFeatures">Features</a></li>
@@ -312,12 +316,42 @@
     </div>
   </section>
 
+  <!-- ─── Works With ─── -->
+  <section id="works-with" style="padding: 56px 0;">
+    <div class="container">
+      <p class="providers-label fade-in">Works with</p>
+      <div class="providers-row fade-in">
+        <a href="https://ollama.com" target="_blank" class="provider-logo" title="Ollama">
+          <svg viewBox="0 0 200 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="800" font-size="40">ollama</text></svg>
+        </a>
+        <a href="https://ai.google.dev" target="_blank" class="provider-logo" title="Google Gemini">
+          <svg viewBox="0 0 200 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="700" font-size="36">Gemini</text></svg>
+        </a>
+        <a href="https://openai.com" target="_blank" class="provider-logo" title="OpenAI">
+          <svg viewBox="0 0 200 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="700" font-size="36">OpenAI</text></svg>
+        </a>
+        <a href="https://anthropic.com" target="_blank" class="provider-logo" title="Anthropic Claude">
+          <svg viewBox="0 0 220 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="700" font-size="36">Claude</text></svg>
+        </a>
+        <a href="https://llama.meta.com" target="_blank" class="provider-logo" title="Meta Llama">
+          <svg viewBox="0 0 200 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="700" font-size="36">Llama</text></svg>
+        </a>
+        <a href="https://github.com/dequelabs/axe-core" target="_blank" class="provider-logo" title="axe-core WCAG">
+          <svg viewBox="0 0 220 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="700" font-size="36">axe-core</text></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── Footer ─── -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <img src="assets/logo.svg" alt="synthux">
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="assets/logo-dark.svg">
+            <img src="assets/logo.svg" alt="synthux" class="logo-img">
+          </picture>
           <p data-i18n="footerTagline">AI-powered UX audit.</p>
         </div>
         <div class="footer-col">
