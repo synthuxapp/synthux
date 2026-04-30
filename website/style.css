@@ -126,9 +126,15 @@ section {
   justify-content: space-between;
 }
 
+.nav-logo {
+  display: flex;
+  align-items: center;
+}
+
 .nav-logo img {
   height: 22px;
   width: auto;
+  display: block;
 }
 
 .nav-links {
