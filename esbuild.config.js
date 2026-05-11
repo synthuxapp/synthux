@@ -4,21 +4,39 @@ import fs from 'fs';
 const isWatch = process.argv.includes('--watch');
 
 // ─── MV3 Compliance ─────────────────────────────────────────────────────────
-// jsPDF's output() contains a "pdfobjectnewwindow" code path that loads a
-// script from cdnjs.cloudflare.com.  We never use that path (only 'blob'),
-// but esbuild bundles it anyway, causing Chrome Web Store to reject the
-// extension for remotely-hosted code.  This plugin strips those URLs at
-// build time so the bundle stays fully self-contained.
+// jsPDF's output() contains "pdfobjectnewwindow" and "pdfjsnewwindow" code
+// paths that dynamically create <script>/<iframe> elements loading remote
+// resources (cdnjs.cloudflare.com, PDF.js viewer).  We only use the 'blob'
+// output path, but esbuild bundles all code paths.  Chrome Web Store rejects
+// extensions containing createElement("script") + .src = URL patterns even
+// if the URL itself is empty.  This plugin replaces the entire dead case
+// blocks with no-ops at build time so the bundle stays fully self-contained.
 const mv3CompliancePlugin = {
   name: 'mv3-remove-remote-code',
   setup(build) {
     build.onLoad({ filter: /jspdf/ }, async (args) => {
       let contents = await fs.promises.readFile(args.path, 'utf8');
-      // Remove CDN URLs that violate MV3 remotely hosted code policy
+
+      // 1. Remove CDN URLs (belt-and-suspenders)
       contents = contents.replace(
         /https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/pdfobject\/[\d.]+\/pdfobject\.min\.js/g,
         ''
       );
+
+      // 2. Replace the entire "pdfobjectnewwindow" case block with a throw
+      //    Matches: case "pdfobjectnewwindow": ... up to the next case "pdfjsnewwindow":
+      contents = contents.replace(
+        /case\s*"pdfobjectnewwindow"\s*:[\s\S]*?(?=case\s*"pdfjsnewwindow"\s*:)/g,
+        'case "pdfobjectnewwindow": throw new Error("pdfobjectnewwindow is disabled for MV3 compliance.");\n      '
+      );
+
+      // 3. Replace the entire "pdfjsnewwindow" case block with a throw
+      //    Matches: case "pdfjsnewwindow": ... up to the next case "dataurlnewwindow":
+      contents = contents.replace(
+        /case\s*"pdfjsnewwindow"\s*:[\s\S]*?(?=case\s*"dataurlnewwindow"\s*:)/g,
+        'case "pdfjsnewwindow": throw new Error("pdfjsnewwindow is disabled for MV3 compliance.");\n      '
+      );
+
       return { contents, loader: 'js' };
     });
   },
