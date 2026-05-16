@@ -151,3 +151,149 @@ async function stitchCaptures(dataUrls, width, viewportHeight, totalHeight) {
     reader.readAsDataURL(blob);
   });
 }
+
+/**
+ * Capture a viewport screenshot with numbered annotation markers at issue locations.
+ * Requires overlay-manager.js to be injected in the tab for GET_ELEMENT_RECTS.
+ * 
+ * @param {number} tabId - Target tab ID
+ * @param {Array} issues - Array of { element, severity, description } objects
+ * @returns {Promise<string|null>} Base64 JPEG data URL with annotations, or null
+ */
+export async function captureAnnotatedScreenshot(tabId, issues) {
+  try {
+    if (!issues || issues.length === 0) return null;
+
+    // Get the tab's window ID
+    let windowId;
+    if (tabId) {
+      const tab = await chrome.tabs.get(tabId);
+      windowId = tab.windowId;
+    } else {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      windowId = tab?.windowId;
+      tabId = tab?.id;
+    }
+    if (!windowId || !tabId) return null;
+
+    // Inject overlay manager for GET_ELEMENT_RECTS
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['content/overlay-manager.js']
+    });
+
+    // Get element bounding rects from the page
+    const selectors = issues
+      .map(i => i.element)
+      .filter(Boolean);
+
+    if (selectors.length === 0) return null;
+
+    const rectsResponse = await new Promise((resolve) => {
+      chrome.tabs.sendMessage(tabId, {
+        type: 'GET_ELEMENT_RECTS',
+        selectors
+      }, (response) => {
+        resolve(response?.rects || []);
+      });
+    });
+
+    const foundRects = rectsResponse.filter(r => r.found);
+    if (foundRects.length === 0) return null;
+
+    // Get viewport dimensions
+    const [dimResult] = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: () => ({
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        scrollY: window.scrollY,
+        dpr: window.devicePixelRatio || 1
+      })
+    });
+    const dims = dimResult?.result;
+    if (!dims) return null;
+
+    // Capture current viewport
+    const screenshotDataUrl = await captureViewport(windowId);
+    if (!screenshotDataUrl) return null;
+
+    // Draw annotations onto screenshot
+    const res = await fetch(screenshotDataUrl);
+    const blob = await res.blob();
+    const bitmap = await createImageBitmap(blob);
+
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0);
+
+    // Scale factor (DPR might affect coordinates)
+    const scaleX = bitmap.width / dims.viewportWidth;
+    const scaleY = bitmap.height / dims.viewportHeight;
+
+    // Draw markers for each found element
+    let markerIndex = 1;
+    foundRects.forEach((rect) => {
+      const issue = issues.find(i => i.element === rect.selector);
+      if (!issue) return;
+
+      // Convert page coordinates to viewport-relative
+      const x = (rect.x - window.scrollX) * scaleX;
+      const y = (rect.y - dims.scrollY) * scaleY;
+      const w = rect.width * scaleX;
+      const h = rect.height * scaleY;
+
+      // Only annotate visible elements
+      if (y + h < 0 || y > bitmap.height || x + w < 0 || x > bitmap.width) return;
+
+      // Severity colors
+      const colors = {
+        critical: '#ef4444',
+        moderate: '#eab308',
+        minor: '#22c55e'
+      };
+      const color = colors[issue.severity] || '#ef4444';
+
+      // Draw rectangle border
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([]);
+      ctx.strokeRect(x, y, w, h);
+
+      // Draw semi-transparent fill
+      ctx.fillStyle = color + '15';
+      ctx.fillRect(x, y, w, h);
+
+      // Draw numbered marker circle
+      const markerRadius = 12;
+      const markerX = x + w - markerRadius;
+      const markerY = y - markerRadius;
+
+      ctx.beginPath();
+      ctx.arc(markerX, markerY, markerRadius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Marker number
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(markerIndex), markerX, markerY);
+
+      markerIndex++;
+    });
+
+    // Convert annotated canvas to JPEG
+    const annotatedBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.8 });
+    const reader = new FileReader();
+    return new Promise((resolve) => {
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(annotatedBlob);
+    });
+  } catch (err) {
+    console.error('[synthux] Annotated screenshot failed:', err);
+    return null;
+  }
+}
+

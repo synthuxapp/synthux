@@ -33,6 +33,9 @@ Run locally with Ollama for free, or use your own API key with Gemini, OpenAI, o
 - 📋 **Nielsen's 10 Heuristics** — Industry-standard UX evaluation framework
 - 👥 **Synthetic User Profiles** — 3 built-in + up to 5 custom personas (age, tech level, accessibility needs, goals)
 - ♿ **WCAG Audit (axe-core)** — Automated WCAG 2.2 AA compliance testing with impact severity and fix references
+- 🔥 **Issue Heatmap** — Toggle a live heatmap overlay on the analyzed page showing issue density by severity
+- 🎯 **Hover-to-Highlight** — Hover any issue in the report to highlight the affected element directly on the page
+- 📸 **Annotated Screenshots** — Viewport captures with numbered severity markers at issue element positions
 - 📊 **Detailed Scoring** — 0-100 scores per heuristic with actionable recommendations
 - 🔧 **Code Fixes** — Concrete before/after code suggestions for each issue
 - ⚡ **Quick Wins** — Priority matrix highlights high-impact, easy-fix issues
@@ -145,6 +148,7 @@ AI Provider:
 - **Content Script** extracts DOM structure, accessibility data, navigation, and content metrics
 - **Service Worker** orchestrates: scanning → screenshot → AI evaluation → cost calc → report
 - **Side Panel** (Lit Web Components) provides premium dark-themed UI
+- **Overlay Manager** injects page overlays for heatmap, highlight, and annotation features
 - **Vision** captures full-page JPEG (scroll + stitch) for multimodal analysis
 
 ## 🧩 Project Structure
@@ -161,7 +165,7 @@ synthuxapp/
 │   │   ├── ai-client.js        # AI provider abstraction
 │   │   ├── providers.js        # Ollama, OpenAI, Gemini, Claude adapters
 │   │   ├── heuristics.js       # Prompt builder + JSON parser
-│   │   ├── screenshot.js       # Full-page capture + stitch
+│   │   ├── screenshot.js       # Full-page capture + annotated screenshots
 │   │   ├── cost-calculator.js  # Token cost estimation
 │   │   └── report-generator.js # Markdown + JSON report
 │   ├── rules/                  # Heuristic rule definitions (JSON)
@@ -174,6 +178,16 @@ synthuxapp/
 ├── website/                    # Landing page (synthux.app)
 └── docs/                       # Documentation
 ```
+
+## 🔥 Page Overlay System (v1.8)
+
+After analysis, synthux can interact with the page directly:
+
+- **Hover-to-Highlight** — Hover an issue in the report → the affected element is highlighted on the page with a severity-colored border and tooltip.
+- **Heatmap Toggle** — Switch on from the report to render a canvas-based severity heatmap over the page.
+- **Annotated Screenshot** — Capture a viewport screenshot with numbered markers at each issue location.
+
+The overlay system uses a self-contained content script (`overlay-manager.js`) injected on demand via `chrome.scripting.executeScript`.
 
 ## 🛠️ Development
 
@@ -230,10 +244,13 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 - [x] Real-time cost estimation
 - [x] WCAG full audit module (axe-core)
 - [x] Custom synthetic profiles
-- [ ] History diff (compare past reports)
-- [ ] Annotated screenshots
-- [ ] Competitor comparison (2 URLs side by side)
-- [ ] Figma plugin version
+- [x] Issue heatmap overlay
+- [x] Hover-to-highlight on page
+- [x] Annotated screenshots
+- [ ] Enhanced reporting (richer PDF/Markdown templates)
+- [ ] Update notification system
+- [ ] synthux insights — research library (NNGroup, Baymard)
+- [ ] Walkthrough mode (guided issue tour)
 - [ ] Sectoral rule packs (e-commerce, fintech, SaaS)
 
 ---

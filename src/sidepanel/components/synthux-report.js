@@ -17,7 +17,8 @@ export class SynthuxReport extends LitElement {
     expandedHeuristic: { type: String },
     copied: { type: Boolean },
     activeFilter: { type: String },
-    copiedFix: { type: String }
+    copiedFix: { type: String },
+    heatmapActive: { type: Boolean }
   };
 
   static styles = css`
@@ -203,11 +204,66 @@ export class SynthuxReport extends LitElement {
     .issue-item {
       display: flex;
       gap: 8px;
-      padding: 8px 0;
+      padding: 8px 4px;
       border-bottom: 1px solid var(--sx-border, rgba(255,255,255,0.04));
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+
+    .issue-item:hover {
+      background: rgba(59, 130, 246, 0.06);
     }
 
     .issue-item:last-child { border-bottom: none; }
+
+    /* ─── Heatmap Toggle ────────────────────────── */
+    .heatmap-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .heatmap-label {
+      font-size: 11px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      font-weight: 500;
+    }
+
+    .heatmap-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: var(--sx-border, rgba(255,255,255,0.08));
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 200ms ease;
+      border: none;
+      padding: 0;
+    }
+
+    .heatmap-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--sx-text-tertiary, #8a8a96);
+      transition: transform 200ms ease, background 200ms ease;
+    }
+
+    .heatmap-switch.active {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .heatmap-switch.active::after {
+      transform: translateX(16px);
+      background: #ef4444;
+    }
 
     .severity-dot {
       width: 6px;
@@ -626,6 +682,7 @@ export class SynthuxReport extends LitElement {
     this.copied = false;
     this.activeFilter = 'all';
     this.copiedFix = '';
+    this.heatmapActive = false;
   }
 
   updated(changedProperties) {
@@ -639,6 +696,65 @@ export class SynthuxReport extends LitElement {
 
   _toggleHeuristic(id) {
     this.expandedHeuristic = this.expandedHeuristic === id ? '' : id;
+  }
+
+  // ─── Overlay Methods ──────────────────────────────────────────────────
+
+  _highlightIssue(issue) {
+    if (!issue.element) return;
+    chrome.runtime.sendMessage({
+      type: 'HIGHLIGHT_ELEMENT',
+      payload: {
+        selector: issue.element,
+        description: issue.description,
+        severity: issue.severity
+      }
+    }).catch(() => {});
+  }
+
+  _clearHighlight() {
+    chrome.runtime.sendMessage({
+      type: 'CLEAR_HIGHLIGHT',
+      payload: {}
+    }).catch(() => {});
+  }
+
+  _toggleHeatmap() {
+    this.heatmapActive = !this.heatmapActive;
+
+    if (this.heatmapActive) {
+      // Collect all issues with element selectors from all profiles
+      const allIssues = [];
+      Object.values(this.report?.profileResults || {}).forEach(pr => {
+        (pr.evaluations || []).forEach(ev => {
+          (ev.issues || []).forEach(issue => {
+            if (issue.element) {
+              allIssues.push({
+                element: issue.element,
+                severity: issue.severity,
+                description: issue.description
+              });
+            }
+          });
+        });
+      });
+
+      chrome.runtime.sendMessage({
+        type: 'SHOW_HEATMAP',
+        payload: { issues: allIssues }
+      }).catch(() => {});
+    } else {
+      chrome.runtime.sendMessage({
+        type: 'CLEAR_HEATMAP',
+        payload: {}
+      }).catch(() => {});
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    // Clean up overlays when component is removed
+    chrome.runtime.sendMessage({ type: 'CLEAR_OVERLAYS', payload: {} }).catch(() => {});
   }
 
   _getScoreClass(score) {
@@ -709,6 +825,14 @@ export class SynthuxReport extends LitElement {
         </div>
       </div>
 
+      <div class="heatmap-toggle">
+        <span class="heatmap-label">Heatmap</span>
+        <button class="heatmap-switch ${this.heatmapActive ? 'active' : ''}" 
+          @click="${this._toggleHeatmap}" 
+          title="${this.heatmapActive ? 'Heatmap is ON — click to hide' : 'Show issue heatmap on page'}">
+        </button>
+      </div>
+
       <div class="profile-tabs">
         ${Object.entries(r.profileResults || {}).map(([id, pr]) => html`
           <button class="profile-tab ${this.activeProfile === id ? 'active' : ''}" @click="${() => this.activeProfile = id}" title="${pr.profile.custom ? `${pr.profile.ageRange || ''} · ${pr.profile.techLevel || ''} tech${pr.profile.goal ? ` · ${pr.profile.goal}` : ''}` : pr.profile.description?.en || ''}">
@@ -739,7 +863,9 @@ export class SynthuxReport extends LitElement {
                 <div class="heuristic-detail">
                   <div class="heuristic-summary">${ev.summary}</div>
                   ${filteredIssues.map(issue => html`
-                    <div class="issue-item">
+                    <div class="issue-item"
+                      @mouseenter="${() => this._highlightIssue(issue)}"
+                      @mouseleave="${() => this._clearHighlight()}">
                       <span class="severity-dot ${issue.severity}"></span>
                       <div class="issue-content">
                         <div class="issue-desc">

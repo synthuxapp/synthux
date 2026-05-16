@@ -87,7 +87,8 @@ ${profile.systemPrompt}
 4. Each issue must have a clear description, the affected element, and a specific recommendation.
 5. Score must be a number between 0 and 100.
 6. For each issue, provide a concrete code fix showing the before/after code change. Use CSS, HTML, or JavaScript as appropriate.
-7. For each issue, rate the priority (impact on users: high/medium/low) and fix_effort (how hard it is to fix: easy/moderate/hard).${hasVision ? '\n8. When the screenshot reveals visual issues not apparent from DOM data alone, include them as findings.' : ''}
+7. For each issue, rate the priority (impact on users: high/medium/low) and fix_effort (how hard it is to fix: easy/moderate/hard).
+8. For each issue, the "element" field MUST be a valid CSS selector that uniquely identifies the problematic element on the page (e.g. "nav.main-menu > ul > li:nth-child(2)", "input#email", ".hero-section .cta-button"). This is critical for page highlighting.${hasVision ? '\n9. When the screenshot reveals visual issues not apparent from DOM data alone, include them as findings.' : ''}
 
 ## Required JSON Structure
 {

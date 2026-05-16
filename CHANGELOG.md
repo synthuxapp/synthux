@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-05-16
+
+### Added
+- **Hover-to-Highlight:** Hover over any issue in the report to highlight the affected element on the page with a severity-colored border and tooltip. Smooth scroll into view for off-screen elements.
+- **Heatmap Toggle:** New 🔥 Heatmap button in the export bar. When active, renders a canvas-based issue density heatmap over the analyzed page — critical issues glow red, moderate yellow, minor green. Toggle on/off anytime.
+- **Annotated Screenshot:** New `captureAnnotatedScreenshot()` for viewport screenshots with numbered severity markers at issue element positions. Available for PDF reports.
+- **Page Overlay System:** New unified overlay manager (`overlay-manager.js`) injected into target pages on demand via `chrome.scripting.executeScript`. Handles highlight borders, heatmap canvas, and annotation markers with proper z-index isolation.
+- **Fuzzy Selector Matching:** When AI returns descriptive element references instead of valid CSS selectors, the overlay manager attempts heuristic matching (class, ID, attribute, placeholder fallbacks).
+- **CSS Selector Prompt Enhancement:** AI prompt now explicitly requires valid CSS selectors in the `element` field (rule #8) for reliable page highlighting.
+
+### Changed
+- **Issue Items:** Now clickable with hover state (subtle blue highlight) to indicate interactivity
+- **Export Bar:** Added heatmap toggle alongside existing Markdown and PDF download buttons
+- **Service Worker:** New overlay message relay system — forwards HIGHLIGHT/HEATMAP/CLEAR commands from side panel to active tab content script
+
+---
+
 ## [1.7.1] - 2026-05-11
 
 ### Fixed

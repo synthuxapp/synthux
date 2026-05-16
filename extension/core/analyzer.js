@@ -78,6 +78,7 @@ export class Analyzer {
 
       const profileId = this.profileIds[pi];
       const profile = await getProfileAsync(profileId);
+      console.info(`[synthux] Profile ${pi + 1}/${totalProfiles}: "${profileId}" → ${profile ? 'loaded' : 'NOT FOUND'}`);
       if (!profile) continue;
 
       let heuristics;
@@ -90,6 +91,7 @@ export class Analyzer {
         heuristics = selectHeuristics(rules, this.mode, profileId);
       }
       const totalHeuristics = heuristics.length;
+      console.info(`[synthux] → ${totalHeuristics} heuristics selected for mode="${this.mode}"`);
       const evaluations = [];
 
       for (let hi = 0; hi < totalHeuristics; hi++) {
@@ -117,6 +119,7 @@ export class Analyzer {
         const prompt = buildPrompt(heuristic, profile, pageData, !!screenshot);
 
         try {
+          console.info(`[synthux] → Calling AI: ${heuristic.name.en} (model: ${this.model}, provider: ${this.providerId})`);
           const response = await this.client.evaluate(prompt, {
             model: this.model,
             systemPrompt: profile.systemPrompt,
@@ -133,7 +136,9 @@ export class Analyzer {
               ...evaluation,
               _meta: response.meta || {}
             });
+            console.info(`[synthux] → ✓ Score: ${evaluation.score}, Issues: ${evaluation.issues.length}`);
           } else {
+            console.warn(`[synthux] → ✗ AI returned error: ${response.error}`);
             // AI call failed — add fallback
             evaluations.push({
               heuristicId: heuristic.id,
@@ -146,7 +151,7 @@ export class Analyzer {
             });
           }
         } catch (err) {
-          console.error(`[synthux] Evaluation failed for ${heuristic.id}:`, err);
+          console.error(`[synthux] → ✗ Evaluation exception for ${heuristic.id}:`, err);
           evaluations.push({
             heuristicId: heuristic.id,
             heuristicName: heuristic.name,

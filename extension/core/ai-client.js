@@ -96,6 +96,7 @@ export class AIClient {
 
         if (!response.ok) {
           const errorText = await response.text();
+          console.error(`[synthux] HTTP ${response.status} from ${req.url}:`, errorText.substring(0, 300));
           lastError = new Error(`${this.provider.name} error (${response.status}): ${errorText}`);
 
           // Retry on 500 (server crash), don't retry on 4xx
@@ -108,7 +109,7 @@ export class AIClient {
           if (response.status === 401 || response.status === 403) {
             return {
               success: false,
-              error: `Invalid API key for ${this.provider.name}. Check your settings.`
+              error: `Invalid API key for ${this.provider.name}. Check your settings. (HTTP ${response.status})`
             };
           }
 

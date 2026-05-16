@@ -156,6 +156,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true;
 
+    // ─── Overlay Relay (Side Panel → Content Script) ─────────────
+    case 'INJECT_OVERLAY':
+      injectOverlayManager(payload?.tabId).then(sendResponse);
+      return true;
+
+    case 'HIGHLIGHT_ELEMENT':
+    case 'CLEAR_HIGHLIGHT':
+    case 'SHOW_HEATMAP':
+    case 'CLEAR_HEATMAP':
+    case 'CLEAR_OVERLAYS':
+      relayOverlayMessage(type, payload).then(sendResponse);
+      return true;
+
     default:
       console.warn('[synthux] Unknown message type:', type);
   }
@@ -418,3 +431,57 @@ function broadcastToSidePanel(message) {
     // Side panel might not be open — ignore
   });
 }
+
+// ─── Overlay Management ──────────────────────────────────────────────────────
+
+/**
+ * Inject the overlay manager into the active tab.
+ * Safe to call multiple times — the script guards against re-injection.
+ */
+async function injectOverlayManager(tabId) {
+  try {
+    if (!tabId) {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      tabId = tab?.id;
+    }
+    if (!tabId) return { error: 'No active tab' };
+
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ['content/overlay-manager.js']
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error('[synthux] Failed to inject overlay manager:', err);
+    return { error: err.message };
+  }
+}
+
+/**
+ * Relay an overlay message from the side panel to the active tab's content script.
+ * Automatically injects the overlay manager if needed.
+ */
+async function relayOverlayMessage(type, payload) {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return { error: 'No active tab' };
+
+    // Ensure overlay manager is injected
+    await injectOverlayManager(tab.id);
+
+    // Forward message to content script
+    return new Promise((resolve) => {
+      chrome.tabs.sendMessage(tab.id, { type, ...payload }, (response) => {
+        if (chrome.runtime.lastError) {
+          resolve({ error: chrome.runtime.lastError.message });
+        } else {
+          resolve(response || { success: true });
+        }
+      });
+    });
+  } catch (err) {
+    return { error: err.message };
+  }
+}
+
