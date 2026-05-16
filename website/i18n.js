@@ -35,6 +35,10 @@ const translations = {
     feature8Desc: '0-100 scores per heuristic with code fix suggestions, quick win indicators, and priority matrix.',
     feature9Title: 'Complete Privacy',
     feature9Desc: 'BYOK model — API keys stay in your browser. No middleman, no telemetry, no data collection.',
+    feature10Title: 'Issue Heatmap',
+    feature10Desc: 'Toggle a live heatmap overlay on the analyzed page. Critical issues glow red, moderate yellow, minor green — see problem density at a glance.',
+    feature11Title: 'Hover-to-Highlight',
+    feature11Desc: 'Hover any issue in the report to instantly highlight the affected element on the live page with severity-colored borders and tooltips.',
 
     // Compare
     compareTitle: 'Local vs Cloud',
@@ -132,6 +136,10 @@ const translations = {
     feature8Desc: 'Her sezgisel için 0-100 puan, kod düzeltme önerileri, hızlı kazanım göstergeleri ve öncelik matrisi.',
     feature9Title: 'Tam Gizlilik',
     feature9Desc: 'BYOK modeli — API anahtarları tarayıcınızda kalır. Aracı yok, telemetri yok, veri toplama yok.',
+    feature10Title: 'Sorun Isı Haritası',
+    feature10Desc: 'Analiz edilen sayfada canlı ısı haritası açın. Kritik sorunlar kırmızı, orta sarı, düşük yeşil — sorun yoğunluğunu bir bakışta görün.',
+    feature11Title: 'Üzerine Gelince Vurgulama',
+    feature11Desc: 'Rapordaki herhangi bir soruna fareyle gelin, etkilenen öğeyi sayfada şiddet renkli kenarlık ve ipucu ile anında vurgulayın.',
 
     // Compare
     compareTitle: 'Yerel vs Bulut',
