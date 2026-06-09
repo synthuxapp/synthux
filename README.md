@@ -15,6 +15,7 @@
   <a href="https://synthux.app">Website</a> ·
   <a href="docs/getting-started.md">Documentation</a> ·
   <a href="docs/CONTRIBUTING.md">Contributing</a> ·
+  <a href="https://github.com/synthuxapp/synthux/releases">Releases</a> ·
   <a href="https://github.com/synthuxapp/synthux/issues">Issues</a>
 </p>
 
