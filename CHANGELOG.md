@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Cancel & Restart:** Starting a new flow analysis automatically cancels any in-progress analysis instead of blocking.
 - **Context Menu Integration:** Right-click on any page → "Analyze in synthux Flow" opens the Flow Builder with that page pre-added.
 - **Auto-Connect:** New pages are automatically connected to the last added page with a connector arrow.
+- **Heatmap Improvements:** Gradient rendering, legend overlay, and pulse animations for issue markers on the heatmap.
+- **Chrome Web Store Rating Prompt:** In-app prompt encouraging users to rate the extension after successful analysis.
+- **Privacy Policy Update:** Updated privacy policy covering Flow Analysis data handling, BYOK transparency, and developer information.
 
 ### Changed
 - **AI Client:** `maxTokens` is now configurable per-call instead of hardcoded to 4096. Flow analysis passes 8192 for Ollama.
