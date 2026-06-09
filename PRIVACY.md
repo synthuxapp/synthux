@@ -1,12 +1,12 @@
 # Privacy Policy
 
-**Last updated:** April 23, 2026
+**Last updated:** June 9, 2026
 
 ## Overview
 
-synthux is an open-source Chrome extension that performs UX/UI analysis using local AI. We are committed to protecting your privacy. This policy explains what data synthux accesses, how it is processed, and what is stored.
+synthux is an open-source Chrome extension that performs UX/UI analysis using local or cloud AI. We are committed to protecting your privacy. This policy explains what data synthux accesses, how it is processed, and what is stored.
 
-**The short version:** synthux does not collect, transmit, or share any personal data. All processing happens locally on your machine.
+**The short version:** synthux does not collect, transmit, or share any personal data with us. When using local AI (Ollama), all processing stays on your machine. When using cloud AI (BYOK mode), data is sent directly to your chosen provider using your own API key — we never see it.
 
 ## Data Collection
 
@@ -17,8 +17,9 @@ When you initiate an analysis, synthux temporarily reads the following data from
 - **DOM structure:** HTML headings, forms, links, buttons, navigation elements, and landmarks
 - **Accessibility attributes:** ARIA roles, alt text, tab order, and focus indicators
 - **Page metadata:** Title, description, language, viewport settings
-- **Visual metrics:** Screenshot of the visible area (for report reference only)
+- **Visual metrics:** Screenshot of the visible area (for vision analysis and report reference)
 - **Performance indicators:** DOM size, image count, script count
+- **Flow Builder data:** When using Flow Builder, screenshots of each page in the flow are captured and temporarily held in memory for cross-page analysis
 
 ### What synthux does NOT access
 
@@ -31,20 +32,37 @@ When you initiate an analysis, synthux temporarily reads the following data from
 
 ## Data Processing
 
-All analysis is performed **entirely on your local machine** using [Ollama](https://ollama.com), an open-source local AI runtime. Specifically:
+synthux supports two processing modes:
+
+### Local AI (Ollama — default)
 
 - Page data is sent to Ollama running on `localhost:11434`
-- The AI model (e.g., Gemma 3/4) processes the data locally
-- No data is transmitted to external servers, cloud services, or third parties
-- No API calls are made to remote AI services (unless the user explicitly configures BYOK mode in future versions)
+- The AI model (e.g., Gemma 4) processes the data entirely on your machine
+- No data leaves your device
+
+### Cloud AI (BYOK — Bring Your Own Key)
+
+When you explicitly configure a cloud provider in Settings, page data is sent directly to your chosen AI provider:
+
+- **Google Gemini** — via `generativelanguage.googleapis.com`
+- **OpenAI** — via `api.openai.com`
+- **Anthropic Claude** — via `api.anthropic.com`
+
+Important:
+- This is entirely **opt-in**; you must manually enter your own API key
+- Data is sent directly from your browser to the provider — **we never proxy, intercept, or see your data or API keys**
+- API keys are stored only in `chrome.storage.local` on your device
+- You are subject to the privacy policies of your chosen AI provider
 
 ## Data Storage
 
 - **Analysis reports** are saved in `chrome.storage.local` (browser-local storage)
 - Reports remain on your device and are never synced or uploaded
-- **Settings** (Ollama endpoint, model selection, language preference) are stored in `chrome.storage.local`
+- **Settings** (Ollama endpoint, model selection, API keys, language preference) are stored in `chrome.storage.local`
+- **Flow Builder data** (page screenshots, connections, sticky notes, analysis results) is stored in `chrome.storage.local` under the key `synthux_flows`
 - You can delete all stored data by removing the extension or clearing extension data in Chrome settings
 - Maximum 20 reports are retained; older reports are automatically removed
+- Flow data is stored independently and can be managed (saved, loaded, deleted) within the Flow Builder UI
 
 ## Data Sharing
 
@@ -72,18 +90,31 @@ synthux requires the following Chrome permissions:
 | Host | Purpose |
 | :--- | :------ |
 | `http://localhost:11434/*` | Communicate with local Ollama AI server |
+| `https://generativelanguage.googleapis.com/*` | Google Gemini API (BYOK mode only) |
+| `https://api.openai.com/*` | OpenAI API (BYOK mode only) |
+| `https://api.anthropic.com/*` | Anthropic Claude API (BYOK mode only) |
 | `<all_urls>` | Enable analysis on any website the user visits |
 
 > **Why `<all_urls>`?** synthux needs to inject a content script to read page structure on any website the user chooses to analyze. This permission is only exercised when the user actively initiates an analysis. The extension does not run background scripts on pages or monitor browsing activity.
 
-## Future: BYOK (Bring Your Own Key) Mode
+## Flow Builder
 
-A future version of synthux may support BYOK mode, where users can optionally use their own API keys for cloud AI services (OpenAI, Google Gemini, Anthropic Claude). In this mode:
+The Flow Builder feature allows you to map multi-page user journeys for cross-page UX analysis:
 
-- Data will be sent to the user's chosen AI provider using the user's own API key
-- This is entirely opt-in; local Ollama remains the default
-- Users will be clearly informed before any data leaves their machine
-- The extension developers never have access to user API keys
+- **Screenshots** of each page in the flow are captured and stored temporarily in memory during analysis
+- **Flow data** (page metadata, connections, sticky notes) is saved to `chrome.storage.local` when you explicitly save a flow
+- Screenshots sent to AI for analysis are **downscaled to 800×600** to minimize data size
+- All flow analysis follows the same local/cloud processing rules described above
+- Flow data never leaves your device unless you are using BYOK cloud mode, in which case it is sent directly to your chosen provider
+
+## Developer Information
+
+synthux is developed and maintained by:
+
+- **Developer:** Ufuk Aydın
+- **GitHub:** [github.com/ufhouck](https://github.com/ufhouck)
+- **Organization:** [github.com/synthuxapp](https://github.com/synthuxapp)
+- **Contact:** [Open an issue](https://github.com/synthuxapp/synthux/issues)
 
 ## Children's Privacy
 
