@@ -27,7 +27,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="style.css?v=1.8.0">
+  <link rel="stylesheet" href="style.css?v=1.9.2">
 
   <!-- Structured Data -->
   <script type="application/ld+json">
@@ -42,7 +42,7 @@
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "license": "https://opensource.org/licenses/MIT",
     "author": { "@type": "Organization", "name": "synthux", "url": "https://github.com/synthuxapp" },
-    "softwareVersion": "1.8.0",
+    "softwareVersion": "1.9.0",
     "downloadUrl": "https://github.com/synthuxapp/synthux"
   }
   </script>
@@ -69,7 +69,22 @@
         <li><a href="#how-it-works" class="nav-link-desktop" data-i18n="navHow">How It Works</a></li>
         <li><a href="#privacy" class="nav-link-desktop" data-i18n="navPrivacy">Privacy</a></li>
         <li><button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">☀️</button></li>
-        <li><button class="lang-btn" onclick="toggleLanguage()" data-i18n="langToggle">TR</button></li>
+        <li>
+          <div class="lang-picker" id="lang-picker-nav">
+            <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-nav')">
+              <span class="lang-picker__label">EN</span>
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="lang-picker__menu">
+              <button onclick="pickLang('en')">English</button>
+              <button onclick="pickLang('tr')">Türkçe</button>
+              <button onclick="pickLang('de')">Deutsch</button>
+              <button onclick="pickLang('zh')">中文</button>
+              <button onclick="pickLang('fr')">Français</button>
+              <button onclick="pickLang('it')">Italiano</button>
+            </div>
+          </div>
+        </li>
         <li><a href="https://github.com/synthuxapp/synthux" class="nav-cta" target="_blank">GitHub ★</a></li>
       </ul>
     </div>
@@ -81,7 +96,7 @@
       <div class="hero-badges fade-in">
         <span class="badge"><span class="dot"></span> <span data-i18n="heroBadgePrivacy">100% Private</span></span>
         <span class="badge"><span data-i18n="heroBadgeOpenSource">Open Source</span></span>
-        <span class="badge badge-new">v1.8 — Heatmap + Hover Highlight + Overlays</span>
+        <span class="badge badge-new">v1.9 — Heatmap Nav + CORS Wizard + BYOK</span>
       </div>
 
       <h1 class="fade-in" data-i18n="heroTagline">AI-powered UX audit in your browser.</h1>
@@ -172,6 +187,12 @@
           <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><path d="M15 15l-2 5L9 9l11 4-5 2z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
           <h3 data-i18n="feature11Title">Hover-to-Highlight</h3>
           <p data-i18n="feature11Desc">Hover any issue in the report to instantly highlight the affected element on the live page with severity-colored borders and tooltips.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <span class="feature-new">New</span>
+          <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><rect x="2" y="3" width="6" height="5" rx="1"/><rect x="16" y="3" width="6" height="5" rx="1"/><rect x="9" y="16" width="6" height="5" rx="1"/><path d="M5 8v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/><path d="M12 13v3"/></svg></div>
+          <h3 data-i18n="feature12Title">Flow Builder</h3>
+          <p data-i18n="feature12Desc">Visual canvas to map multi-page user journeys. Connect pages, add notes, run cross-page UX analysis, save & load multiple flows.</p>
         </div>
       </div>
     </div>
@@ -352,6 +373,67 @@
     </div>
   </section>
 
+  <!-- ─── Support ─── -->
+  <section id="support" style="padding: 40px 0;">
+    <div class="container">
+      <div class="fade-in" style="
+        max-width: 520px;
+        margin: 0 auto;
+        text-align: center;
+        background: var(--sx-bg-card);
+        border: 1px solid var(--sx-border);
+        border-radius: 12px;
+        padding: 28px 24px;
+      ">
+        <p style="font-size: 14px; font-weight: 600; color: var(--sx-text-primary); margin: 0 0 4px;" data-i18n="supportTitle">Support synthux development</p>
+        <p style="font-size: 12px; color: var(--sx-text-tertiary); margin: 0 0 16px;" data-i18n="supportDesc">If you find synthux useful, consider supporting its development.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="
+            display: flex; align-items: center; gap: 10px;
+            background: var(--sx-bg-secondary);
+            border: 1px solid var(--sx-border);
+            border-radius: 8px;
+            padding: 8px 12px;
+          ">
+            <span style="font-size: 11px; font-weight: 600; color: var(--sx-text-secondary); min-width: 32px;">ETH</span>
+            <code id="eth-addr" style="flex:1; font-size: 11px; color: var(--sx-text-tertiary); font-family: 'SF Mono', Monaco, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">0x2612b77E5ee1b5feeDdD5eC08731749bC2217F54</code>
+            <button onclick="copyAddr('eth-addr', this)" style="
+              padding: 4px 10px; border: 1px solid var(--sx-border); border-radius: 5px;
+              background: transparent; color: var(--sx-text-tertiary); font-size: 10px;
+              cursor: pointer; font-family: inherit; transition: all 150ms ease; white-space: nowrap;
+            ">Copy</button>
+          </div>
+          <div style="
+            display: flex; align-items: center; gap: 10px;
+            background: var(--sx-bg-secondary);
+            border: 1px solid var(--sx-border);
+            border-radius: 8px;
+            padding: 8px 12px;
+          ">
+            <span style="font-size: 11px; font-weight: 600; color: var(--sx-text-secondary); min-width: 32px;">SOL</span>
+            <code id="sol-addr" style="flex:1; font-size: 11px; color: var(--sx-text-tertiary); font-family: 'SF Mono', Monaco, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">3GFG3AEv7oEiJMns1QmoJTeLaPgzZmhXUoCpSdntzyBk</code>
+            <button onclick="copyAddr('sol-addr', this)" style="
+              padding: 4px 10px; border: 1px solid var(--sx-border); border-radius: 5px;
+              background: transparent; color: var(--sx-text-tertiary); font-size: 10px;
+              cursor: pointer; font-family: inherit; transition: all 150ms ease; white-space: nowrap;
+            ">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    function copyAddr(id, btn) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied';
+        btn.style.color = '#22c55e';
+        setTimeout(() => { btn.textContent = 'Copy'; btn.style.color = ''; }, 2000);
+      });
+    }
+  </script>
+
   <!-- ─── Footer ─── -->
   <footer class="footer">
     <div class="container">
@@ -388,13 +470,26 @@
 
       <div class="footer-bottom">
         <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
-        <button class="lang-btn" onclick="toggleLanguage()" data-i18n="langToggle">TR</button>
+        <div class="lang-picker lang-picker--up" id="lang-picker-footer">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-footer')">
+            <span class="lang-picker__label">EN</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
       </div>
     </div>
   </footer>
 
   <!-- Scripts -->
-  <script src="i18n.js?v=1.8.0"></script>
-  <script src="script.js?v=1.8.0"></script>
+  <script src="i18n.js?v=1.9.2"></script>
+  <script src="script.js?v=1.9.2"></script>
 </body>
 </html>

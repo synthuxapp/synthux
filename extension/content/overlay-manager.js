@@ -154,6 +154,10 @@
 
   // ─── Heatmap ───────────────────────────────────────────────────────────────
 
+  const LEGEND_ID = '__synthux-heatmap-legend__';
+  const OUTLINES_ID = '__synthux-heatmap-outlines__';
+  const PULSE_STYLE_ID = '__synthux-pulse-style__';
+
   function showHeatmap(issues) {
     clearHeatmap();
 
@@ -182,7 +186,7 @@
       height: ${docHeight}px;
       pointer-events: none;
       z-index: 2147483640;
-      opacity: 0.6;
+      opacity: 0.25;
     `;
 
     root.appendChild(canvas);
@@ -193,64 +197,285 @@
     const scrollX = window.scrollX || window.pageXOffset;
     const scrollY = window.scrollY || window.pageYOffset;
 
-    // Collect element positions with severity weights
-    const points = [];
+    // Inject pulse animation CSS
+    if (!document.getElementById(PULSE_STYLE_ID)) {
+      const style = document.createElement('style');
+      style.id = PULSE_STYLE_ID;
+      style.textContent = `
+        @keyframes __synthux-pulse {
+          0%, 100% { opacity: 0.8; }
+          50% { opacity: 0.4; }
+        }
+        .__synthux-outline--critical {
+          animation: __synthux-pulse 2s ease-in-out infinite;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Collect element positions
+    const rawPoints = [];
     issues.forEach(issue => {
       let el;
-      try {
-        el = document.querySelector(issue.element);
-      } catch {
-        el = findElementByFuzzySelector(issue.element);
-      }
-
+      try { el = document.querySelector(issue.element); }
+      catch { el = findElementByFuzzySelector(issue.element); }
       if (el) {
         const rect = el.getBoundingClientRect();
-        const weight = issue.severity === 'critical' ? 1.0 :
-                       issue.severity === 'moderate' ? 0.6 : 0.3;
-        points.push({
-          x: rect.left + scrollX + rect.width / 2,
-          y: rect.top + scrollY + rect.height / 2,
-          w: Math.max(rect.width, 40),
-          h: Math.max(rect.height, 40),
-          weight,
-          severity: issue.severity
+        rawPoints.push({
+          el, selector: issue.element,
+          rectX: rect.left + scrollX, rectY: rect.top + scrollY,
+          rectW: rect.width, rectH: rect.height,
+          severity: issue.severity, description: issue.description || ''
         });
       }
     });
 
-    // Draw heatmap spots
-    points.forEach(point => {
-      const radius = Math.max(point.w, point.h) * 0.8;
-      const gradient = ctx.createRadialGradient(
-        point.x, point.y, 0,
-        point.x, point.y, radius
-      );
-
-      if (point.severity === 'critical') {
-        gradient.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
-        gradient.addColorStop(0.4, 'rgba(239, 68, 68, 0.20)');
-        gradient.addColorStop(1, 'rgba(239, 68, 68, 0)');
-      } else if (point.severity === 'moderate') {
-        gradient.addColorStop(0, 'rgba(234, 179, 8, 0.35)');
-        gradient.addColorStop(0.4, 'rgba(234, 179, 8, 0.15)');
-        gradient.addColorStop(1, 'rgba(234, 179, 8, 0)');
-      } else {
-        gradient.addColorStop(0, 'rgba(34, 197, 94, 0.20)');
-        gradient.addColorStop(0.4, 'rgba(34, 197, 94, 0.08)');
-        gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+    // Group by element position
+    const groupMap = new Map();
+    rawPoints.forEach(p => {
+      const key = `${Math.round(p.rectX)}_${Math.round(p.rectY)}_${Math.round(p.rectW)}_${Math.round(p.rectH)}`;
+      if (!groupMap.has(key)) {
+        groupMap.set(key, { el: p.el, selector: p.selector, rectX: p.rectX, rectY: p.rectY, rectW: p.rectW, rectH: p.rectH, issues: [] });
       }
+      groupMap.get(key).issues.push({ severity: p.severity, description: p.description });
+    });
 
+    const sevColors = { critical: '#ef4444', moderate: '#eab308', minor: '#22c55e' };
+    const sevLabels = { critical: 'Critical', moderate: 'Moderate', minor: 'Minor' };
+
+    const points = Array.from(groupMap.values()).map(g => {
+      const hasCritical = g.issues.some(i => i.severity === 'critical');
+      const hasModerate = g.issues.some(i => i.severity === 'moderate');
+      const severity = hasCritical ? 'critical' : hasModerate ? 'moderate' : 'minor';
+      let label = '';
+      try {
+        const tag = g.el.tagName?.toLowerCase() || '';
+        const id = g.el.id ? `#${g.el.id}` : '';
+        const cls = g.el.className && typeof g.el.className === 'string' ? '.' + g.el.className.trim().split(/\s+/).slice(0, 1).join('.') : '';
+        label = tag + (id || cls || '');
+        if (label.length > 24) label = label.slice(0, 24) + '…';
+      } catch { label = 'element'; }
+      return { ...g, x: g.rectX + g.rectW / 2, y: g.rectY + g.rectH / 2, w: Math.max(g.rectW, 40), h: Math.max(g.rectH, 40), severity, count: g.issues.length, label };
+    });
+
+    // Draw gradient spots
+    points.forEach(point => {
+      const radius = Math.max(point.w, point.h) * 0.5;
+      const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius);
+      if (point.severity === 'critical') {
+        gradient.addColorStop(0, 'rgba(239,68,68,0.35)'); gradient.addColorStop(0.6, 'rgba(239,68,68,0.08)'); gradient.addColorStop(1, 'rgba(239,68,68,0)');
+      } else if (point.severity === 'moderate') {
+        gradient.addColorStop(0, 'rgba(234,179,8,0.25)'); gradient.addColorStop(0.6, 'rgba(234,179,8,0.06)'); gradient.addColorStop(1, 'rgba(234,179,8,0)');
+      } else {
+        gradient.addColorStop(0, 'rgba(34,197,94,0.18)'); gradient.addColorStop(0.6, 'rgba(34,197,94,0.04)'); gradient.addColorStop(1, 'rgba(34,197,94,0)');
+      }
       ctx.fillStyle = gradient;
-      ctx.fillRect(
-        point.x - radius, point.y - radius,
-        radius * 2, radius * 2
-      );
+      ctx.fillRect(point.x - radius, point.y - radius, radius * 2, radius * 2);
+    });
+
+    // Outlines
+    const outlineContainer = document.createElement('div');
+    outlineContainer.id = OUTLINES_ID;
+    outlineContainer.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:2147483641;';
+
+    points.forEach((point, index) => {
+      const color = sevColors[point.severity] || sevColors.minor;
+      const outline = document.createElement('div');
+      outline.dataset.synthuxIndex = index;
+      outline.style.cssText = `
+        position:absolute; left:${point.rectX - 2}px; top:${point.rectY - 2}px;
+        width:${point.rectW + 4}px; height:${point.rectH + 4}px;
+        border:2px dashed ${color}66; border-radius:3px;
+        pointer-events:auto; box-sizing:border-box; cursor:pointer;
+        transition:all 150ms ease;
+      `;
+      outline.addEventListener('click', e => { e.stopPropagation(); _navigateToIssue(index); });
+
+      if (point.count > 1) {
+        const badge = document.createElement('span');
+        badge.style.cssText = `
+          position:absolute; top:-8px; right:-8px; min-width:16px; height:16px;
+          border-radius:8px; background:${color}; color:#fff; font-size:9px; font-weight:700;
+          font-family:-apple-system,system-ui,sans-serif;
+          display:flex; align-items:center; justify-content:center; padding:0 4px; pointer-events:none;
+        `;
+        badge.textContent = point.count;
+        outline.appendChild(badge);
+      }
+      outlineContainer.appendChild(outline);
+    });
+    root.appendChild(outlineContainer);
+
+    window.__synthux_heatmap_points = points;
+    window.__synthux_heatmap_index = -1;
+
+    const totalIssues = points.reduce((s, p) => s + p.count, 0);
+
+    // ─── Toolbar ─────────────────────────────────────────────────────────
+    const toolbar = document.createElement('div');
+    toolbar.id = LEGEND_ID;
+    toolbar.style.cssText = `
+      position:fixed; bottom:16px; right:16px; width:280px;
+      background:rgba(17,17,19,0.96); backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+      padding:0; z-index:2147483647;
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+      color:#ededf0; pointer-events:auto; user-select:none;
+      box-shadow:0 8px 32px rgba(0,0,0,0.5);
+      overflow:hidden;
+    `;
+
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = 'padding:10px 14px 8px; border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;';
+    const hTitle = document.createElement('span');
+    hTitle.style.cssText = 'font-weight:700;font-size:11px;';
+    hTitle.textContent = 'Heatmap';
+    const hCount = document.createElement('span');
+    hCount.style.cssText = 'font-size:10px;color:#52525b;';
+    hCount.textContent = `${totalIssues} issues · ${points.length} elements`;
+    header.appendChild(hTitle);
+    header.appendChild(hCount);
+    toolbar.appendChild(header);
+
+    // Info panel
+    const infoPanel = document.createElement('div');
+    infoPanel.id = '__synthux-nav-info';
+    infoPanel.style.cssText = 'padding:10px 14px;min-height:48px;border-bottom:1px solid rgba(255,255,255,0.06);';
+    const infoText = document.createElement('div');
+    infoText.style.cssText = 'font-size:11px;color:#52525b;';
+    infoText.textContent = 'Click arrows to navigate';
+    infoPanel.appendChild(infoText);
+    toolbar.appendChild(infoPanel);
+
+    // Nav bar
+    const navBar = document.createElement('div');
+    navBar.style.cssText = 'display:flex;align-items:center;padding:8px 14px;';
+
+    const btnStyle = `
+      width:30px;height:26px;border:1px solid rgba(255,255,255,0.1);border-radius:5px;
+      background:transparent;color:#71717a;cursor:pointer;font-size:10px;
+      display:flex;align-items:center;justify-content:center;pointer-events:auto;
+    `;
+
+    const prevBtn = document.createElement('button');
+    prevBtn.id = '__synthux-nav-prev';
+    prevBtn.style.cssText = btnStyle;
+    prevBtn.textContent = '\u25B2';
+
+    const counter = document.createElement('span');
+    counter.id = '__synthux-nav-counter';
+    counter.style.cssText = 'flex:1;text-align:center;font-size:11px;color:#52525b;';
+    counter.textContent = '\u2014';
+
+    const nextBtn = document.createElement('button');
+    nextBtn.id = '__synthux-nav-next';
+    nextBtn.style.cssText = btnStyle;
+    nextBtn.textContent = '\u25BC';
+
+    navBar.appendChild(prevBtn);
+    navBar.appendChild(counter);
+    navBar.appendChild(nextBtn);
+    toolbar.appendChild(navBar);
+
+    document.body.appendChild(toolbar);
+
+    // Event listeners — directly on button references
+    prevBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const idx = window.__synthux_heatmap_index;
+      const total = (window.__synthux_heatmap_points || []).length;
+      if (total === 0) return;
+      _navigateToIssue(idx <= 0 ? total - 1 : idx - 1);
+    });
+    nextBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const idx = window.__synthux_heatmap_index;
+      const total = (window.__synthux_heatmap_points || []).length;
+      if (total === 0) return;
+      _navigateToIssue(idx >= total - 1 ? 0 : idx + 1);
     });
   }
 
+  function _navigateToIssue(index) {
+    const points = window.__synthux_heatmap_points || [];
+    if (index < 0 || index >= points.length) return;
+    window.__synthux_heatmap_index = index;
+    const point = points[index];
+    if (!point) return;
+
+    const sevColors = { critical: '#ef4444', moderate: '#eab308', minor: '#22c55e' };
+    const sevLabels = { critical: 'Critical', moderate: 'Moderate', minor: 'Minor' };
+    const sev = point.severity || 'minor';
+    const color = sevColors[sev] || sevColors.minor;
+
+    // Always update counter first (so it never gets stuck)
+    const counter = document.getElementById('__synthux-nav-counter');
+    if (counter) {
+      counter.style.color = color;
+      counter.textContent = `${index + 1} of ${points.length}`;
+    }
+
+    // Scroll to element (safe)
+    try {
+      if (point.el && typeof point.el.scrollIntoView === 'function') {
+        point.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } catch (e) { /* element may be detached */ }
+
+    // Update outlines
+    try {
+      const container = document.getElementById(OUTLINES_ID);
+      if (container) {
+        container.querySelectorAll('[data-synthux-index]').forEach(el => {
+          const i = parseInt(el.dataset.synthuxIndex);
+          const p = points[i];
+          const c = sevColors[p?.severity] || sevColors.minor;
+          if (i === index) {
+            el.style.border = `3px solid ${c}`;
+            el.style.boxShadow = `0 0 16px ${c}55, 0 0 4px ${c}`;
+          } else {
+            el.style.border = `2px dashed ${c}66`;
+            el.style.boxShadow = 'none';
+          }
+        });
+      }
+    } catch (e) { /* outline update failed */ }
+
+    // Update info panel
+    try {
+      const info = document.getElementById('__synthux-nav-info');
+      if (info) {
+        const issues = point.issues || [];
+        const desc = (issues[0]?.description || '').toString();
+        const shortDesc = desc.length > 70 ? desc.slice(0, 70) + '…' : desc;
+        const label = (point.label || 'element').toString();
+        const count = point.count || issues.length || 1;
+        const moreHtml = count > 1
+          ? `<div style="font-size:9px; color:#52525b; margin-top:2px;">+ ${count - 1} more issue${count > 2 ? 's' : ''}</div>`
+          : '';
+        info.innerHTML = `
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+            <span style="font-size:10px;font-weight:600;color:${color};">${sevLabels[sev] || 'Issue'}</span>
+            <span style="font-size:9px;color:#52525b;font-family:'SF Mono',Monaco,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(label)}</span>
+          </div>
+          <div style="font-size:11px;color:#a1a1aa;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escapeHtml(shortDesc)}</div>
+          ${moreHtml}
+        `;
+      }
+    } catch (e) { /* info panel update failed, counter still updated */ }
+  }
+
   function clearHeatmap() {
-    const canvas = document.getElementById(HEATMAP_ID);
-    if (canvas) canvas.remove();
+    [HEATMAP_ID, OUTLINES_ID, LEGEND_ID, PULSE_STYLE_ID].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    });
+    delete window.__synthux_heatmap_points;
+    delete window.__synthux_heatmap_index;
   }
 
   // ─── Element Rects ─────────────────────────────────────────────────────────

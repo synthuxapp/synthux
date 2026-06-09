@@ -83,12 +83,60 @@ export const PROVIDERS = {
     },
 
     async ping(endpoint) {
+      const url = endpoint || this.defaultEndpoint;
       try {
-        const res = await fetch(`${endpoint || this.defaultEndpoint}/api/tags`, {
+        const res = await fetch(`${url}/api/tags`, {
           signal: AbortSignal.timeout(5000)
         });
-        return res.ok;
-      } catch { return false; }
+        if (res.ok) {
+          // GET works — but CORS may still block POST requests.
+          // Quick POST probe to verify (will get 400 "model required" if POST is allowed,
+          // or 403 if CORS blocks POST from this extension origin)
+          try {
+            const postProbe = await fetch(`${url}/api/generate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ model: '' }),
+              signal: AbortSignal.timeout(3000)
+            });
+            // 403 = CORS blocking POST specifically
+            if (postProbe.status === 403) {
+              return { status: 'cors-blocked' };
+            }
+            // Any other response (400, 404, etc.) = POST is allowed, connection works
+          } catch {
+            // POST fetch threw entirely — CORS blocking at network level
+            return { status: 'cors-blocked' };
+          }
+
+          // Also check version for update tracking
+          let version = null;
+          try {
+            const vRes = await fetch(`${url}/api/version`, { signal: AbortSignal.timeout(3000) });
+            if (vRes.ok) {
+              const vData = await vRes.json();
+              version = vData.version || null;
+            }
+          } catch { /* version check is best-effort */ }
+          return { status: 'connected', version };
+        }
+        // Ollama is reachable but returned non-200
+        return { status: 'error', code: res.status };
+      } catch {
+        // GET fetch threw — either CORS blocked entirely or truly offline.
+        // Use a no-cors probe to distinguish:
+        try {
+          await fetch(url, {
+            mode: 'no-cors',
+            signal: AbortSignal.timeout(3000)
+          });
+          // Opaque response received — Ollama is running but CORS is blocking
+          return { status: 'cors-blocked' };
+        } catch {
+          // Network error — Ollama is truly offline
+          return { status: 'offline' };
+        }
+      }
     }
   },
 
@@ -450,4 +498,98 @@ export function getProviderList() {
     authType: p.authType,
     models: p.models
   }));
+}
+
+// ─── Vision Capability Detection ─────────────────────────────────────────────
+
+/**
+ * In-memory cache for vision capability per model.
+ * Key: "providerId::modelName", Value: boolean
+ */
+const _visionCache = new Map();
+
+/**
+ * Check if a model supports vision (image) input.
+ *
+ * - Cloud providers (OpenAI, Gemini, Claude): always returns true
+ *   (all modern cloud models accept images; the API gracefully ignores
+ *    images if the specific model doesn't support them).
+ * - Ollama: queries /api/show for the model's `capabilities` array
+ *   and returns true if it contains "vision".
+ *
+ * Results are cached in-memory so repeated calls for the same model
+ * don't hit the network.
+ *
+ * @param {string} providerId  - e.g. 'ollama', 'openai', 'gemini', 'claude'
+ * @param {string} model       - model name, e.g. 'gemma3:4b'
+ * @param {string} [endpoint]  - Ollama endpoint (default http://localhost:11434)
+ * @returns {Promise<boolean>}
+ */
+export async function checkVisionSupport(providerId, model, endpoint) {
+  // Cloud providers — always treat as vision-capable
+  if (providerId !== 'ollama') return true;
+
+  if (!model) return false;
+
+  const cacheKey = `${providerId}::${model}`;
+  if (_visionCache.has(cacheKey)) {
+    return _visionCache.get(cacheKey);
+  }
+
+  const base = (endpoint || PROVIDERS.ollama.defaultEndpoint).replace(/\/$/, '');
+
+  try {
+    const res = await fetch(`${base}/api/show`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model }),
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (!res.ok) {
+      // Can't determine — assume no vision to be safe
+      _visionCache.set(cacheKey, false);
+      return false;
+    }
+
+    const data = await res.json();
+
+    // Primary: capabilities array (Ollama ≥ 0.5+)
+    if (Array.isArray(data.capabilities)) {
+      const hasVision = data.capabilities.includes('vision');
+      _visionCache.set(cacheKey, hasVision);
+      console.info(`[synthux] Vision check for "${model}": capabilities=[${data.capabilities.join(',')}] → ${hasVision}`);
+      return hasVision;
+    }
+
+    // Fallback: check model_info for vision-related keys (older Ollama)
+    if (data.model_info) {
+      const keys = Object.keys(data.model_info);
+      const hasVisionKeys = keys.some(k =>
+        k.includes('vision') || k.includes('mmproj') || k.includes('clip')
+      );
+      _visionCache.set(cacheKey, hasVisionKeys);
+      console.info(`[synthux] Vision check for "${model}": model_info keys fallback → ${hasVisionKeys}`);
+      return hasVisionKeys;
+    }
+
+    // Fallback: check families
+    const families = data.details?.families || data.details?.family;
+    if (families) {
+      const famArr = Array.isArray(families) ? families : [families];
+      const hasVisionFamily = famArr.some(f =>
+        /clip|vision|mmproj/i.test(f)
+      );
+      _visionCache.set(cacheKey, hasVisionFamily);
+      console.info(`[synthux] Vision check for "${model}": families fallback → ${hasVisionFamily}`);
+      return hasVisionFamily;
+    }
+
+    _visionCache.set(cacheKey, false);
+    return false;
+  } catch (err) {
+    console.warn(`[synthux] Vision capability check failed for "${model}":`, err.message);
+    _visionCache.set(cacheKey, false);
+    return false;
+  }
 }

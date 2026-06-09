@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-06-09
+
+### Added
+- **Flow Builder:** Figma-style visual canvas for mapping multi-page user journeys. Drag-and-drop page nodes, draw connectors, and add sticky notes — all in a dedicated full-screen view.
+- **Flow Analysis:** AI evaluates entire user journeys across connected pages. Cross-page consistency checks for navigation, visual design, flow logic, and terminology — powered by local or cloud AI with vision support.
+- **Multi-Flow Saves:** Save, name, load, and delete multiple flows independently. Badge shows saved flow count on the Load button.
+- **Clear Canvas:** One-click button to reset the entire flow canvas (with confirmation).
+- **Terminal Logs:** Real-time floating terminal overlay showing analysis progress, phase transitions, and errors during flow analysis.
+- **Session Tracking:** Each flow analysis generates a unique session ID. Stale messages from cancelled or previous sessions are automatically filtered out.
+- **Screenshot Resize:** Flow screenshots are downscaled to 800×600 before sending to AI, dramatically reducing payload size and preventing Ollama timeouts.
+- **Dynamic Token Limits:** Flow analysis uses `maxTokens: 8192` (Ollama) / `4096` (cloud) for the large JSON responses it requires.
+- **Cancel & Restart:** Starting a new flow analysis automatically cancels any in-progress analysis instead of blocking.
+- **Context Menu Integration:** Right-click on any page → "Analyze in synthux Flow" opens the Flow Builder with that page pre-added.
+- **Auto-Connect:** New pages are automatically connected to the last added page with a connector arrow.
+
+### Changed
+- **AI Client:** `maxTokens` is now configurable per-call instead of hardcoded to 4096. Flow analysis passes 8192 for Ollama.
+- **Vision Detection:** Dynamic capability check via Ollama `/api/show` endpoint with in-memory cache. Replaces unreliable hardcoded model name checks.
+- **Error Propagation:** AI errors during flow analysis are now surfaced in the terminal log with red highlighting instead of failing silently.
+- **Website:** Added Flow Builder feature card with "New" badge to features grid (6 languages).
+- **README:** Added Flow Builder section, updated roadmap, added `flow-manager.js` to project structure.
+
+### Fixed
+- **Flow Analysis Stale Results:** Previous analysis results no longer appear when starting a new analysis (session ID validation + `clearAllResults()`).
+- **Vision Crash:** Fixed crash when sending screenshots to non-vision models. Vision support is now checked dynamically before sending images.
+- **Hardcoded maxTokens:** Fixed `ai-client.js` ignoring caller's `maxTokens` option — was always sending 4096 regardless.
+
+---
+
 ## [1.8.0] - 2026-05-16
 
 ### Added

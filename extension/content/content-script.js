@@ -581,18 +581,37 @@ function checkFocusIndicators() {
 async function runAxeAudit(options = {}) {
   // Inject axe-core if not already loaded
   if (typeof window.axe === 'undefined') {
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = chrome.runtime.getURL('content/axe.min.js');
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load axe-core'));
-      document.head.appendChild(script);
-    });
+    try {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = chrome.runtime.getURL('content/axe.min.js');
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load axe-core script'));
+        (document.head || document.documentElement).appendChild(script);
+      });
+    } catch (injectErr) {
+      // CSP may block script injection — try alternative approach
+      console.warn('[synthux] Direct axe injection failed, trying fetch fallback:', injectErr.message);
+      try {
+        const response = await fetch(chrome.runtime.getURL('content/axe.min.js'));
+        const code = await response.text();
+        const fn = new Function(code);
+        fn();
+      } catch (fetchErr) {
+        throw new Error('axe-core injection blocked by page CSP: ' + fetchErr.message);
+      }
+    }
+
+    // Poll for axe availability (script may initialize async)
+    let retries = 0;
+    while (typeof window.axe === 'undefined' && retries < 20) {
+      await new Promise(r => setTimeout(r, 50));
+      retries++;
+    }
   }
 
-  // Wait for axe to be available
   if (typeof window.axe === 'undefined') {
-    throw new Error('axe-core not available after injection');
+    throw new Error('axe-core not available after injection (CSP may be blocking)');
   }
 
   // Run axe audit

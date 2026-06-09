@@ -453,6 +453,20 @@ export class SynthuxSettings extends LitElement {
     this._loadCustomProfiles();
   }
 
+  updated(changedProperties) {
+    // When ollamaStatus arrives from parent, auto-populate models for Ollama
+    if (changedProperties.has('ollamaStatus') && this.ollamaStatus?.connected && this.providerId === 'ollama') {
+      const newModels = (this.ollamaStatus.models || []).map(m => m.name || m.id || m);
+      if (newModels.length > 0 && JSON.stringify(newModels) !== JSON.stringify(this.models)) {
+        this.models = newModels;
+        // Keep saved model if it exists in the list, otherwise don't override
+        if (this.model && !this.models.includes(this.model) && this.models.length > 0) {
+          // Saved model not available — keep the text input value, don't auto-switch
+        }
+      }
+    }
+  }
+
   get _isCloudProvider() {
     return this.providerId !== 'ollama';
   }
@@ -480,10 +494,6 @@ export class SynthuxSettings extends LitElement {
 
       // Load provider-specific models
       this._updateModelsForProvider();
-
-      if (this.ollamaStatus?.connected && this.providerId === 'ollama') {
-        this.models = (this.ollamaStatus.models || []).map(m => m.name || m);
-      }
     } catch { /* defaults */ }
   }
 
@@ -493,9 +503,15 @@ export class SynthuxSettings extends LitElement {
     const provider = getProvider(this.providerId);
 
     try {
-      const connected = await provider.ping(this.endpoint, this.apiKey);
+      const pingResult = await provider.ping(this.endpoint, this.apiKey);
 
-      if (connected) {
+      // Ollama returns status object, cloud providers return boolean
+      const isConnected = typeof pingResult === 'object'
+        ? pingResult.status === 'connected'
+        : !!pingResult;
+      const isCorsBlocked = typeof pingResult === 'object' && pingResult.status === 'cors-blocked';
+
+      if (isConnected) {
         // Fetch models
         const fetchedModels = await provider.fetchModels(this.endpoint, this.apiKey);
         this.models = fetchedModels.map(m => m.id || m.name);
@@ -507,6 +523,11 @@ export class SynthuxSettings extends LitElement {
         this.dispatchEvent(new CustomEvent('status-changed', {
           detail: { connected: true, models: fetchedModels, provider: this.providerId }
         }));
+      } else if (isCorsBlocked) {
+        this.connectionState = 'failed';
+        this.errorType = 'cors';
+        this.showSetupGuide = true;
+        this.dispatchEvent(new CustomEvent('status-changed', { detail: { connected: false, corsBlocked: true, models: [] } }));
       } else {
         this.connectionState = 'failed';
         this.errorType = this._isCloudProvider ? 'auth' : 'offline';
@@ -534,8 +555,12 @@ export class SynthuxSettings extends LitElement {
       } else {
         this.models = [];
       }
-      // Reset to first available or default
-      this.model = this.models[0] || 'gemma4:31b';
+      // Only reset model if current model is not in list and no saved model exists
+      if (this.models.length > 0 && !this.models.includes(this.model)) {
+        // Saved model not in Ollama — keep it as typed text, don't auto-switch
+      } else if (!this.model) {
+        this.model = this.models[0] || 'gemma4:31b';
+      }
     } else {
       this.endpoint = provider.defaultEndpoint;
       this.models = (provider.models || []).map(m => m.id);
@@ -698,6 +723,38 @@ export class SynthuxSettings extends LitElement {
     }
   }
 
+  _detectOS() {
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.includes('mac')) return 'mac';
+    if (ua.includes('win')) return 'win';
+    return 'linux';
+  }
+
+  _getCorsCommand() {
+    const os = this._detectOS();
+    if (os === 'mac') return 'launchctl setenv OLLAMA_ORIGINS "*"';
+    if (os === 'win') return '[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")';
+    return 'sudo systemctl edit ollama';
+  }
+
+  _getCorsNote() {
+    const os = this._detectOS();
+    if (os === 'win') return 'Run in PowerShell as Administrator';
+    if (os === 'linux') return 'Add under [Service]: Environment="OLLAMA_ORIGINS=*"';
+    return null;
+  }
+
+  _getOtherPlatformCommands() {
+    const os = this._detectOS();
+    const all = {
+      mac: { name: 'macOS', cmd: 'launchctl setenv OLLAMA_ORIGINS "*"' },
+      linux: { name: 'Linux', cmd: 'sudo systemctl edit ollama → Environment="OLLAMA_ORIGINS=*"' },
+      win: { name: 'Windows', cmd: '[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")' }
+    };
+    const others = Object.entries(all).filter(([k]) => k !== os);
+    return html`${others.map(([, p]) => html`<div style="margin-bottom: 4px;"><strong>${p.name}:</strong> <code style="font-size: 10px;">${p.cmd}</code></div>`)}`;
+  }
+
   render() {
     const providers = getProviderList();
 
@@ -777,7 +834,7 @@ export class SynthuxSettings extends LitElement {
           <div class="setup-content">
             <div class="setup-step">
               <div class="step-title"><span class="step-number">1</span> Install Ollama</div>
-              <div class="step-desc">Download from ollama.com and install. Available for macOS, Linux, and Windows.</div>
+              <div class="step-desc">Download from ollama.com and install.</div>
               <div class="code-block">
                 <button class="copy-btn ${this._copiedCmd === 'url' ? 'copied' : ''}" @click="${() => this._copyCommand('https://ollama.com/download', 'url')}">${this._copiedCmd === 'url' ? 'Copied' : 'Copy'}</button>
                 <code>https://ollama.com/download</code>
@@ -786,40 +843,32 @@ export class SynthuxSettings extends LitElement {
 
             <div class="setup-step">
               <div class="step-title"><span class="step-number">2</span> Download a model</div>
-              <div class="step-desc">Pull a language model. Any model works — pick one that fits your hardware:</div>
+              <div class="step-desc">Pull a language model. Any model works:</div>
               <div class="code-block">
                 <button class="copy-btn ${this._copiedCmd === 'pull' ? 'copied' : ''}" @click="${() => this._copyCommand('ollama pull gemma4', 'pull')}">${this._copiedCmd === 'pull' ? 'Copied' : 'Copy'}</button>
                 <code>ollama pull gemma4</code>
               </div>
-              <div class="step-desc" style="margin-top: 6px; font-size: 10px; color: var(--sx-text-tertiary, #8a8a96);">Alternatives: <code style="font-size: 10px;">ollama pull qwen3.5</code> or <code style="font-size: 10px;">ollama pull llama4</code></div>
-              <div class="step-desc" style="margin-top: 4px; font-size: 10px; color: var(--sx-text-tertiary, #8a8a96);">Using <strong>LM Studio</strong>? Skip to step 3 — no model pull needed. Change the endpoint in Settings to <code style="font-size: 10px;">http://localhost:1234</code></div>
+              <div class="step-desc" style="margin-top: 6px; font-size: 10px; color: var(--sx-text-tertiary);">Alternatives: <code style="font-size: 10px;">ollama pull gemma4:e4b</code> (smaller) or <code style="font-size: 10px;">ollama pull qwen3.5</code></div>
             </div>
 
             <div class="setup-step">
-              <div class="step-title"><span class="step-number">3</span> Enable Chrome extension access</div>
-              <div class="step-desc">Ollama blocks browser extensions by default. LM Studio users can skip this step.</div>
-              <div class="step-desc"><strong>macOS (app):</strong></div>
+              <div class="step-title"><span class="step-number">3</span> Allow extension access</div>
+              <div class="step-desc">Ollama blocks browser extensions by default. Run this in Terminal:</div>
               <div class="code-block">
-                <button class="copy-btn ${this._copiedCmd === 'macos' ? 'copied' : ''}" @click="${() => this._copyCommand('launchctl setenv OLLAMA_ORIGINS \\"*\\"', 'macos')}">${this._copiedCmd === 'macos' ? 'Copied' : 'Copy'}</button>
-                <code>launchctl setenv OLLAMA_ORIGINS "*"</code>
+                <button class="copy-btn ${this._copiedCmd === 'cors' ? 'copied' : ''}" @click="${() => this._copyCommand(this._getCorsCommand(), 'cors')}">${this._copiedCmd === 'cors' ? 'Copied' : 'Copy'}</button>
+                <code>${this._getCorsCommand()}</code>
               </div>
-              <div class="step-desc" style="margin-top: 8px;"><strong>Linux / Terminal:</strong></div>
-              <div class="code-block">
-                <button class="copy-btn ${this._copiedCmd === 'linux' ? 'copied' : ''}" @click="${() => this._copyCommand('export OLLAMA_ORIGINS=\\"*\\"\nollama serve', 'linux')}">${this._copiedCmd === 'linux' ? 'Copied' : 'Copy'}</button>
-                <code>export OLLAMA_ORIGINS="*"
-ollama serve</code>
-              </div>
-              <div class="step-desc" style="margin-top: 8px;"><strong>Windows (PowerShell):</strong></div>
-              <div class="code-block">
-                <button class="copy-btn ${this._copiedCmd === 'win' ? 'copied' : ''}" @click="${() => this._copyCommand('[Environment]::SetEnvironmentVariable(\'OLLAMA_ORIGINS\', \'*\', \'User\')', 'win')}">${this._copiedCmd === 'win' ? 'Copied' : 'Copy'}</button>
-                <code>[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")</code>
-              </div>
+              ${this._getCorsNote() ? html`<div class="step-desc" style="margin-top: 4px; font-size: 10px; color: var(--sx-text-tertiary);">${this._getCorsNote()}</div>` : ''}
+              <details style="margin-top: 6px; font-size: 10px; color: var(--sx-text-tertiary);">
+                <summary style="cursor: pointer;">Other platforms</summary>
+                <div style="padding: 6px 0;">${this._getOtherPlatformCommands()}</div>
+              </details>
             </div>
 
             <div class="setup-step">
-              <div class="step-title"><span class="step-number">4</span> Restart Ollama</div>
-              <div class="step-desc"><strong>Important:</strong> After running the command, quit Ollama from the menu bar and reopen it for changes to take effect.</div>
-              <div class="step-desc" style="color: var(--sx-warning, #eab308);">\u26a0\ufe0f Ollama updates may reset this setting. If you get a CORS error after updating, repeat step 3 and restart.</div>
+              <div class="step-title"><span class="step-number">4</span> Quit and restart Ollama</div>
+              <div class="step-desc">Close Ollama completely, then reopen it. The CORS setting won't take effect until restarted.</div>
+              <div class="step-desc" style="font-size: 10px; color: var(--sx-text-tertiary);">Ollama updates may reset this setting. If you get a CORS error after updating, repeat step 3 and restart.</div>
             </div>
           </div>
         ` : ''}
@@ -847,7 +896,7 @@ ollama serve</code>
         <div class="section-header">About</div>
         <div class="settings-card about-card">
           <div class="about-name">synthux</div>
-          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '1.7.0'}</div>
+          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '1.9.0'}</div>
           <div class="about-desc">AI-powered UX audit. Open source. Privacy first.</div>
           <div class="about-links">
             <a class="about-link" href="https://synthux.app" target="_blank">Website</a>

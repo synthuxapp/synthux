@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "description": "Cross-page UX consistency heuristics for flow analysis",
+  "heuristics": [
+    {
+      "id": "navigation-consistency",
+      "title": "Navigation Consistency",
+      "description": "Evaluate whether header, navigation menu, footer, and other global UI elements are consistent across all pages in the flow.",
+      "criteria": [
+        "Same navigation structure and menu items on all pages",
+        "Consistent header layout, logo placement, and CTA buttons",
+        "Footer content and link structure consistent",
+        "Active/current page indicator in navigation",
+        "Breadcrumbs reflect correct hierarchy"
+      ],
+      "severity_if_violated": "critical"
+    },
+    {
+      "id": "visual-consistency",
+      "title": "Visual & Brand Consistency",
+      "description": "Evaluate whether visual design elements maintain brand consistency across all pages.",
+      "criteria": [
+        "Consistent color palette usage",
+        "Same typography (font family, sizes, weights) for equivalent elements",
+        "Consistent spacing and grid system",
+        "Button and form element styling matches across pages",
+        "Icon style and sizing consistent"
+      ],
+      "severity_if_violated": "moderate"
+    },
+    {
+      "id": "flow-logic",
+      "title": "Flow Logic & Progression",
+      "description": "Evaluate whether the user flow follows a logical progression without dead-ends or confusing paths.",
+      "criteria": [
+        "Clear progression from one step to the next",
+        "No dead-end pages without next actions",
+        "Back navigation available where appropriate",
+        "Progress indicators for multi-step processes",
+        "Error recovery paths available"
+      ],
+      "severity_if_violated": "critical"
+    },
+    {
+      "id": "terminology-consistency",
+      "title": "Terminology Consistency",
+      "description": "Evaluate whether the same concepts are described with the same terms across all pages.",
+      "criteria": [
+        "Same feature/action uses identical labels everywhere",
+        "Button text consistent for similar actions (e.g., not mixing 'Sign Up' and 'Register')",
+        "Error messages use consistent tone and terminology",
+        "Help text and descriptions use same vocabulary",
+        "Form field labels match across pages"
+      ],
+      "severity_if_violated": "moderate"
+    }
+  ]
+}

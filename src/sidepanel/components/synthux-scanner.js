@@ -22,7 +22,11 @@ export class SynthuxScanner extends LitElement {
     _showProfileForm: { type: Boolean, state: true },
     _editingProfile: { type: Object, state: true },
     _openMenuId: { type: String, state: true },
-    _selectedHeuristics: { type: Array, state: true }
+    _selectedHeuristics: { type: Array, state: true },
+    _copiedCmd: { type: String, state: true },
+    _versionDismissed: { type: Boolean, state: true },
+    _showCorsWizard: { type: Boolean, state: true },
+    _checkingConnection: { type: Boolean, state: true }
   };
 
   static styles = css`
@@ -394,6 +398,37 @@ export class SynthuxScanner extends LitElement {
       border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
     }
 
+    /* ─── Flow Analysis Button ──────────────── */
+    .flow-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: var(--sx-bg-tertiary, #202024);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 8px;
+      color: var(--sx-text-secondary, #b4b4bc);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 150ms ease;
+    }
+
+    .flow-btn:hover {
+      border-color: var(--sx-accent, #3b82f6);
+      background: rgba(59, 130, 246, 0.06);
+      color: var(--sx-text-primary, #ededf0);
+    }
+
+    .flow-desc {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--sx-text-tertiary, #8a8a96);
+    }
+
     /* ─── Progress Display ───────────────────── */
     .progress-container {
       margin-top: 16px;
@@ -456,6 +491,219 @@ export class SynthuxScanner extends LitElement {
       background: var(--sx-warning, #eab308);
       flex-shrink: 0;
       margin-top: 6px;
+    }
+
+    /* ─── CORS Fix Wizard ──────────────────── */
+    .cors-wizard {
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px solid rgba(234, 179, 8, 0.25);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .cors-wizard-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sx-warning, #eab308);
+      margin-bottom: 10px;
+    }
+
+    .cors-wizard-desc {
+      font-size: 12px;
+      color: var(--sx-text-secondary, #b4b4bc);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .cors-steps {
+      background: #0a0a0c;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .cors-step-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sx-text-primary, #ededf0);
+      margin-bottom: 10px;
+    }
+
+    .cors-platform {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .cors-platform:last-of-type {
+      border-bottom: none;
+    }
+
+    .cors-platform-label {
+      font-size: 11px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      flex-shrink: 0;
+      width: 55px;
+    }
+
+    .cors-cmd-block {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+
+    .cors-cmd-code {
+      font-family: 'SF Mono', Monaco, 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--sx-text-primary, #ededf0);
+      flex: 1;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+
+    .cors-note {
+      font-size: 10px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .cors-other-platforms {
+      margin-top: 10px;
+      font-size: 11px;
+    }
+
+    .cors-other-platforms summary {
+      color: var(--sx-text-tertiary, #8a8a96);
+      cursor: pointer;
+      font-size: 10px;
+      padding: 4px 0;
+    }
+
+    .cors-other-platforms summary:hover {
+      color: var(--sx-text-secondary, #b4b4bc);
+    }
+
+    .cors-platform-alt {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .cors-platform-alt:last-child {
+      border-bottom: none;
+    }
+
+    .cors-copy-btn {
+      background: var(--sx-bg-tertiary, #202024);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      font-size: 10px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      margin-left: 6px;
+    }
+
+    .cors-copy-btn:hover {
+      color: var(--sx-text-primary, #ededf0);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .cors-copy-btn.copied {
+      color: var(--sx-success, #22c55e);
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .cors-check-btn {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 6px;
+      background: transparent;
+      color: var(--sx-text-secondary, #b4b4bc);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 150ms ease;
+      font-family: inherit;
+    }
+
+    .cors-check-btn:hover {
+      border-color: var(--sx-accent, #3b82f6);
+      color: var(--sx-accent, #3b82f6);
+    }
+
+    /* ─── Version Banner ───────────────────── */
+    .version-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(249,115,22,0.06);
+      border: 1px solid rgba(249,115,22,0.20);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--sx-text-secondary, #b4b4bc);
+      line-height: 1.4;
+    }
+
+    .version-banner-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .version-banner-text {
+      flex: 1;
+    }
+
+    .version-banner-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .version-btn {
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: transparent;
+      color: var(--sx-text-tertiary, #8a8a96);
+      font-size: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .version-btn:hover {
+      color: var(--sx-text-primary, #ededf0);
+    }
+
+    .version-btn.fix {
+      color: #f97316;
+      border-color: rgba(249,115,22,0.3);
+    }
+
+    .version-btn.fix:hover {
+      background: rgba(249,115,22,0.08);
     }
 
     .page-warning {
@@ -555,9 +803,14 @@ export class SynthuxScanner extends LitElement {
     this._editingProfile = null;
     this._openMenuId = null;
     this._selectedHeuristics = [];
+    this._copiedCmd = null;
+    this._versionDismissed = false;
+    this._showCorsWizard = false;
+    this._checkingConnection = false;
 
     this._fetchPageInfo();
     this._loadCustomProfiles();
+    this._loadSettings();
     chrome.tabs?.onActivated?.addListener(() => this._fetchPageInfo());
     chrome.tabs?.onUpdated?.addListener((_, info) => {
       if (info.status === 'complete') this._fetchPageInfo();
@@ -568,6 +821,18 @@ export class SynthuxScanner extends LitElement {
     // Close dropdown on outside click
     this._onDocClick = () => { this._openMenuId = null; };
     document.addEventListener('click', this._onDocClick);
+  }
+
+  async _loadSettings() {
+    try {
+      const data = await chrome.storage.local.get({
+        synthux_selected_profiles: ['first-time', 'power-user', 'accessibility'],
+        synthux_selected_mode: 'deep'
+      });
+      this.selectedProfiles = data.synthux_selected_profiles;
+      this.mode = data.synthux_selected_mode;
+      this.requestUpdate();
+    } catch {}
   }
 
   updated(changedProperties) {
@@ -601,7 +866,15 @@ export class SynthuxScanner extends LitElement {
 
   get _isAnalyzablePage() {
     const url = this.pageInfo?.url || '';
-    return url.startsWith('http://') || url.startsWith('https://');
+    if (!url.startsWith('http://') && !url.startsWith('https://')) return false;
+    // Chrome blocks content script injection on these pages
+    const blocked = [
+      'chromewebstore.google.com',
+      'chrome.google.com/webstore',
+      'microsoftedge.microsoft.com/addons',
+      'addons.mozilla.org'
+    ];
+    return !blocked.some(domain => url.includes(domain));
   }
 
   get _isCloudProvider() {
@@ -683,10 +956,14 @@ export class SynthuxScanner extends LitElement {
       profiles.push(profileId);
     }
     this.selectedProfiles = profiles;
+    chrome.storage.local.set({ synthux_selected_profiles: profiles });
   }
 
   _setMode(mode) {
-    if (!this.isAnalyzing) this.mode = mode;
+    if (!this.isAnalyzing) {
+      this.mode = mode;
+      chrome.storage.local.set({ synthux_selected_mode: mode });
+    }
   }
 
   async _startAnalysis() {
@@ -871,11 +1148,27 @@ export class SynthuxScanner extends LitElement {
         </div>
       ` : ''}
 
-      ${!isConnected ? html`
+      ${this.ollamaStatus?.corsBlocked || this._showCorsWizard ? this._renderCorsWizard() : ''}
+
+      ${!isConnected && !this.ollamaStatus?.corsBlocked ? html`
         <div class="offline-notice">
           <span class="offline-dot"></span>
           <div>
             <strong>AI not connected.</strong> Check Settings to configure your AI provider.
+          </div>
+        </div>
+      ` : ''}
+
+      ${this.ollamaStatus?.versionChanged && !this._versionDismissed && !this.ollamaStatus?.corsBlocked ? html`
+        <div class="version-banner">
+          <span class="version-banner-icon" style="font-size: 14px;">i</span>
+          <div class="version-banner-text">
+            Ollama updated <strong>${this.ollamaStatus.oldVersion} → ${this.ollamaStatus.newVersion}</strong>.<br>
+            If analysis fails, CORS may need reconfiguration.
+          </div>
+          <div class="version-banner-actions">
+            <button class="version-btn fix" @click="${() => { this._showCorsWizard = true; }}">Fix Now</button>
+            <button class="version-btn" @click="${() => { this._versionDismissed = true; }}">Dismiss</button>
           </div>
         </div>
       ` : ''}
@@ -963,7 +1256,146 @@ export class SynthuxScanner extends LitElement {
           <button class="cancel-btn" @click="${this._cancelAnalysis}">Cancel</button>
         </div>
       ` : ''}
+
+      <div class="section-header" style="margin-top: 20px;">Beta Features</div>
+      <button
+        class="flow-btn"
+        @click="${this._openFlowBuilder}"
+      >
+        <span style="display:flex;align-items:center;gap:6px;">
+          <span>Flow Analysis</span>
+        </span>
+        <span class="flow-desc">Multi-page canvas builder</span>
+      </button>
     `;
+  }
+
+  _openFlowBuilder() {
+    const url = this.pageInfo?.url || '';
+    const title = this.pageInfo?.title || '';
+    let flowUrl = chrome.runtime.getURL('flow/index.html');
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+      flowUrl += `?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    }
+    chrome.tabs.create({ url: flowUrl });
+  }
+
+  async _copyCmd(cmd, platform) {
+    try {
+      await navigator.clipboard.writeText(cmd);
+      this._copiedCmd = platform;
+      setTimeout(() => { this._copiedCmd = null; }, 2000);
+    } catch {
+      // Fallback for clipboard API failure
+      this._copiedCmd = platform;
+      setTimeout(() => { this._copiedCmd = null; }, 2000);
+    }
+  }
+
+  async _checkConnection() {
+    this._checkingConnection = true;
+    try {
+      const result = await chrome.runtime.sendMessage({ type: 'CHECK_CONNECTION' });
+      if (result?.connected) {
+        this._showCorsWizard = false;
+        // Trigger parent refresh
+        this.dispatchEvent(new CustomEvent('connection-fixed', { bubbles: true, composed: true }));
+      }
+    } catch { /* ignore */ }
+    this._checkingConnection = false;
+  }
+
+  _renderCorsWizard() {
+    const platform = this._detectPlatform();
+    const cmd = platform.cmd;
+    const isChecking = this._checkingConnection;
+
+    return html`
+      <div class="cors-wizard">
+        <div class="cors-wizard-title">
+          Ollama CORS Configuration Required
+        </div>
+        <div class="cors-wizard-desc">
+          Ollama is running but blocking requests from this extension.
+          Run the command below, then restart Ollama.
+        </div>
+        <div class="cors-steps">
+          <div class="cors-step-header">Step 1 — Run in Terminal</div>
+          <div class="cors-cmd-block">
+            <code class="cors-cmd-code">${cmd}</code>
+            <button
+              class="cors-copy-btn ${this._copiedCmd ? 'copied' : ''}"
+              @click="${() => this._copyCmd(cmd, 'main')}"
+            >${this._copiedCmd ? 'Copied' : 'Copy'}</button>
+          </div>
+          ${platform.note ? html`<div class="cors-note">${platform.note}</div>` : ''}
+          <div class="cors-step-header" style="margin-top: 14px;">Step 2 — Quit and restart Ollama</div>
+          <div class="cors-note">Close Ollama completely (menu bar → Quit Ollama), then open it again. The setting won't take effect until Ollama is restarted.</div>
+        </div>
+        <button
+          class="cors-check-btn"
+          ?disabled="${isChecking}"
+          @click="${this._checkConnection}"
+        >${isChecking ? 'Checking...' : 'Check Connection'}</button>
+        ${platform.others.length > 0 ? html`
+          <details class="cors-other-platforms">
+            <summary>Other platforms</summary>
+            ${platform.others.map(p => html`
+              <div class="cors-platform-alt">
+                <span class="cors-platform-label">${p.name}</span>
+                <code class="cors-platform-cmd">${p.cmd}</code>
+                <button
+                  class="cors-copy-btn ${this._copiedCmd === p.id ? 'copied' : ''}"
+                  @click="${() => this._copyCmd(p.cmd, p.id)}"
+                >${this._copiedCmd === p.id ? 'Copied' : 'Copy'}</button>
+              </div>
+            `)}
+          </details>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  _detectPlatform() {
+    const ua = navigator.userAgent.toLowerCase();
+    const isMac = ua.includes('mac');
+    const isWin = ua.includes('win');
+    // Default to Linux if not Mac or Windows
+
+    const platforms = {
+      mac: {
+        name: 'macOS',
+        id: 'macos',
+        cmd: 'launchctl setenv OLLAMA_ORIGINS "*"',
+        note: null
+      },
+      linux: {
+        name: 'Linux',
+        id: 'linux',
+        cmd: 'sudo systemctl edit ollama',
+        note: 'Add this line under [Service]: Environment="OLLAMA_ORIGINS=*"'
+      },
+      win: {
+        name: 'Windows',
+        id: 'win',
+        cmd: '[Environment]::SetEnvironmentVariable("OLLAMA_ORIGINS", "*", "User")',
+        note: 'Run in PowerShell as Administrator'
+      }
+    };
+
+    let primary, others;
+    if (isMac) {
+      primary = platforms.mac;
+      others = [platforms.linux, platforms.win];
+    } else if (isWin) {
+      primary = platforms.win;
+      others = [platforms.mac, platforms.linux];
+    } else {
+      primary = platforms.linux;
+      others = [platforms.mac, platforms.win];
+    }
+
+    return { ...primary, others };
   }
 }
 

@@ -430,6 +430,324 @@ export function generatePDF(report) {
   return doc.output('blob');
 }
 
+/**
+ * Generate a branded PDF report from flow results
+ * @param {Object} flowReport — The full flow report object
+ * @returns {Blob} — PDF file as Blob
+ */
+export function generateFlowPDF(flowReport) {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 15;
+  const contentWidth = pageWidth - margin * 2;
+  let y = margin;
+
+  // Helpers
+  const ensureSpace = (needed) => {
+    if (y + needed > pageHeight - 20) {
+      doc.addPage();
+      y = margin;
+      drawPageBg(doc, pageWidth, pageHeight);
+    }
+  };
+
+  const drawHeader = () => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(...COLORS.white);
+    doc.text('synthux', margin, y + 6);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...COLORS.textTertiary);
+    doc.text('AI-Powered Flow Journey Report', margin + 38, y + 6);
+
+    y += 14;
+
+    // Divider
+    doc.setDrawColor(...COLORS.divider);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 8;
+  };
+
+  // Background for page 1
+  drawPageBg(doc, pageWidth, pageHeight);
+  drawHeader();
+
+  // Meta Information
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...COLORS.textSecondary);
+  const metaLines = [
+    `Date: ${new Date().toLocaleString()}`,
+    `Total Pages Analyzed: ${flowReport.pages?.length || 0}`,
+    `Cross-page Findings: ${flowReport.crossPage?.findings?.length || 0}`,
+    `Transitions Assessed: ${flowReport.transitions?.length || 0}`,
+  ];
+  metaLines.forEach(line => {
+    const wrapped = doc.splitTextToSize(line, contentWidth);
+    doc.text(wrapped, margin, y);
+    y += wrapped.length * 4;
+  });
+  y += 4;
+
+  // Overall Score
+  ensureSpace(30);
+  const scoreColor = getScoreColor(flowReport.flowScore);
+  const circleCx = pageWidth / 2;
+  doc.setFillColor(...scoreColor);
+  doc.circle(circleCx, y + 10, 12, 'F');
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(...COLORS.white);
+  doc.text(String(flowReport.flowScore || 0), circleCx, y + 12, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...COLORS.textTertiary);
+  doc.text('Overall Flow Score', circleCx, y + 26, { align: 'center' });
+  y += 34;
+
+  // Cross-Page Findings
+  if (flowReport.crossPage?.findings?.length > 0) {
+    ensureSpace(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(...COLORS.white);
+    doc.text('Cross-Page Findings', margin, y);
+    y += 6;
+
+    flowReport.crossPage.findings.forEach(f => {
+      ensureSpace(16);
+      doc.setFillColor(...COLORS.card);
+      
+      const titleLines = doc.splitTextToSize(sanitize(f.title), contentWidth - 8);
+      const descLines = doc.splitTextToSize(sanitize(f.description), contentWidth - 8);
+      const cardH = (titleLines.length + descLines.length) * 4 + 8;
+      
+      ensureSpace(cardH);
+      doc.rect(margin, y, contentWidth, cardH, 'F');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...COLORS.white);
+      doc.text(titleLines, margin + 4, y + 5);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.textSecondary);
+      doc.text(descLines, margin + 4, y + 5 + titleLines.length * 4);
+      
+      y += cardH + 4;
+    });
+    y += 2;
+  }
+
+  // Transitions
+  if (flowReport.transitions?.length > 0) {
+    ensureSpace(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(...COLORS.white);
+    doc.text('Transitions Assessment', margin, y);
+    y += 6;
+
+    flowReport.transitions.forEach(t => {
+      const fromPage = flowReport.pages.find(p => (p.page?.id || p.id) === t.fromId);
+      const toPage = flowReport.pages.find(p => (p.page?.id || p.id) === t.toId);
+      const fromLabel = fromPage?.page?.label || t.fromId;
+      const toLabel = toPage?.page?.label || t.toId;
+      const transitionTitle = `${fromLabel} -> ${toLabel}`;
+      
+      const qColor = t.quality === 'smooth' ? COLORS.success : t.quality === 'friction' ? COLORS.warning : COLORS.error;
+      const titleLines = doc.splitTextToSize(sanitize(transitionTitle), contentWidth - 30);
+      const descLines = doc.splitTextToSize(sanitize(t.description), contentWidth - 8);
+      const cardH = Math.max(titleLines.length * 4, 6) + descLines.length * 4 + 8;
+      
+      ensureSpace(cardH);
+      doc.setFillColor(...COLORS.card);
+      doc.rect(margin, y, contentWidth, cardH, 'F');
+      
+      // Draw transition quality badge
+      doc.setFillColor(...qColor);
+      doc.rect(pageWidth - margin - 22, y + 3, 18, 5, 'F');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...COLORS.white);
+      doc.text(t.quality.toUpperCase(), pageWidth - margin - 13, y + 6.5, { align: 'center' });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...COLORS.white);
+      doc.text(titleLines, margin + 4, y + 5);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.textSecondary);
+      doc.text(descLines, margin + 4, y + 6 + titleLines.length * 4);
+      
+      y += cardH + 4;
+    });
+    y += 2;
+  }
+
+  // Page-by-Page Audit Details
+  if (flowReport.pages?.length > 0) {
+    ensureSpace(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(...COLORS.white);
+    doc.text('Individual Page Reports', margin, y);
+    y += 6;
+
+    flowReport.pages.forEach(p => {
+      const score = p.report?.overallScore || p.score || 0;
+      const pColor = getScoreColor(score);
+      const title = p.page?.label || p.page?.url || 'Untitled Page';
+
+      ensureSpace(30);
+      // Header for this page
+      doc.setDrawColor(...COLORS.divider);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 5;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(...COLORS.white);
+      doc.text(sanitize(title), margin, y);
+
+      doc.setTextColor(...pColor);
+      doc.text(`${score}/100`, pageWidth - margin, y, { align: 'right' });
+      y += 5;
+
+      // URL
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.textTertiary);
+      doc.text(sanitize(p.page?.url || ''), margin, y);
+      y += 5;
+
+      // Summary
+      if (p.report?.summary) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...COLORS.textSecondary);
+        const sumLines = doc.splitTextToSize(`Summary: ${sanitize(p.report.summary)}`, contentWidth);
+        doc.text(sumLines, margin, y);
+        y += sumLines.length * 4 + 2;
+      }
+
+      // Check for profile evaluations and issues
+      const profileResults = Object.values(p.report?.profileResults || {});
+      const pageIssues = [];
+      profileResults.forEach(pr => {
+        const evaluations = pr.evaluations || [];
+        evaluations.forEach(ev => {
+          (ev.issues || []).forEach(issue => {
+            if (!pageIssues.some(pi => pi.description === issue.description)) {
+              pageIssues.push(issue);
+            }
+          });
+        });
+      });
+
+      if (pageIssues.length > 0) {
+        ensureSpace(8);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...COLORS.textTertiary);
+        doc.text(`Identified Issues (${pageIssues.length})`, margin, y);
+        y += 5;
+
+        pageIssues.forEach(issue => {
+          ensureSpace(14);
+          const severity = issue.severity || 'moderate';
+          const sevColor = severity === 'critical' ? COLORS.error :
+                           severity === 'moderate' ? COLORS.warning : COLORS.success;
+
+          const indentX = margin + 6;
+          const textMaxW = pageWidth - margin - indentX;
+
+          doc.setFillColor(...sevColor);
+          doc.circle(margin + 2, y - 1, 1.2, 'F');
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(...COLORS.textPrimary);
+          
+          const descLines = doc.splitTextToSize(sanitize(issue.description || ''), textMaxW);
+          ensureSpace(descLines.length * 3.5 + 2);
+          doc.text(descLines, indentX, y);
+          y += descLines.length * 3.5;
+
+          if (issue.recommendation) {
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(7.5);
+            doc.setTextColor(...COLORS.accent);
+            const recLines = doc.splitTextToSize(`Recommendation: ${sanitize(issue.recommendation)}`, textMaxW);
+            ensureSpace(recLines.length * 3 + 1);
+            doc.text(recLines, indentX, y);
+            y += recLines.length * 3;
+          }
+          y += 2.5;
+        });
+      }
+      y += 4;
+    });
+  }
+
+  // User Notes
+  if (flowReport.notes?.length > 0) {
+    ensureSpace(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(...COLORS.white);
+    doc.text('User Notes', margin, y);
+    y += 6;
+
+    flowReport.notes.forEach(n => {
+      const prefix = n.attachedToLabel ? `[Attached to ${n.attachedToLabel}] ` : '';
+      const fullText = prefix + n.text;
+      
+      const wrapped = doc.splitTextToSize(sanitize(fullText), contentWidth - 8);
+      const cardH = wrapped.length * 4 + 8;
+      
+      ensureSpace(cardH);
+      doc.setFillColor(42, 37, 32); // SX note bg
+      doc.rect(margin, y, contentWidth, cardH, 'F');
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(232, 213, 168); // SX note text
+      doc.text(wrapped, margin + 4, y + 5);
+      
+      y += cardH + 4;
+    });
+  }
+
+  // Add footer to all pages
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...COLORS.textTertiary);
+    doc.text('Generated by synthux - synthux.app', margin, pageHeight - 8);
+    doc.text(`Page ${i}/${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+  }
+
+  return doc.output('blob');
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function drawPageBg(doc, w, h) {

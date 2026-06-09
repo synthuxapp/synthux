@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy — synthux</title>
-  <meta name="description" content="synthux privacy policy. All analysis runs locally via Ollama. No data leaves your machine.">
+  <meta name="description" content="synthux privacy policy. Analysis runs locally via Ollama or through your own API key (BYOK). No middleman, no data collection.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://synthux.app/privacy.html">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
@@ -116,14 +116,14 @@
     <a href="/" class="back-link">← Back to synthux.app</a>
 
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: April 24, 2026 · Effective date: April 21, 2026</p>
+    <p class="updated">Last updated: June 9, 2026 · Effective date: June 9, 2026</p>
 
     <div class="highlight-box">
-      <p style="margin: 0;"><strong>The short version:</strong> synthux does not collect, transmit, or share any personal data. All processing happens locally on your machine.</p>
+      <p style="margin: 0;"><strong>The short version:</strong> synthux does not collect, transmit, or share any personal data. Analysis runs locally with Ollama, or through your own API key directly to your chosen provider — no middleman.</p>
     </div>
 
     <h2>Overview</h2>
-    <p>synthux is an open-source Chrome extension that performs UX/UI analysis using local AI. We are committed to protecting your privacy. This policy explains what data synthux accesses, how it is processed, and what is stored.</p>
+    <p>synthux is an open-source Chrome extension that performs UX/UI analysis using AI. You can run analysis <strong>locally</strong> with Ollama (free, nothing leaves your machine), or use your own API key with a cloud provider (Google Gemini, OpenAI, Anthropic Claude). This policy explains what data synthux accesses, how it is processed, and what is stored.</p>
 
     <h2>Data Collection</h2>
 
@@ -148,12 +148,49 @@
     </ul>
 
     <h2>Data Processing</h2>
-    <p>All analysis is performed <strong>entirely on your local machine</strong> using <a href="https://ollama.com" target="_blank">Ollama</a>, an open-source local AI runtime:</p>
+
+    <h3>Local AI (Ollama)</h3>
+    <p>When using Ollama, all analysis is performed <strong>entirely on your local machine</strong>:</p>
     <ul>
       <li>Page data is sent to Ollama running on <code>localhost:11434</code></li>
       <li>The AI model processes the data locally</li>
       <li>No data is transmitted to external servers, cloud services, or third parties</li>
-      <li>No API calls are made to remote AI services unless the user explicitly configures a BYOK (Bring Your Own Key) provider</li>
+    </ul>
+
+    <h3>Cloud AI (BYOK — Bring Your Own Key)</h3>
+    <p>When using a cloud provider, page data is sent <strong>directly</strong> from your browser to the provider's API using your own API key:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Data sent to</th>
+          <th>Privacy policy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Google Gemini</td>
+          <td><code>generativelanguage.googleapis.com</code></td>
+          <td><a href="https://ai.google.dev/gemini-api/terms" target="_blank">Gemini API Terms</a></td>
+        </tr>
+        <tr>
+          <td>OpenAI</td>
+          <td><code>api.openai.com</code></td>
+          <td><a href="https://openai.com/policies/privacy-policy" target="_blank">OpenAI Privacy</a></td>
+        </tr>
+        <tr>
+          <td>Anthropic</td>
+          <td><code>api.anthropic.com</code></td>
+          <td><a href="https://www.anthropic.com/privacy" target="_blank">Anthropic Privacy</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Important:</strong></p>
+    <ul>
+      <li>synthux does <strong>not</strong> proxy your requests through any intermediary server</li>
+      <li>Your API key is stored locally in <code>chrome.storage.local</code> and sent directly to the provider</li>
+      <li>synthux developers have no access to your API key or the data you analyze</li>
+      <li>Each provider's own privacy policy governs how they handle data sent to their API</li>
     </ul>
 
     <h2>Data Storage</h2>
@@ -161,6 +198,7 @@
       <li><strong>Analysis reports</strong> are saved in <code>chrome.storage.local</code> (browser-local storage)</li>
       <li>Reports remain on your device and are never synced or uploaded</li>
       <li><strong>Settings</strong> (endpoint, model, language) are stored in <code>chrome.storage.local</code></li>
+      <li><strong>API keys</strong> are stored per-provider in <code>chrome.storage.local</code>, never transmitted to synthux or any third party</li>
       <li>You can delete all stored data by removing the extension</li>
       <li>Maximum 20 reports are retained; older reports are automatically removed</li>
     </ul>
@@ -248,9 +286,10 @@
     <p>We may update this privacy policy from time to time. Changes will be documented in the <a href="https://github.com/synthuxapp/synthux/blob/main/CHANGELOG.md" target="_blank">CHANGELOG</a> and reflected in the "Last updated" date above.</p>
 
     <h2>Contact</h2>
+    <p>synthux is developed by <strong>Ufuk Aydın</strong> (<a href="https://github.com/ufhouck" target="_blank">@ufhouck</a>).</p>
     <p>If you have questions about this privacy policy, please <a href="https://github.com/synthuxapp/synthux/issues" target="_blank">open an issue</a> on our GitHub repository.</p>
 
-    <p style="margin-top: 48px; font-size: 12px; color: var(--sx-text-tertiary);">© 2026 synthux. Open source under MIT License.</p>
+    <p style="margin-top: 48px; font-size: 12px; color: var(--sx-text-tertiary);">© 2026 synthux · Ufuk Aydın. Open source under MIT License.</p>
   </div>
 </body>
 </html>

@@ -12,6 +12,7 @@
 import { AIClient } from '../core/ai-client.js';
 import { Analyzer } from '../core/analyzer.js';
 import { captureScreenshot } from '../core/screenshot.js';
+import { FlowManager } from '../core/flow-manager.js';
 
 // ─── Side Panel Management ───────────────────────────────────────────────────
 
@@ -31,7 +32,45 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
 // ─── State ───────────────────────────────────────────────────────────────────
 
 let currentAnalysis = null;
+let currentFlowManager = null;
+let currentFlowSessionId = null;
 let ollamaStatus = { connected: false, models: [] };
+let sidePanelPort = null;
+let lastActiveTab = null;
+
+// Track last active website tab
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    if (tab && tab.url && (tab.url.startsWith('http://') || tab.url.startsWith('https://'))) {
+      lastActiveTab = { id: tab.id, url: tab.url, title: tab.title };
+    }
+  } catch {}
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (tab.active && tab.url && (tab.url.startsWith('http://') || tab.url.startsWith('https://'))) {
+    lastActiveTab = { id: tab.id, url: tab.url, title: tab.title };
+  }
+});
+
+// ─── Side Panel Disconnect → Clean Overlays ──────────────────────────────────
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === 'sidepanel') {
+    sidePanelPort = port;
+    port.onDisconnect.addListener(async () => {
+      sidePanelPort = null;
+      // Clean up any overlays left on the page
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.id) {
+          chrome.tabs.sendMessage(tab.id, { type: 'CLEAR_OVERLAYS' }).catch(() => {});
+        }
+      } catch { /* tab may not exist */ }
+    });
+  }
+});
 
 // ─── Ollama Connection Monitor ───────────────────────────────────────────────
 
@@ -48,11 +87,30 @@ async function checkOllamaConnection() {
       provider: settings.providerId,
       apiKey: settings.apiKey
     });
-    const isConnected = await client.ping();
+    const pingResult = await client.ping();
+
+    // Cloud providers still return boolean from ping()
+    const isConnected = typeof pingResult === 'object'
+      ? pingResult.status === 'connected'
+      : !!pingResult;
+    const isCorsBlocked = typeof pingResult === 'object' && pingResult.status === 'cors-blocked';
 
     if (isConnected) {
       const models = await client.listModels();
       ollamaStatus = { connected: true, models, provider: settings.providerId };
+
+      // Track Ollama version changes (Ollama provider only)
+      if (settings.providerId === 'ollama' && pingResult.version) {
+        const stored = await chrome.storage.local.get('ollamaVersion');
+        if (stored.ollamaVersion && stored.ollamaVersion !== pingResult.version) {
+          console.info(`[synthux] Ollama updated: ${stored.ollamaVersion} → ${pingResult.version}`);
+          ollamaStatus.versionChanged = true;
+          ollamaStatus.oldVersion = stored.ollamaVersion;
+          ollamaStatus.newVersion = pingResult.version;
+        }
+        ollamaStatus.version = pingResult.version;
+        await chrome.storage.local.set({ ollamaVersion: pingResult.version });
+      }
 
       // Auto-fix: if saved model isn't available, switch to first available model
       const savedModel = settings.ollamaModel;
@@ -62,6 +120,9 @@ async function checkOllamaConnection() {
         console.info(`[synthux] Saved model "${savedModel}" not found for ${settings.providerId}. Using "${newModel}".`);
         await chrome.storage.local.set({ ollamaModel: newModel });
       }
+    } else if (isCorsBlocked) {
+      console.warn('[synthux] Ollama is running but CORS is blocking requests. Set OLLAMA_ORIGINS="*" and restart.');
+      ollamaStatus = { connected: false, corsBlocked: true, models: [] };
     } else {
       ollamaStatus = { connected: false, models: [] };
     }
@@ -87,6 +148,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'GET_OLLAMA_STATUS':
       checkOllamaConnection().then(status => sendResponse(status));
       return true; // async response
+
+    case 'CHECK_CONNECTION':
+      checkOllamaConnection().then(status => sendResponse(status));
+      return true;
 
     case 'START_ANALYSIS':
       handleStartAnalysis(payload).then(sendResponse);
@@ -167,6 +232,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'CLEAR_HEATMAP':
     case 'CLEAR_OVERLAYS':
       relayOverlayMessage(type, payload).then(sendResponse);
+      return true;
+
+    // ─── Flow Analysis ──────────────────────────────────────────────
+    case 'START_FLOW_ANALYSIS':
+      handleFlowAnalysis(payload, sender).then(sendResponse);
+      return true;
+
+    case 'CANCEL_FLOW_ANALYSIS':
+      if (currentFlowManager) {
+        currentFlowManager.cancel();
+        currentFlowManager = null;
+      }
+      sendResponse({ success: true });
+      break;
+
+    case 'GET_ACTIVE_TABS':
+      chrome.tabs.query({}, tabs => {
+        sendResponse({
+          tabs: tabs.filter(t => !t.url?.startsWith('chrome-extension://')),
+          lastActiveTab: lastActiveTab
+        });
+      });
+      return true;
+
+    case 'SAVE_FLOW':
+      chrome.storage.local.set({ synthux_flow: payload }).then(() => {
+        sendResponse({ success: true });
+      });
+      return true;
+
+    case 'LOAD_FLOW':
+      chrome.storage.local.get('synthux_flow').then(data => {
+        sendResponse(data.synthux_flow || null);
+      });
       return true;
 
     default:
@@ -323,12 +422,21 @@ async function handleStartAnalysis(options) {
 
     console.error('[synthux] Analysis failed:', err);
 
+    // Friendly messages for known errors
+    let errorMsg = err.message;
+    if (err.message?.includes('cannot be scripted') || err.message?.includes('Cannot access')) {
+      errorMsg = 'This page cannot be analyzed (restricted by Chrome). Navigate to a regular website.';
+    }
+
     broadcastToSidePanel({
       type: 'ANALYSIS_ERROR',
-      payload: { error: err.message }
+      payload: {
+        error: errorMsg,
+        ...(err.type === 'cors' ? { errorType: 'cors' } : {})
+      }
     });
 
-    return { error: err.message };
+    return { error: errorMsg, ...(err.type === 'cors' ? { errorType: 'cors' } : {}) };
   }
 }
 
@@ -485,3 +593,86 @@ async function relayOverlayMessage(type, payload) {
   }
 }
 
+// ─── Flow Analysis Workflow ──────────────────────────────────────────────────
+
+async function handleFlowAnalysis(payload, sender) {
+  // Cancel any previous in-progress analysis instead of blocking
+  if (currentFlowManager) {
+    console.warn('[synthux] Cancelling previous flow analysis to start a new one.');
+    currentFlowManager.cancel();
+    currentFlowManager = null;
+    currentFlowSessionId = null;
+  }
+
+  // Generate unique session ID so UI can ignore stale messages
+  const sessionId = `flow_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  currentFlowSessionId = sessionId;
+
+  const settings = await chrome.storage.local.get({
+    ollamaEndpoint: 'http://localhost:11434',
+    ollamaModel: 'gemma4:31b',
+    providerId: 'ollama',
+    apiKey: '',
+    synthux_selected_profiles: ['first-time', 'power-user', 'accessibility'],
+    synthux_selected_mode: 'deep'
+  });
+
+  const flowManager = new FlowManager({
+    onProgress: (progress) => {
+      // Only broadcast if this session is still the active one
+      if (currentFlowSessionId !== sessionId) return;
+      chrome.runtime.sendMessage({
+        type: 'FLOW_PAGE_PROGRESS',
+        payload: { ...progress, sessionId }
+      }).catch(() => {});
+    },
+    onPageComplete: (result) => {
+      if (currentFlowSessionId !== sessionId) return;
+      chrome.runtime.sendMessage({
+        type: 'FLOW_PAGE_COMPLETE',
+        payload: { ...result, sessionId }
+      }).catch(() => {});
+    }
+  });
+
+  currentFlowManager = flowManager;
+
+  // Fire-and-forget — run analysis in background, broadcast results
+  flowManager.analyzeFlow({
+    pages: payload.pages || [],
+    connectors: payload.connectors || [],
+    notes: payload.notes || [],
+    settings,
+    profiles: settings.synthux_selected_profiles,
+    mode: settings.synthux_selected_mode,
+    sourceTabId: sender.tab?.id || null
+  }).then(result => {
+    // Only broadcast if this session is still active
+    if (currentFlowSessionId !== sessionId) return;
+    currentFlowManager = null;
+    currentFlowSessionId = null;
+    if (result.error) {
+      chrome.runtime.sendMessage({
+        type: 'FLOW_ERROR',
+        payload: { error: result.error, sessionId }
+      }).catch(() => {});
+    } else {
+      chrome.runtime.sendMessage({
+        type: 'FLOW_COMPLETE',
+        payload: { flowReport: result, sessionId }
+      }).catch(() => {});
+    }
+  }).catch(err => {
+    if (currentFlowSessionId !== sessionId) return;
+    currentFlowManager = null;
+    currentFlowSessionId = null;
+    console.error('[synthux] Flow analysis error:', err);
+    chrome.runtime.sendMessage({
+      type: 'FLOW_ERROR',
+      payload: { error: err.message, sessionId }
+    }).catch(() => {});
+  });
+
+  // Return immediately — UI will listen for broadcast messages
+  return { success: true, started: true, sessionId };
+}

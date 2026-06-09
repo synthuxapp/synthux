@@ -42,7 +42,7 @@ const mv3CompliancePlugin = {
   },
 };
 
-const buildOptions = {
+const sidepanelConfig = {
   entryPoints: ['src/sidepanel/app.js'],
   bundle: true,
   outdir: 'extension/sidepanel',
@@ -56,11 +56,26 @@ const buildOptions = {
   plugins: [mv3CompliancePlugin],
 };
 
+const pdfExportConfig = {
+  entryPoints: ['extension/core/pdf-export.js'],
+  bundle: true,
+  outfile: 'extension/flow/pdf-export.bundled.js',
+  format: 'esm',
+  target: 'chrome120',
+  minify: !isWatch,
+  sourcemap: isWatch ? 'inline' : false,
+  logLevel: 'info',
+  plugins: [mv3CompliancePlugin],
+};
+
 if (isWatch) {
-  const ctx = await esbuild.context(buildOptions);
-  await ctx.watch();
+  const ctx1 = await esbuild.context(sidepanelConfig);
+  await ctx1.watch();
+  const ctx2 = await esbuild.context(pdfExportConfig);
+  await ctx2.watch();
   console.log('👀 Watching for changes...');
 } else {
-  await esbuild.build(buildOptions);
+  await esbuild.build(sidepanelConfig);
+  await esbuild.build(pdfExportConfig);
   console.log('✅ Build complete!');
 }

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>synthux — Flow Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Toolbar -->
+  <div id="toolbar" class="toolbar">
+    <div class="toolbar__left">
+      <img src="../assets/logo.svg" alt="synthux" class="toolbar__logo">
+      <span class="toolbar__title">Flow Builder</span>
+    </div>
+    <div class="toolbar__center">
+      <button id="btn-add-page" class="tb-btn tb-btn--primary">+ Add Page</button>
+      <button id="btn-pin-tab" class="tb-btn">Pin Current Tab</button>
+      <button id="btn-add-note" class="tb-btn">+ Note</button>
+      <button id="btn-clear" class="tb-btn" title="Clear Canvas">Clear</button>
+      <div class="tb-sep"></div>
+      <button id="btn-save" class="tb-btn">Save</button>
+      <button id="btn-load" class="tb-btn">Load</button>
+    </div>
+    <div class="toolbar__right">
+      <div class="zoom-controls">
+        <button id="btn-zoom-out" class="tb-btn tb-btn--icon">−</button>
+        <span id="zoom-level" class="zoom-level">100%</span>
+        <button id="btn-zoom-in" class="tb-btn tb-btn--icon">+</button>
+        <button id="btn-fit" class="tb-btn tb-btn--icon" title="Fit all">⊞</button>
+      </div>
+      <div class="tb-sep"></div>
+      <button id="btn-analyze" class="tb-btn tb-btn--accent">Analyze Flow</button>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div id="canvas-viewport" class="canvas-viewport">
+    <div id="canvas" class="canvas">
+      <!-- SVG connector layer -->
+      <svg id="connector-svg" class="connector-svg">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="var(--sx-accent)" />
+          </marker>
+        </defs>
+      </svg>
+      <!-- Nodes and notes rendered here -->
+    </div>
+  </div>
+
+  <!-- Add Page Popover -->
+  <div id="add-page-popover" class="popover" hidden>
+    <div class="popover__content">
+      <label class="popover__label">Page URL</label>
+      <input id="add-page-url" type="url" class="popover__input" placeholder="https://example.com" autofocus>
+      <label class="popover__label" style="margin-top:8px;">Label (optional)</label>
+      <input id="add-page-label" type="text" class="popover__input" placeholder="Landing Page">
+      <div class="popover__actions">
+        <button id="add-page-confirm" class="tb-btn tb-btn--primary">Add</button>
+        <button id="add-page-cancel" class="tb-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Name Popover -->
+  <div id="save-popover" class="popover" hidden>
+    <div class="popover__content">
+      <label class="popover__label">Flow Name</label>
+      <input id="save-name-input" type="text" class="popover__input" placeholder="My User Journey">
+      <div class="popover__actions">
+        <button id="save-confirm" class="tb-btn tb-btn--primary">Save</button>
+        <button id="save-cancel" class="tb-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Flows Modal -->
+  <div id="load-modal" class="modal-overlay" hidden>
+    <div class="modal load-modal">
+      <div class="modal__header">
+        <span class="modal__title">Saved Flows</span>
+        <button id="load-modal-close" class="modal__close">×</button>
+      </div>
+      <div id="load-modal-body" class="modal__body">
+        <!-- Populated by JS -->
+      </div>
+      <div class="modal__footer">
+        <button id="load-modal-cancel" class="tb-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Modal -->
+  <div id="receipt-modal" class="modal-overlay" hidden>
+    <div class="modal receipt-modal">
+      <div class="modal__header">
+        <span class="modal__title">Flow Analysis</span>
+        <button id="receipt-close" class="modal__close">×</button>
+      </div>
+      <div id="receipt-body" class="modal__body">
+        <!-- Populated by JS -->
+      </div>
+      <div class="modal__footer">
+        <button id="receipt-start" class="tb-btn tb-btn--accent tb-btn--lg">Start Analysis</button>
+        <button id="receipt-cancel" class="tb-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Panel -->
+  <div id="results-panel" class="results-panel" hidden>
+    <div class="results-panel__header">
+      <span class="results-panel__title">Flow Results</span>
+      <button id="results-toggle" class="results-panel__toggle">▼</button>
+    </div>
+    <div id="results-body" class="results-panel__body">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Floating Terminal Log -->
+  <div id="flow-terminal" class="flow-terminal" hidden>
+    <div class="flow-terminal__header">
+      <span class="flow-terminal__title">synthux — flow analysis logs</span>
+      <button id="flow-terminal-close" class="flow-terminal__close-btn" hidden>×</button>
+    </div>
+    <div id="flow-terminal-body" class="flow-terminal__body"></div>
+  </div>
+
+  <!-- Status Bar -->
+  <div id="status-bar" class="status-bar">
+    <span id="status-text">0 pages · Ready</span>
+    <span id="status-progress" class="status-bar__progress" hidden></span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="flow-canvas.js" type="module"></script>
+  <script src="flow-toolbar.js" type="module"></script>
+  <script src="flow-results-panel.js" type="module"></script>
+</body>
+</html>

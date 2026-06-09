@@ -13,6 +13,7 @@ import { getProfile, getProfileAsync, PROFILES } from './profiles.js';
 import { runAccessibilityChecks } from './accessibility.js';
 import { generateReport } from './report-generator.js';
 import { calculateCost, aggregateCosts } from './cost-calculator.js';
+import { checkVisionSupport } from './providers.js';
 
 export class Analyzer {
   constructor(options = {}) {
@@ -39,6 +40,13 @@ export class Analyzer {
    */
   async analyze(input) {
     const { url, title, pageData, screenshot, timestamp } = input;
+
+    // Check vision capability before sending screenshots
+    const visionSupported = await checkVisionSupport(this.providerId, this.model, this.endpoint);
+    const safeScreenshot = visionSupported ? screenshot : null;
+    if (screenshot && !visionSupported) {
+      console.info(`[synthux] Model "${this.model}" does not support vision — skipping screenshot.`);
+    }
 
     this.cancelled = false;
 
@@ -116,16 +124,16 @@ export class Analyzer {
         );
 
         // Build and send prompt (with vision instructions if screenshot available)
-        const prompt = buildPrompt(heuristic, profile, pageData, !!screenshot);
+        const prompt = buildPrompt(heuristic, profile, pageData, !!safeScreenshot);
 
         try {
-          console.info(`[synthux] → Calling AI: ${heuristic.name.en} (model: ${this.model}, provider: ${this.providerId})`);
+          console.info(`[synthux] → Calling AI: ${heuristic.name.en} (model: ${this.model}, provider: ${this.providerId}, vision: ${!!safeScreenshot})`);
           const response = await this.client.evaluate(prompt, {
             model: this.model,
             systemPrompt: profile.systemPrompt,
             temperature: 0.3,
             format: 'json',
-            images: screenshot ? [screenshot] : []
+            images: safeScreenshot ? [safeScreenshot] : []
           });
 
           if (response.success) {
@@ -139,6 +147,15 @@ export class Analyzer {
             console.info(`[synthux] → ✓ Score: ${evaluation.score}, Issues: ${evaluation.issues.length}`);
           } else {
             console.warn(`[synthux] → ✗ AI returned error: ${response.error}`);
+
+            // CORS error from Ollama — abort entire analysis immediately,
+            // no point running 11 more calls that will all fail the same way
+            if (response.errorType === 'cors') {
+              const corsError = new Error(response.error);
+              corsError.type = 'cors';
+              throw corsError;
+            }
+
             // AI call failed — add fallback
             evaluations.push({
               heuristicId: heuristic.id,
@@ -151,6 +168,9 @@ export class Analyzer {
             });
           }
         } catch (err) {
+          // Re-throw CORS errors — they must escape the loop to abort analysis
+          if (err.type === 'cors') throw err;
+
           console.error(`[synthux] → ✗ Evaluation exception for ${heuristic.id}:`, err);
           evaluations.push({
             heuristicId: heuristic.id,

@@ -61,6 +61,7 @@ export class AIClient {
       temperature = 0.3,
       format = 'json',
       maxRetries = 1,
+      maxTokens = 4096,
       images = []
     } = options;
 
@@ -83,7 +84,7 @@ export class AIClient {
           systemPrompt,
           temperature,
           format,
-          maxTokens: 4096,
+          maxTokens,
           images: images.filter(Boolean),
         });
 
@@ -105,8 +106,16 @@ export class AIClient {
             continue;
           }
 
-          // Provider-specific error messages
+          // Provider-specific error messages for auth/CORS errors
           if (response.status === 401 || response.status === 403) {
+            // Ollama doesn't use API keys — 403 means CORS origin blocked
+            if (this.providerId === 'ollama') {
+              return {
+                success: false,
+                error: 'Ollama is blocking requests from this extension (CORS). Set OLLAMA_ORIGINS="*" and restart Ollama.',
+                errorType: 'cors'
+              };
+            }
             return {
               success: false,
               error: `Invalid API key for ${this.provider.name}. Check your settings. (HTTP ${response.status})`
