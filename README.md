@@ -268,9 +268,9 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 
 ### v1.9.0 (Current)
 - [x] Multi-page user flow analysis (Flow Builder)
-- [ ] Heatmap visualization improvements (gradient, legend, pulse animations)
-- [ ] Chrome Web Store rating prompt
-- [ ] Privacy policy update (Flow Analysis, BYOK transparency, developer info)
+- [x] Heatmap visualization improvements (gradient, legend, pulse animations)
+- [x] Chrome Web Store rating prompt
+- [x] Privacy policy update (Flow Analysis, BYOK transparency, developer info)
 
 ### Future
 - [ ] **synthux insights** — Auto-fetched research library from NNGroup and Baymard Institute; AI uses latest UX research findings during analysis for evidence-based recommendations
