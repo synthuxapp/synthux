@@ -39,7 +39,7 @@
     "esbuild": "^0.25.0",
     "eslint": "^9.0.0",
     "prettier": "^3.4.0",
-    "web-ext": "^8.4.0"
+    "web-ext": "^10.4.0"
   },
   "dependencies": {
     "jspdf": "^4.2.1",
