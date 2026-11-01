@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Air-Gapped UX Audit for Defense, Military & Banking Intranets — synthux</title>
+  <meta name="description" content="100% offline, on-device AI UX and WCAG 2.2 AA auditing for classified military C4ISR interfaces, defense systems, core banking intranets, and NDA staging environments using local Ollama.">
+  <meta name="keywords" content="air-gapped ux audit, defense c4isr usability testing, military ui audit, banking intranet ux, offline ai ux tool, ollama local ai ux audit, zero telemetry chrome extension">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/solutions/defense-air-gapped-ux">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../style.css?v=2.0.1">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://synthux.app/solutions/defense-air-gapped-ux">
+  <meta property="og:title" content="Air-Gapped UX Audit for Defense, Military & Banking Intranets — synthux">
+  <meta property="og:description" content="Run AI heuristic and WCAG 2.2 AA audits 100% on-device via Ollama. Zero external network calls, zero telemetry — built for defense, C4ISR, and core banking intranets.">
+  <meta property="og:image" content="https://synthux.app/assets/solutions/defense-air-gapped.svg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "Air-Gapped UX Audit for Defense, Military & Banking Intranets",
+        "url": "https://synthux.app/solutions/defense-air-gapped-ux",
+        "description": "100% offline, on-device AI UX and WCAG 2.2 AA auditing for classified defense C4ISR systems, banking intranets, and strict NDA environments."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does synthux transmit any DOM data or screenshots outside the local machine in Ollama mode?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. In Local AI mode, synthux communicates exclusively with your local Ollama instance (127.0.0.1:11434). Zero bytes of DOM structure, text, or screenshots leave your workstation, making it compliant with air-gapped military, defense, and banking intranet policies."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which local AI models are recommended for offline defense and banking UX audits?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We recommend Gemma 4 (gemma4) or Llama 4 Scout (llama4:scout) for multimodal visual + DOM analysis, and Qwen 3.8 (qwen3.8) or DeepSeek R1 (deepseek-r1) for deep heuristic reasoning and structured code fixes."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="../index.html" class="nav-logo" aria-label="synthux Home">
+          <img src="../assets/logo.svg" alt="synthux" height="22" class="logo-img">
+        </a>
+        <span class="nav-ver-pill">v2.0</span>
+      </div>
+
+      <ul class="nav-center">
+        <li class="nav-item"><a href="../index.html#features" class="nav-link" data-i18n="navFeatures">Features</a></li>
+        <li class="nav-item"><a href="../index.html#how-it-works" class="nav-link" data-i18n="navHow">How It Works</a></li>
+        <li class="nav-item" id="nav-solutions-item">
+          <button type="button" class="nav-link active" onclick="toggleSolutionsDropdown(event)" aria-expanded="false" aria-haspopup="true">
+            <span data-i18n="navSolutions">Solutions</span>
+            <svg class="nav-link-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-dropdown" role="menu">
+            <div class="nav-dropdown-grid">
+              <a href="defense-air-gapped-ux.html" class="nav-dropdown-card active">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+                  <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+                </div>
+              </a>
+              <a href="fintech-banking-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+                  <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+                </div>
+              </a>
+              <a href="ecommerce-ux-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+                  <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+                </div>
+              </a>
+              <a href="saas-dashboard-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+                  <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+                </div>
+              </a>
+              <a href="accessibility-wcag-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+                  <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+                </div>
+              </a>
+              <a href="user-flow-personas.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+                  <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+                </div>
+              </a>
+            </div>
+            <div class="nav-dropdown-footer">
+              <span data-i18n="solutionsEyebrow">Solutions &amp; Target Personas</span>
+              <a href="../index.html#solutions"><span data-i18n="solExploreLink">Explore solution</span> &rarr;</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item"><a href="../index.html#privacy" class="nav-link" data-i18n="navPrivacy">Privacy</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">Auto</button>
+        <div class="lang-picker" id="lang-picker-nav">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-nav')" aria-label="Select language">
+            <span class="lang-picker__label">EN</span>
+            <svg class="lang-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+        <a href="https://github.com/synthuxapp/synthux" class="nav-gh-btn" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="nav-cta" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" aria-expanded="false">
+          <svg class="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          <svg class="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="nav-mobile-drawer">
+      <div>
+        <ul class="nav-mobile-links">
+          <li><a href="../index.html"><span data-i18n="solBackHome">Home</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#features"><span data-i18n="navFeatures">Features</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#how-it-works"><span data-i18n="navHow">How It Works</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#privacy"><span data-i18n="navPrivacy">Privacy</span> <span>&rarr;</span></a></li>
+        </ul>
+        <div class="nav-mobile-section-label" data-i18n="navSolutions">Solutions</div>
+        <div class="nav-mobile-solutions-grid">
+          <a href="defense-air-gapped-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+              <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+            </div>
+          </a>
+          <a href="fintech-banking-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+              <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+            </div>
+          </a>
+          <a href="ecommerce-ux-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+              <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+            </div>
+          </a>
+          <a href="saas-dashboard-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+              <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+            </div>
+          </a>
+          <a href="accessibility-wcag-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+              <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+            </div>
+          </a>
+          <a href="user-flow-personas.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+              <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" rel="noopener">
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Solution Hero -->
+  <header class="solution-page-hero">
+    <div class="container">
+      <div class="solution-breadcrumb fade-in">
+        <a href="../index.html" data-i18n="solBackHome">Home</a>
+        <span>/</span>
+        <a href="../index.html#solutions" data-i18n="navSolutions">Solutions</a>
+        <span>/</span>
+        <span data-i18n="pageBreadcrumb">Defense, Military &amp; Air-Gapped Systems</span>
+      </div>
+
+      <div class="solution-hero-grid">
+        <div class="solution-hero-content fade-in">
+          <div class="solution-hero-badges">
+            <span class="badge"><span class="dot"></span> <span data-i18n="heroBadge1">100% On-Device Local AI</span></span>
+            <span class="badge badge-new" data-i18n="heroBadge2">Air-Gapped &amp; Zero Telemetry</span>
+          </div>
+          <h1 data-i18n="pageH1">UX &amp; Cognitive-Load Auditing for Defense, Military &amp; Banking Intranets</h1>
+          <p class="solution-hero-lead" data-i18n="pageLead">
+            Cloud-based UX tools cannot enter classified networks, military C4ISR consoles, core banking intranets, or strict NDA staging environments. synthux pairs directly with local Ollama on your machine so screenshots, DOM trees, and audit reports never leave your hardware perimeter.
+          </p>
+          <div class="solution-hero-actions">
+            <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" data-i18n="solInstallCta">Add to Chrome — Free</a>
+            <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" data-i18n="solGithubCta">Inspect Source on GitHub</a>
+          </div>
+        </div>
+
+        <div class="solution-visual-frame fade-in">
+          <img src="../assets/solutions/defense-air-gapped.svg" alt="Air-gapped defense C4ISR and banking intranet UX audit architecture using local Ollama" width="1200" height="675" fetchpriority="high">
+          <div class="solution-visual-caption">
+            <span data-i18n="visualCaptionLeft">Architecture: 127.0.0.1 Local Loopback Inference</span>
+            <span data-i18n="visualCaptionRight">Zero Cloud Egress · MIT Auditable Code</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-metrics-strip fade-in">
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m1Val">0 Bytes</div>
+          <div class="solution-metric-label" data-i18n="m1Label">External network egress in Local Ollama mode</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m2Val">100% Local</div>
+          <div class="solution-metric-label" data-i18n="m2Label">Runs on intranet, localhost, VPN, and air-gapped labs</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m3Val">Custom JSON</div>
+          <div class="solution-metric-label" data-i18n="m3Label">Import military/agency HMI &amp; internal UX standards</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m4Val">MIT Open Source</div>
+          <div class="solution-metric-label" data-i18n="m4Label">Fully inspectable by InfoSec &amp; compliance teams</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Core Pillars -->
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec1Eyebrow">Why High-Security Teams Choose synthux</span>
+        <h2 data-i18n="sec1Title">Mission-Critical Usability Without Compromising Information Security</h2>
+        <p data-i18n="sec1Subtitle">In defense, aerospace, intelligence, and banking operations, interface ambiguity causes operator error. synthux audits high-density consoles entirely within your security boundary.</p>
+      </div>
+
+      <div class="solution-pillars-grid">
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p1Num">01 · Air-Gapped Architecture</div>
+          <h3 data-i18n="p1Title">Strict Localhost Inference via Ollama</h3>
+          <p data-i18n="p1Desc">Connect synthux to Gemma 4, Qwen 3.8, Llama 4 Scout, or DeepSeek R1 running on your local GPU workstation or internal enclave server. No internet connection or external API token is required.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p2Num">02 · Operator Cognitive Load</div>
+          <h3 data-i18n="p2Title">Error Prevention &amp; Alert Hierarchy</h3>
+          <p data-i18n="p2Desc">Audit C4ISR, SOC, and core banking terminals for visual clutter, low-contrast status indicators, destructive command guardrails, and rapid confirmation clarity under high-stress conditions.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p3Num">03 · Custom HMI Rule Packs</div>
+          <h3 data-i18n="p3Title">Import Internal &amp; Defense JSON Standards</h3>
+          <p data-i18n="p3Desc">Load custom JSON rule packs tailored to MIL-STD human-factors guidelines, internal banking design systems, or cybersecurity SOC playbooks directly into the extension.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Target Audiences & Personas -->
+  <section class="solution-section solution-section-alt">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec2Eyebrow">Target Roles &amp; Synthetic Personas</span>
+        <h2 data-i18n="sec2Title">Who Uses This Solution &amp; Which Personas Simulate the Experience</h2>
+        <p data-i18n="sec2Subtitle">synthux bridges internal engineering/security teams with realistic operator persona simulations.</p>
+      </div>
+
+      <div class="solution-personas-grid">
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role1Badge">Target Audience · Engineering</span>
+          <h3 data-i18n="role1Title">Defense, Aerospace &amp; C4ISR HMI Engineers</h3>
+          <p data-i18n="role1Desc">Teams building command-and-control dashboards, tactical telemetry interfaces, and simulation platforms inside classified or isolated development networks.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role1Check1">Audit mission-critical screens without uploading screenshots to third-party servers</li>
+            <li data-i18n="role1Check2">Verify color-contrast and keyboard-only operation under low-light conditions</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role2Badge">Target Audience · Financial &amp; Enterprise</span>
+          <h3 data-i18n="role2Title">Core Banking Intranet, SOC &amp; GovTech Teams</h3>
+          <p data-i18n="role2Desc">Financial institutions and public-sector agencies governed by strict data residency, PCI-DSS, GDPR, KVKK, and internal InfoSec policies.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role2Check1">Test staging environments containing sensitive schema or internal workflows locally</li>
+            <li data-i18n="role2Check2">Export offline PDF &amp; Markdown audit reports for internal compliance sign-off</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role3Badge">Synthetic AI Persona · Built-In</span>
+          <h3 data-i18n="role3Title">Power User &amp; High-Speed Operator Persona</h3>
+          <p data-i18n="role3Desc">Evaluates the interface from the perspective of an experienced specialist who relies on keyboard shortcuts, rapid filtering, batch actions, and instant undo/recovery.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role3Check1">Flags redundant modal confirmations that slow down routine operator workflows</li>
+            <li data-i18n="role3Check2">Audits consistency of status codes, table density, and shortcut discoverability</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role4Badge">Synthetic AI Persona · Custom Profile</span>
+          <h3 data-i18n="role4Title">Mission-Critical SOC / Command Operator Persona</h3>
+          <p data-i18n="role4Desc">Configure a custom persona representing a high-stress operator monitoring multi-stream alerts where a misread metric or accidental click carries severe consequences.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role4Check1">Prioritizes Visibility of System Status and Error Prevention heuristics</li>
+            <li data-i18n="role4Check2">Detects ambiguous destructive buttons and ungrouped numeric telemetry</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="faqEyebrow">Security &amp; Deployment FAQ</span>
+        <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+      </div>
+      <div class="solution-faq-grid">
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq1Q">Does synthux transmit any DOM data or screenshots outside the local machine?</h3>
+          <p data-i18n="faq1A">Never in Local AI mode. All DOM inspection, axe-core accessibility checks, and screenshot capture occur inside your browser and are sent strictly to your local Ollama endpoint (e.g. http://localhost:11434).</p>
+        </div>
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq2Q">Can our InfoSec team audit the extension source code before deployment?</h3>
+          <p data-i18n="faq2A">Yes. synthux is 100% open source under the MIT License, scanned continuously with CodeQL and Dependabot, and contains zero analytics or telemetry scripts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimal Solutions Cross-Navigation (Above Wallet Module) -->
+  <section id="other-solutions" class="solutions-minimal">
+    <div class="container">
+      <div class="solutions-minimal-head fade-in">
+        <div>
+          <span class="solutions-eyebrow" data-i18n="solutionsEyebrow">Solutions &amp; Target Audiences</span>
+          <h2 data-i18n="solOtherSolutions">Other Solutions &amp; Use Cases</h2>
+        </div>
+      </div>
+      <div class="solutions-minimal-grid">
+        <a href="fintech-banking-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol2Tag">Fintech Rule Pack</span></div>
+            <h3 data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</h3>
+            <p data-i18n="sol2Desc">Audit fee and exchange-rate transparency, irreversible transaction guardrails, numeric input formatting, and session security indicators.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="ecommerce-ux-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol3Tag">E-Commerce Rule Pack</span></div>
+            <h3 data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</h3>
+            <p data-i18n="sol3Desc">Detect cart abandonment triggers, forced account creation friction, hidden shipping costs, and product filtering gaps before release.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="saas-dashboard-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol4Tag">SaaS Rule Pack</span></div>
+            <h3 data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</h3>
+            <p data-i18n="sol4Desc">Evaluate high-density data tables, empty-state onboarding, bulk action ergonomics, keyboard shortcuts, and destructive action guardrails.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="accessibility-wcag-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol5Tag">WCAG 2.2 AA + AI</span></div>
+            <h3 data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</h3>
+            <p data-i18n="sol5Desc">Combine deterministic axe-core WCAG 2.2 AA checks with AI screen-reader and keyboard-only persona evaluation and code fixes.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="user-flow-personas.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol6Tag">Flow Builder · Personas</span></div>
+            <h3 data-i18n="sol6Title">Multi-Page Flows &amp; Synthetic Personas</h3>
+            <p data-i18n="sol6Desc">Simulate end-to-end user journeys across connected pages through First-Time, Power User, Accessibility, and custom domain personas.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
+        <div class="lang-picker lang-picker--up" id="lang-picker-footer">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-footer')">
+            <span class="lang-picker__label">EN</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.SOLUTIONS_PAGE_I18N = {
+      en: {
+        pageTitle: 'Air-Gapped UX Audit for Defense, Military & Banking Intranets — synthux',
+        pageBreadcrumb: 'Defense, Military & Air-Gapped Systems',
+        heroBadge1: '100% On-Device Local AI',
+        heroBadge2: 'Air-Gapped & Zero Telemetry',
+        pageH1: 'UX & Cognitive-Load Auditing for Defense, Military & Banking Intranets',
+        pageLead: 'Cloud-based UX tools cannot enter classified networks, military C4ISR consoles, core banking intranets, or strict NDA staging environments. synthux pairs directly with local Ollama on your machine so screenshots, DOM trees, and audit reports never leave your hardware perimeter.',
+        visualCaptionLeft: 'Architecture: 127.0.0.1 Local Loopback Inference',
+        visualCaptionRight: 'Zero Cloud Egress · MIT Auditable Code',
+        m1Val: '0 Bytes',
+        m1Label: 'External network egress in Local Ollama mode',
+        m2Val: '100% Local',
+        m2Label: 'Runs on intranet, localhost, VPN, and air-gapped labs',
+        m3Val: 'Custom JSON',
+        m3Label: 'Import military/agency HMI & internal UX standards',
+        m4Val: 'MIT Open Source',
+        m4Label: 'Fully inspectable by InfoSec & compliance teams',
+        sec1Eyebrow: 'Why High-Security Teams Choose synthux',
+        sec1Title: 'Mission-Critical Usability Without Compromising Information Security',
+        sec1Subtitle: 'In defense, aerospace, intelligence, and banking operations, interface ambiguity causes operator error. synthux audits high-density consoles entirely within your security boundary.',
+        p1Num: '01 · Air-Gapped Architecture',
+        p1Title: 'Strict Localhost Inference via Ollama',
+        p1Desc: 'Connect synthux to Gemma 4, Qwen 3.8, Llama 4 Scout, or DeepSeek R1 running on your local GPU workstation or internal enclave server. No internet connection or external API token is required.',
+        p2Num: '02 · Operator Cognitive Load',
+        p2Title: 'Error Prevention & Alert Hierarchy',
+        p2Desc: 'Audit C4ISR, SOC, and core banking terminals for visual clutter, low-contrast status indicators, destructive command guardrails, and rapid confirmation clarity under high-stress conditions.',
+        p3Num: '03 · Custom HMI Rule Packs',
+        p3Title: 'Import Internal & Defense JSON Standards',
+        p3Desc: 'Load custom JSON rule packs tailored to MIL-STD human-factors guidelines, internal banking design systems, or cybersecurity SOC playbooks directly into the extension.',
+        sec2Eyebrow: 'Target Roles & Synthetic Personas',
+        sec2Title: 'Who Uses This Solution & Which Personas Simulate the Experience',
+        sec2Subtitle: 'synthux bridges internal engineering/security teams with realistic operator persona simulations.',
+        role1Badge: 'Target Audience · Engineering',
+        role1Title: 'Defense, Aerospace & C4ISR HMI Engineers',
+        role1Desc: 'Teams building command-and-control dashboards, tactical telemetry interfaces, and simulation platforms inside classified or isolated development networks.',
+        role1Check1: 'Audit mission-critical screens without uploading screenshots to third-party servers',
+        role1Check2: 'Verify color-contrast and keyboard-only operation under low-light conditions',
+        role2Badge: 'Target Audience · Financial & Enterprise',
+        role2Title: 'Core Banking Intranet, SOC & GovTech Teams',
+        role2Desc: 'Financial institutions and public-sector agencies governed by strict data residency, PCI-DSS, GDPR, KVKK, and internal InfoSec policies.',
+        role2Check1: 'Test staging environments containing sensitive schema or internal workflows locally',
+        role2Check2: 'Export offline PDF & Markdown audit reports for internal compliance sign-off',
+        role3Badge: 'Synthetic AI Persona · Built-In',
+        role3Title: 'Power User & High-Speed Operator Persona',
+        role3Desc: 'Evaluates the interface from the perspective of an experienced specialist who relies on keyboard shortcuts, rapid filtering, batch actions, and instant undo/recovery.',
+        role3Check1: 'Flags redundant modal confirmations that slow down routine operator workflows',
+        role3Check2: 'Audits consistency of status codes, table density, and shortcut discoverability',
+        role4Badge: 'Synthetic AI Persona · Custom Profile',
+        role4Title: 'Mission-Critical SOC / Command Operator Persona',
+        role4Desc: 'Configure a custom persona representing a high-stress operator monitoring multi-stream alerts where a misread metric or accidental click carries severe consequences.',
+        role4Check1: 'Prioritizes Visibility of System Status and Error Prevention heuristics',
+        role4Check2: 'Detects ambiguous destructive buttons and ungrouped numeric telemetry',
+        faqEyebrow: 'Security & Deployment FAQ',
+        faqTitle: 'Frequently Asked Questions',
+        faq1Q: 'Does synthux transmit any DOM data or screenshots outside the local machine?',
+        faq1A: 'Never in Local AI mode. All DOM inspection, axe-core accessibility checks, and screenshot capture occur inside your browser and are sent strictly to your local Ollama endpoint (http://localhost:11434).',
+        faq2Q: 'Can our InfoSec team audit the extension source code before deployment?',
+        faq2A: 'Yes. synthux is 100% open source under the MIT License, scanned continuously with CodeQL and Dependabot, and contains zero analytics or telemetry scripts.'
+      },
+      tr: {
+        pageTitle: 'Savunma, Askeri Sistemler ve Banka İç Ağları İçin Air-Gapped UX Denetimi — synthux',
+        pageBreadcrumb: 'Savunma, Askeri Sistemler ve Kapalı Ağ (Air-Gapped) UX',
+        heroBadge1: '%100 Cihaz İçi Lokal AI',
+        heroBadge2: 'Kapalı Ağ & Sıfır Telemetri',
+        pageH1: 'Savunma Sanayii, Askeri Sistemler ve Banka İç Ağları İçin UX ve Bilişsel Yük Denetimi',
+        pageLead: 'Bulut tabanlı UX araçları askeri komuta-kontrol (C4ISR) ekranlarına, savunma sanayii ağlarına, banka intranetlerine veya gizlilik sözleşmeli (NDA) test ortamlarına giremez. synthux doğrudan cihazınızdaki yerel Ollama ile çalışır; ekran görüntüleri, DOM ağacı ve raporlar donanım sınırınızdan dışarı çıkmaz.',
+        visualCaptionLeft: 'Mimari: 127.0.0.1 Yerel Loopback Çıkarımı',
+        visualCaptionRight: 'Sıfır Dış Ağ Çıkışı · MIT Denetlenebilir Kod',
+        m1Val: '0 Bayt',
+        m1Label: 'Yerel Ollama modunda dış ağa çıkan veri miktarı',
+        m2Val: '%100 Yerel',
+        m2Label: 'İntranet, localhost, VPN ve kapalı laboratuvarlarda çalışır',
+        m3Val: 'Özel JSON',
+        m3Label: 'Askeri HMI ve kurum içi UX standartlarını içe aktarın',
+        m4Val: 'MIT Açık Kaynak',
+        m4Label: 'Siber güvenlik ve uyumluluk ekiplerince tamamen incelenebilir',
+        sec1Eyebrow: 'Yüksek Güvenlikli Ekipler Neden synthux Seçiyor?',
+        sec1Title: 'Bilgi Güvenliğinden Ödün Vermeden Görev-Kritik Kullanılabilirlik',
+        sec1Subtitle: 'Savunma, havacılık, siber güvenlik ve bankacılık operasyonlarında arayüz karmaşası operatör hatasına yol açar. synthux yüksek yoğunluklu ekranları tamamen güvenlik sınırınız içinde denetler.',
+        p1Num: '01 · Kapalı Ağ (Air-Gapped) Mimarisi',
+        p1Title: 'Ollama ile Tamamen Yerel AI Çıkarımı',
+        p1Desc: 'synthux\'ü kendi iş istasyonunuzda veya iç ağ sunucunuzda çalışan Gemma 4, Qwen 3.8, Llama 4 Scout veya DeepSeek R1 modellerine bağlayın. İnternet bağlantısı veya bulut API anahtarı gerekmez.',
+        p2Num: '02 · Operatör Bilişsel Yükü',
+        p2Title: 'Hata Önleme ve Alarm Hiyerarşisi',
+        p2Desc: 'C4ISR, SOC ve temel bankacılık ekranlarını görsel karmaşa, düşük kontrastlı durum göstergeleri, yıkıcı komut korumaları ve stres altında hızlı karar verme netliği açısından denetleyin.',
+        p3Num: '03 · Özel HMI Kural Paketleri',
+        p3Title: 'Kurum İçi ve Askeri JSON Standartlarını Yükleyin',
+        p3Desc: 'MIL-STD insan faktörleri rehberlerine, banka tasarım sistemlerine veya siber güvenlik SOC kurallarına göre hazırlanan özel JSON kural paketlerini doğrudan uzantıya aktarın.',
+        sec2Eyebrow: 'Hedef Roller ve Sentetik Personalar',
+        sec2Title: 'Bu Çözümü Kimler Kullanmalı ve Hangi Personalar Simüle Edilir?',
+        sec2Subtitle: 'synthux, mühendislik ve güvenlik ekiplerini gerçekçi operatör persona simülasyonlarıyla buluşturur.',
+        role1Badge: 'Hedef Kitle · Mühendislik',
+        role1Title: 'Savunma Sanayii, Havacılık ve C4ISR HMI Mühendisleri',
+        role1Desc: 'İzole veya gizli geliştirme ağlarında komuta-kontrol panelleri, taktik telemetri arayüzleri ve simülasyon yazılımları geliştiren ekipler.',
+        role1Check1: 'Ekran görüntülerini üçüncü parti sunuculara göndermeden görev-kritik ekranları denetleyin',
+        role1Check2: 'Düşük ışıklı operasyon ortamları için kontrast ve yalnızca klavye kullanımını doğrulayın',
+        role2Badge: 'Hedef Kitle · Finans & Kurumsal',
+        role2Title: 'Banka İntranet, SOC ve Kamu (GovTech) Ekipleri',
+        role2Desc: 'BDDK, KVKK, GDPR, PCI-DSS ve sıkı kurum içi bilgi güvenliği politikalarına tabi finans kuruluşları ve kamu kurumları.',
+        role2Check1: 'Hassas veri şeması veya iç iş akışı barındıran staging ortamlarını yerel olarak test edin',
+        role2Check2: 'İç denetim onayı için çevrimdışı PDF ve Markdown raporları dışa aktarın',
+        role3Badge: 'Sentetik AI Personası · Yerleşik',
+        role3Title: 'Uzman Kullanıcı (Power User) ve Hızlı Operatör Personası',
+        role3Desc: 'Arayüzü klavye kısayollarına, hızlı filtrelemeye, toplu işlemlere ve anında geri alma (undo) yeteneğine güvenen deneyimli bir uzman gözünden değerlendirir.',
+        role3Check1: 'Rutin operatör iş akışlarını yavaşlatan gereksiz onay pencerelerini tespit eder',
+        role3Check2: 'Durum kodlarının tutarlılığını, tablo yoğunluğunu ve kısayol erişilebilirliğini denetler',
+        role4Badge: 'Sentetik AI Personası · Özel Profil',
+        role4Title: 'Görev-Kritik Komuta / SOC Operatörü Personası',
+        role4Desc: 'Yanlış okunan bir metriğin veya hatalı tıklamanın kritik sonuçlar doğuracağı çoklu alarm ekranlarını izleyen stres altındaki operatör profilini tanımlayın.',
+        role4Check1: 'Sistem Durumu Görünürlüğü ve Hata Önleme heuristiklerine en yüksek ağırlığı verir',
+        role4Check2: 'Belirsiz yıkıcı butonları ve gruplanmamış sayısal telemetri verilerini yakalar',
+        faqEyebrow: 'Güvenlik ve Kurulum SSS',
+        faqTitle: 'Sıkça Sorulan Sorular',
+        faq1Q: 'synthux yerel modda cihaz dışına herhangi bir DOM verisi veya ekran görüntüsü gönderir mi?',
+        faq1A: 'Kesinlikle hayır. Yerel AI modunda tüm DOM taraması, axe-core kontrolleri ve ekran görüntüsü yakalama işlemi tarayıcınızda gerçekleşir ve yalnızca yerel Ollama adresinize (http://localhost:11434) iletilir.',
+        faq2Q: 'Bilgi güvenliği (InfoSec) ekibimiz kurulum öncesi kaynak kodunu inceleyebilir mi?',
+        faq2A: 'Evet. synthux MIT Lisansı altında %100 açık kaynaklıdır, CodeQL ve Dependabot ile sürekli taranır ve hiçbir telemetri veya takip kodu içermez.'
+      }
+    };
+  </script>
+  <script src="../i18n.js?v=2.0.1"></script>
+  <script src="../script.js?v=2.0.1"></script>
+</body>
+</html>

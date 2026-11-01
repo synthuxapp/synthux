@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaaS, B2B Dashboard & Web App UX Audit — synthux</title>
+  <meta name="description" content="Audit complex B2B SaaS dashboards, data tables, empty-state onboarding, keyboard shortcuts, and destructive action guardrails with synthux's SaaS UX Rule Pack.">
+  <meta name="keywords" content="saas ux audit, dashboard usability evaluation, b2b web app ux checker, empty state onboarding ux, power user ux testing, synthux">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/solutions/saas-dashboard-ux">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../style.css?v=2.0.1">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://synthux.app/solutions/saas-dashboard-ux">
+  <meta property="og:title" content="SaaS, B2B Dashboard & Web App UX Audit — synthux">
+  <meta property="og:description" content="Evaluate data density, empty-state onboarding, bulk action ergonomics, and RBAC permission clarity with the built-in SaaS Rule Pack.">
+  <meta property="og:image" content="https://synthux.app/assets/solutions/saas-dashboard.svg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "SaaS, B2B Dashboard & Web App UX Audit",
+        "url": "https://synthux.app/solutions/saas-dashboard-ux",
+        "description": "Audit B2B SaaS workspaces, analytics dashboards, and enterprise web applications using synthux's 10-rule SaaS UX Rule Pack."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What does synthux's SaaS & Dashboard Rule Pack evaluate?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The built-in saas.json rule pack evaluates 10 SaaS-specific heuristics including Empty States & Onboarding Clarity, Data Density & Visual Hierarchy, Bulk Actions & Power-User Shortcuts, Destructive Action Guardrails, and Role/Permission Clarity."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can synthux audit localhost or staging web apps behind a login?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Because synthux runs as a Chrome extension directly inside your authenticated browser session, it can audit localhost, staging previews, and authenticated SaaS workspaces without external crawlers."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="../index.html" class="nav-logo" aria-label="synthux Home">
+          <img src="../assets/logo.svg" alt="synthux" height="22" class="logo-img">
+        </a>
+        <span class="nav-ver-pill">v2.0</span>
+      </div>
+
+      <ul class="nav-center">
+        <li class="nav-item"><a href="../index.html#features" class="nav-link" data-i18n="navFeatures">Features</a></li>
+        <li class="nav-item"><a href="../index.html#how-it-works" class="nav-link" data-i18n="navHow">How It Works</a></li>
+        <li class="nav-item" id="nav-solutions-item">
+          <button type="button" class="nav-link active" onclick="toggleSolutionsDropdown(event)" aria-expanded="false" aria-haspopup="true">
+            <span data-i18n="navSolutions">Solutions</span>
+            <svg class="nav-link-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-dropdown" role="menu">
+            <div class="nav-dropdown-grid">
+              <a href="defense-air-gapped-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+                  <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+                </div>
+              </a>
+              <a href="fintech-banking-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+                  <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+                </div>
+              </a>
+              <a href="ecommerce-ux-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+                  <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+                </div>
+              </a>
+              <a href="saas-dashboard-ux.html" class="nav-dropdown-card active">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+                  <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+                </div>
+              </a>
+              <a href="accessibility-wcag-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+                  <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+                </div>
+              </a>
+              <a href="user-flow-personas.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+                  <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+                </div>
+              </a>
+            </div>
+            <div class="nav-dropdown-footer">
+              <span data-i18n="solutionsEyebrow">Solutions &amp; Target Personas</span>
+              <a href="../index.html#solutions"><span data-i18n="solExploreLink">Explore solution</span> &rarr;</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item"><a href="../index.html#privacy" class="nav-link" data-i18n="navPrivacy">Privacy</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">Auto</button>
+        <div class="lang-picker" id="lang-picker-nav">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-nav')" aria-label="Select language">
+            <span class="lang-picker__label">EN</span>
+            <svg class="lang-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+        <a href="https://github.com/synthuxapp/synthux" class="nav-gh-btn" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="nav-cta" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" aria-expanded="false">
+          <svg class="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          <svg class="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="nav-mobile-drawer">
+      <div>
+        <ul class="nav-mobile-links">
+          <li><a href="../index.html"><span data-i18n="solBackHome">Home</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#features"><span data-i18n="navFeatures">Features</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#how-it-works"><span data-i18n="navHow">How It Works</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#privacy"><span data-i18n="navPrivacy">Privacy</span> <span>&rarr;</span></a></li>
+        </ul>
+        <div class="nav-mobile-section-label" data-i18n="navSolutions">Solutions</div>
+        <div class="nav-mobile-solutions-grid">
+          <a href="defense-air-gapped-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+              <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+            </div>
+          </a>
+          <a href="fintech-banking-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+              <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+            </div>
+          </a>
+          <a href="ecommerce-ux-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+              <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+            </div>
+          </a>
+          <a href="saas-dashboard-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+              <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+            </div>
+          </a>
+          <a href="accessibility-wcag-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+              <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+            </div>
+          </a>
+          <a href="user-flow-personas.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+              <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" rel="noopener">
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="solution-page-hero">
+    <div class="container">
+      <div class="solution-breadcrumb fade-in">
+        <a href="../index.html" data-i18n="solBackHome">Home</a>
+        <span>/</span>
+        <a href="../index.html#solutions" data-i18n="navSolutions">Solutions</a>
+        <span>/</span>
+        <span data-i18n="pageBreadcrumb">SaaS, B2B Dashboards &amp; Web Apps</span>
+      </div>
+
+      <div class="solution-hero-grid">
+        <div class="solution-hero-content fade-in">
+          <div class="solution-hero-badges">
+            <span class="badge"><span class="dot"></span> <span data-i18n="heroBadge1">Built-In SaaS Rule Pack</span></span>
+            <span class="badge badge-new" data-i18n="heroBadge2">Works on Localhost &amp; Auth Sessions</span>
+          </div>
+          <h1 data-i18n="pageH1">UX Auditing for Complex B2B SaaS Dashboards &amp; Enterprise Web Apps</h1>
+          <p class="solution-hero-lead" data-i18n="pageLead">
+            SaaS products fail on two fronts: new users churn on blank empty states during onboarding, while power users get slowed down by high-friction tables and missing shortcuts. synthux evaluates both extremes inside your live workspace.
+          </p>
+          <div class="solution-hero-actions">
+            <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" data-i18n="solInstallCta">Add to Chrome — Free</a>
+            <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" data-i18n="solGithubCta">Inspect Source on GitHub</a>
+          </div>
+        </div>
+
+        <div class="solution-visual-frame fade-in">
+          <img src="../assets/solutions/saas-dashboard.svg" alt="B2B SaaS analytics dashboard and data table UX audit schematic" width="1200" height="675" fetchpriority="high">
+          <div class="solution-visual-caption">
+            <span data-i18n="visualCaptionLeft">Rule Pack: saas.json (10 SaaS &amp; Dashboard Heuristics)</span>
+            <span data-i18n="visualCaptionRight">Audits Localhost, Vercel Previews &amp; Production</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-metrics-strip fade-in">
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m1Val">10 Rules</div>
+          <div class="solution-metric-label" data-i18n="m1Label">Purpose-built B2B SaaS &amp; Dashboard heuristics</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m2Val">Auth-Ready</div>
+          <div class="solution-metric-label" data-i18n="m2Label">Audits pages behind login, SSO, and localhost</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m3Val">Before / After</div>
+          <div class="solution-metric-label" data-i18n="m3Label">Concrete CSS &amp; HTML fixes for frontend PRs</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m4Val">2 Personas</div>
+          <div class="solution-metric-label" data-i18n="m4Label">Contrast First-Time trial user vs Power User</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec1Eyebrow">What the SaaS Rule Pack Audits</span>
+        <h2 data-i18n="sec1Title">Designed for Data-Dense Workspaces &amp; Multi-Role Workflows</h2>
+        <p data-i18n="sec1Subtitle">synthux inspects how your application handles onboarding, complex data tables, asynchronous background jobs, and destructive actions.</p>
+      </div>
+
+      <div class="solution-pillars-grid">
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p1Num">01 · Time-to-Value</div>
+          <h3 data-i18n="p1Title">Empty States &amp; Progressive Onboarding</h3>
+          <p data-i18n="p1Desc">Identifies dead-end "No data found" tables and recommends starter templates, sample data toggles, or clear primary actions that guide trial users to activation.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p2Num">02 · Information Architecture</div>
+          <h3 data-i18n="p2Title">Data Density, Filtering &amp; Power-User Ergonomics</h3>
+          <p data-i18n="p2Desc">Evaluates KPI hierarchy, table scanability, saved filter views, multi-select batch operations, and keyboard shortcut (Cmd+K) discoverability.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p3Num">03 · Enterprise Safety</div>
+          <h3 data-i18n="p3Title">RBAC Clarity &amp; Destructive Action Guardrails</h3>
+          <p data-i18n="p3Desc">Checks that disabled permission-locked controls explain why access is restricted, and verifies that API key revocation or workspace deletion requires explicit confirmation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section solution-section-alt">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec2Eyebrow">Target Roles &amp; Synthetic Personas</span>
+        <h2 data-i18n="sec2Title">Who Uses This Solution &amp; Which Personas Simulate the User</h2>
+        <p data-i18n="sec2Subtitle">Empower product designers, frontend developers, and indie founders to run instant design QA.</p>
+      </div>
+
+      <div class="solution-personas-grid">
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role1Badge">Target Audience · Engineering &amp; Indie</span>
+          <h3 data-i18n="role1Title">Frontend Engineers, Full-Stack Devs &amp; Indie Founders</h3>
+          <p data-i18n="role1Desc">Developers shipping React, Vue, Next.js, or Angular dashboards on localhost who want automated UX and accessibility feedback with copy-pasteable code fixes before opening a pull request.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role1Check1">Run Quick or Deep UX audits directly on http://localhost:3000</li>
+            <li data-i18n="role1Check2">Copy Markdown reports directly into GitHub Issues or Linear</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role2Badge">Target Audience · Product &amp; Design</span>
+          <h3 data-i18n="role2Title">SaaS Product Designers &amp; Design System Leads</h3>
+          <p data-i18n="role2Desc">Design teams verifying that staging implementations match design system standards, visual hierarchy rules, and cross-page navigation consistency.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role2Check1">Hover over any report issue to highlight the live DOM element on screen</li>
+            <li data-i18n="role2Check2">Import custom JSON rules matching your internal Design System tokens</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role3Badge">Synthetic AI Persona · Built-In</span>
+          <h3 data-i18n="role3Title">Power User (Daily Workspace Operator)</h3>
+          <p data-i18n="role3Desc">Evaluates your SaaS app as an experienced daily user who demands speed, keyboard navigation, bulk editing, undo support, and zero unnecessary modal clicks.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role3Check1">Highlights repetitive multi-click workflows in data tables</li>
+            <li data-i18n="role3Check2">Audits filter persistence, pagination clarity, and export feedback</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role4Badge">Synthetic AI Persona · Built-In</span>
+          <h3 data-i18n="role4Title">First-Time Visitor (Self-Serve Trial Evaluator)</h3>
+          <p data-i18n="role4Desc">Evaluates your dashboard as a new trial user who just signed up and needs immediate guidance on what to configure first without reading external docs.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role4Check1">Flags unguided empty states and insider technical terminology</li>
+            <li data-i18n="role4Check2">Verifies onboarding checklist visibility and contextual help tooltips</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="faqEyebrow">SaaS UX Audit FAQ</span>
+        <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+      </div>
+      <div class="solution-faq-grid">
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq1Q">Can synthux audit pages behind authentication or on localhost?</h3>
+          <p data-i18n="faq1A">Yes. Unlike cloud URL scanners that get blocked by login walls, synthux runs inside your active Chrome tab and audits whatever authenticated state or localhost port you have open.</p>
+        </div>
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq2Q">How do I share findings with my engineering team?</h3>
+          <p data-i18n="faq2A">Click "Copy as Markdown" or "Download PDF" in the Report tab to export an Executive Summary, P0/P1/P2 Action Plan, Annotated Screenshot, and Before/After code snippets.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimal Solutions Cross-Navigation (Above Wallet Module) -->
+  <section id="other-solutions" class="solutions-minimal">
+    <div class="container">
+      <div class="solutions-minimal-head fade-in">
+        <div>
+          <span class="solutions-eyebrow" data-i18n="solutionsEyebrow">Solutions &amp; Target Audiences</span>
+          <h2 data-i18n="solOtherSolutions">Other Solutions &amp; Use Cases</h2>
+        </div>
+      </div>
+      <div class="solutions-minimal-grid">
+        <a href="defense-air-gapped-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol1Tag">Air-Gapped · Local AI</span></div>
+            <h3 data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</h3>
+            <p data-i18n="sol1Desc">100% offline, on-device UX and cognitive-load auditing via Ollama for classified C4ISR systems, defense software, and core banking intranets.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="fintech-banking-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol2Tag">Fintech Rule Pack</span></div>
+            <h3 data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</h3>
+            <p data-i18n="sol2Desc">Audit fee and exchange-rate transparency, irreversible transaction guardrails, numeric input formatting, and session security indicators.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="ecommerce-ux-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol3Tag">E-Commerce Rule Pack</span></div>
+            <h3 data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</h3>
+            <p data-i18n="sol3Desc">Detect cart abandonment triggers, forced account creation friction, hidden shipping costs, and product filtering gaps before release.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="accessibility-wcag-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol5Tag">WCAG 2.2 AA + AI</span></div>
+            <h3 data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</h3>
+            <p data-i18n="sol5Desc">Combine deterministic axe-core WCAG 2.2 AA checks with AI screen-reader and keyboard-only persona evaluation and code fixes.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="user-flow-personas.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol6Tag">Flow Builder · Personas</span></div>
+            <h3 data-i18n="sol6Title">Multi-Page Flows &amp; Synthetic Personas</h3>
+            <p data-i18n="sol6Desc">Simulate end-to-end user journeys across connected pages through First-Time, Power User, Accessibility, and custom domain personas.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
+        <div class="lang-picker lang-picker--up" id="lang-picker-footer">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-footer')">
+            <span class="lang-picker__label">EN</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.SOLUTIONS_PAGE_I18N = {
+      en: {
+        pageTitle: 'SaaS, B2B Dashboard & Web App UX Audit — synthux',
+        pageBreadcrumb: 'SaaS, B2B Dashboards & Web Apps',
+        heroBadge1: 'Built-In SaaS Rule Pack',
+        heroBadge2: 'Works on Localhost & Auth Sessions',
+        pageH1: 'UX Auditing for Complex B2B SaaS Dashboards & Enterprise Web Apps',
+        pageLead: 'SaaS products fail on two fronts: new users churn on blank empty states during onboarding, while power users get slowed down by high-friction tables and missing shortcuts. synthux evaluates both extremes inside your live workspace.',
+        visualCaptionLeft: 'Rule Pack: saas.json (10 SaaS & Dashboard Heuristics)',
+        visualCaptionRight: 'Audits Localhost, Vercel Previews & Production',
+        m1Val: '10 Rules',
+        m1Label: 'Purpose-built B2B SaaS & Dashboard heuristics',
+        m2Val: 'Auth-Ready',
+        m2Label: 'Audits pages behind login, SSO, and localhost',
+        m3Val: 'Before / After',
+        m3Label: 'Concrete CSS & HTML fixes for frontend PRs',
+        m4Val: '2 Personas',
+        m4Label: 'Contrast First-Time trial user vs Power User',
+        sec1Eyebrow: 'What the SaaS Rule Pack Audits',
+        sec1Title: 'Designed for Data-Dense Workspaces & Multi-Role Workflows',
+        sec1Subtitle: 'synthux inspects how your application handles onboarding, complex data tables, asynchronous background jobs, and destructive actions.',
+        p1Num: '01 · Time-to-Value',
+        p1Title: 'Empty States & Progressive Onboarding',
+        p1Desc: 'Identifies dead-end "No data found" tables and recommends starter templates, sample data toggles, or clear primary actions that guide trial users to activation.',
+        p2Num: '02 · Information Architecture',
+        p2Title: 'Data Density, Filtering & Power-User Ergonomics',
+        p2Desc: 'Evaluates KPI hierarchy, table scanability, saved filter views, multi-select batch operations, and keyboard shortcut (Cmd+K) discoverability.',
+        p3Num: '03 · Enterprise Safety',
+        p3Title: 'RBAC Clarity & Destructive Action Guardrails',
+        p3Desc: 'Checks that disabled permission-locked controls explain why access is restricted, and verifies that API key revocation or workspace deletion requires explicit confirmation.',
+        sec2Eyebrow: 'Target Roles & Synthetic Personas',
+        sec2Title: 'Who Uses This Solution & Which Personas Simulate the User',
+        sec2Subtitle: 'Empower product designers, frontend developers, and indie founders to run instant design QA.',
+        role1Badge: 'Target Audience · Engineering & Indie',
+        role1Title: 'Frontend Engineers, Full-Stack Devs & Indie Founders',
+        role1Desc: 'Developers shipping React, Vue, Next.js, or Angular dashboards on localhost who want automated UX and accessibility feedback with copy-pasteable code fixes before opening a pull request.',
+        role1Check1: 'Run Quick or Deep UX audits directly on http://localhost:3000',
+        role1Check2: 'Copy Markdown reports directly into GitHub Issues or Linear',
+        role2Badge: 'Target Audience · Product & Design',
+        role2Title: 'SaaS Product Designers & Design System Leads',
+        role2Desc: 'Design teams verifying that staging implementations match design system standards, visual hierarchy rules, and cross-page navigation consistency.',
+        role2Check1: 'Hover over any report issue to highlight the live DOM element on screen',
+        role2Check2: 'Import custom JSON rules matching your internal Design System tokens',
+        role3Badge: 'Synthetic AI Persona · Built-In',
+        role3Title: 'Power User (Daily Workspace Operator)',
+        role3Desc: 'Evaluates your SaaS app as an experienced daily user who demands speed, keyboard navigation, bulk editing, undo support, and zero unnecessary modal clicks.',
+        role3Check1: 'Highlights repetitive multi-click workflows in data tables',
+        role3Check2: 'Audits filter persistence, pagination clarity, and export feedback',
+        role4Badge: 'Synthetic AI Persona · Built-In',
+        role4Title: 'First-Time Visitor (Self-Serve Trial Evaluator)',
+        role4Desc: 'Evaluates your dashboard as a new trial user who just signed up and needs immediate guidance on what to configure first without reading external docs.',
+        role4Check1: 'Flags unguided empty states and insider technical terminology',
+        role4Check2: 'Verifies onboarding checklist visibility and contextual help tooltips',
+        faqEyebrow: 'SaaS UX Audit FAQ',
+        faqTitle: 'Frequently Asked Questions',
+        faq1Q: 'Can synthux audit pages behind authentication or on localhost?',
+        faq1A: 'Yes. Unlike cloud URL scanners that get blocked by login walls, synthux runs inside your active Chrome tab and audits whatever authenticated state or localhost port you have open.',
+        faq2Q: 'How do I share findings with my engineering team?',
+        faq2A: 'Click "Copy as Markdown" or "Download PDF" in the Report tab to export an Executive Summary, P0/P1/P2 Action Plan, Annotated Screenshot, and Before/After code snippets.'
+      },
+      tr: {
+        pageTitle: 'SaaS, B2B Dashboard ve Kurumsal Web Uygulaması UX Denetimi — synthux',
+        pageBreadcrumb: 'SaaS, B2B Dashboard ve Web Uygulamaları',
+        heroBadge1: 'Yerleşik SaaS Kural Paketi',
+        heroBadge2: 'Localhost ve Oturum Açık Ekranlarda Çalışır',
+        pageH1: 'Karmaşık B2B SaaS Panelleri ve Kurumsal Web Uygulamaları İçin UX Denetimi',
+        pageLead: 'SaaS ürünleri iki noktada kullanıcı kaybeder: yeni kullanıcılar boş durum (empty state) ekranlarında ne yapacağını bilemezken, uzman kullanıcılar yavaş veri tabloları ve eksik kısayollar yüzünden zaman kaybeder. synthux her iki senaryoyu canlı çalışma alanınızda denetler.',
+        visualCaptionLeft: 'Kural Paketi: saas.json (10 SaaS ve Dashboard Heuristiği)',
+        visualCaptionRight: 'Localhost, Test Ortamı ve Canlıda Çalışır',
+        m1Val: '10 Kural',
+        m1Label: 'B2B SaaS ve yönetim panellerine özel heuristik set',
+        m2Val: 'Login Destekli',
+        m2Label: 'Şifre arkası, SSO ve localhost sayfalarını tarar',
+        m3Val: 'Öncesi / Sonrası',
+        m3Label: 'Frontend PR\'ları için hazır CSS ve HTML kod önerileri',
+        m4Val: '2 Persona',
+        m4Label: 'İlk kez deneyen kullanıcı ve Uzman Kullanıcı karşılaştırması',
+        sec1Eyebrow: 'SaaS Kural Paketi Neleri Denetler?',
+        sec1Title: 'Veri Yoğun Çalışma Alanları ve Çok Rollü İş Akışları İçin Tasarlandı',
+        sec1Subtitle: 'synthux uygulamanızın onboarding, karmaşık veri tabloları, arka plan işlemleri ve yıkıcı eylemleri nasıl yönettiğini inceler.',
+        p1Num: '01 · İlk Değere Ulaşma Süresi',
+        p1Title: 'Boş Durumlar (Empty States) ve Kademeli Onboarding',
+        p1Desc: 'Çıkmaz sokak yaratan "Veri bulunamadı" tablolarını tespit eder; deneme kullanıcılarını aktivasyona yönlendiren şablonlar, örnek veri butonları ve net CTA\'lar önerir.',
+        p2Num: '02 · Bilgi Mimarisi',
+        p2Title: 'Veri Yoğunluğu, Filtreleme ve Uzman Kullanıcı Ergonomisi',
+        p2Desc: 'KPI hiyerarşisini, tablo okunabilirliğini, kayıtlı filtre görünümlerini, çoklu seçim (bulk) işlemlerini ve klavye kısayolu (Cmd+K) keşfedilebilirliğini değerlendirir.',
+        p3Num: '03 · Kurumsal Güvenlik',
+        p3Title: 'Yetki (RBAC) Netliği ve Yıkıcı İşlem Korumaları',
+        p3Desc: 'Yetki nedeniyle pasif olan kontrollerin neden kilitli olduğunu açıklayıp açıklamadığını ve API anahtarı silme gibi kritik işlemlerin açık onay gerektirdiğini kontrol eder.',
+        sec2Eyebrow: 'Hedef Roller ve Sentetik Personalar',
+        sec2Title: 'Bu Çözümü Kimler Kullanmalı ve Hangi Personalar Kullanıcıyı Simüle Eder?',
+        sec2Subtitle: 'Ürün tasarımcılarının, frontend geliştiricilerin ve bağımsız kurucuların saniyeler içinde Design QA yapmasını sağlar.',
+        role1Badge: 'Hedef Kitle · Yazılım & Indie',
+        role1Title: 'Frontend Geliştiriciler, Full-Stack Mühendisler ve Kurucular',
+        role1Desc: 'Localhost üzerinde React, Vue, Next.js veya Angular panelleri geliştiren ve PR açmadan önce kopyalanabilir kod düzeltmeleriyle otomatik UX/WCAG geri bildirimi isteyen yazılımcılar.',
+        role1Check1: 'Doğrudan http://localhost:3000 üzerinde Hızlı veya Derin denetim çalıştırın',
+        role1Check2: 'Markdown raporlarını tek tıkla GitHub Issues veya Linear\'a yapıştırın',
+        role2Badge: 'Hedef Kitle · Ürün & Tasarım',
+        role2Title: 'SaaS Ürün Tasarımcıları ve Design System Liderleri',
+        role2Desc: 'Test (staging) ortamındaki ekranların tasarım sistemi standartlarına, görsel hiyerarşiye ve sayfalar arası navigasyon tutarlılığına uyumunu doğrulayan tasarım ekipleri.',
+        role2Check1: 'Rapordaki herhangi bir bulgunun üzerine gelerek canlı DOM öğesini ekranda vurgulayın',
+        role2Check2: 'Kurum içi Design System kurallarınızı özel JSON paketi olarak içe aktarın',
+        role3Badge: 'Sentetik AI Personası · Yerleşik',
+        role3Title: 'Uzman Kullanıcı (Power User — Günlük Operatör)',
+        role3Desc: 'SaaS uygulamanızı hız, klavye navigasyonu, toplu düzenleme, geri alma (undo) desteği ve sıfır gereksiz tıklama bekleyen deneyimli kullanıcı gözüyle denetler.',
+        role3Check1: 'Veri tablolarındaki tekrarlayan çok tıklı iş akışlarını yakalar',
+        role3Check2: 'Filtre kalıcılığını, sayfalama netliğini ve dışa aktarma geri bildirimlerini ölçer',
+        role4Badge: 'Sentetik AI Personası · Yerleşik',
+        role4Title: 'İlk Kez Gelen Ziyaretçi (Yeni Deneme Kullanıcısı)',
+        role4Desc: 'Panelinizi yeni kayıt olmuş ve harici dokümantasyon okumadan ilk olarak neyi yapılandıracağını anlamaya çalışan kullanıcı gözüyle test eder.',
+        role4Check1: 'Yönlendirmesiz boş durumları ve teknik jargonu işaretler',
+        role4Check2: 'Onboarding kontrol listesi görünürlüğünü ve bağlamsal ipuçlarını doğrular',
+        faqEyebrow: 'SaaS UX Denetimi SSS',
+        faqTitle: 'Sıkça Sorulan Sorular',
+        faq1Q: 'synthux şifre arkasındaki (login) sayfaları veya localhost\'u denetleyebilir mi?',
+        faq1A: 'Evet. Giriş duvarlarına takılan bulut tarayıcıların aksine synthux doğrudan açık Chrome sekmenizde çalışır ve oturum açılmış tüm ekranları veya localhost portlarını analiz eder.',
+        faq2Q: 'Bulguları yazılım ekibimle nasıl paylaşabilirim?',
+        faq2A: 'Rapor sekmesindeki "Markdown Olarak Kopyala" veya "PDF İndir" butonlarıyla Yönetici Özeti, P0/P1/P2 Aksiyon Planı, İşaretli Ekran Görüntüsü ve Öncesi/Sonrası kod bloklarını paylaşabilirsiniz.'
+      }
+    };
+  </script>
+  <script src="../i18n.js?v=2.0.1"></script>
+  <script src="../script.js?v=2.0.1"></script>
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Page User Flow Audit & Synthetic User Personas — synthux</title>
+  <meta name="description" content="Map multi-page user journeys in synthux Flow Builder and evaluate pages through 3 built-in and up to 5 custom synthetic AI user personas.">
+  <meta name="keywords" content="multi-page user flow ux audit, synthetic user testing ai, ai ux personas chrome extension, cross-page consistency audit, user journey heuristic evaluation, synthux">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/solutions/user-flow-personas">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../style.css?v=2.0.1">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://synthux.app/solutions/user-flow-personas">
+  <meta property="og:title" content="Multi-Page User Flow Audit & Synthetic User Personas — synthux">
+  <meta property="og:description" content="Connect multiple pages on an infinite canvas and simulate user journeys with First-Time Visitor, Power User, Accessibility, and custom personas.">
+  <meta property="og:image" content="https://synthux.app/assets/solutions/user-flow-personas.svg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "Multi-Page User Flow Audit & Synthetic User Personas",
+        "url": "https://synthux.app/solutions/user-flow-personas",
+        "description": "Map multi-page user journeys in synthux Flow Builder and evaluate pages through synthetic AI user personas."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What are Synthetic User Personas in synthux?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "synthux includes 3 built-in synthetic personas (First-Time Visitor, Power User, Accessibility User) and lets you create up to 5 custom personas defined by age range, tech familiarity, accessibility needs, and specific page goals."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does multi-page Flow Builder analysis work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Flow Builder provides an infinite canvas where you add open browser tabs as page nodes, draw connectors representing the user journey, attach context sticky notes, and run cross-page AI analysis for navigation, visual, flow logic, and terminology consistency."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="../index.html" class="nav-logo" aria-label="synthux Home">
+          <img src="../assets/logo.svg" alt="synthux" height="22" class="logo-img">
+        </a>
+        <span class="nav-ver-pill">v2.0</span>
+      </div>
+
+      <ul class="nav-center">
+        <li class="nav-item"><a href="../index.html#features" class="nav-link" data-i18n="navFeatures">Features</a></li>
+        <li class="nav-item"><a href="../index.html#how-it-works" class="nav-link" data-i18n="navHow">How It Works</a></li>
+        <li class="nav-item" id="nav-solutions-item">
+          <button type="button" class="nav-link active" onclick="toggleSolutionsDropdown(event)" aria-expanded="false" aria-haspopup="true">
+            <span data-i18n="navSolutions">Solutions</span>
+            <svg class="nav-link-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-dropdown" role="menu">
+            <div class="nav-dropdown-grid">
+              <a href="defense-air-gapped-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+                  <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+                </div>
+              </a>
+              <a href="fintech-banking-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+                  <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+                </div>
+              </a>
+              <a href="ecommerce-ux-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+                  <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+                </div>
+              </a>
+              <a href="saas-dashboard-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+                  <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+                </div>
+              </a>
+              <a href="accessibility-wcag-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+                  <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+                </div>
+              </a>
+              <a href="user-flow-personas.html" class="nav-dropdown-card active">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+                  <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+                </div>
+              </a>
+            </div>
+            <div class="nav-dropdown-footer">
+              <span data-i18n="solutionsEyebrow">Solutions &amp; Target Personas</span>
+              <a href="../index.html#solutions"><span data-i18n="solExploreLink">Explore solution</span> &rarr;</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item"><a href="../index.html#privacy" class="nav-link" data-i18n="navPrivacy">Privacy</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">Auto</button>
+        <div class="lang-picker" id="lang-picker-nav">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-nav')" aria-label="Select language">
+            <span class="lang-picker__label">EN</span>
+            <svg class="lang-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+        <a href="https://github.com/synthuxapp/synthux" class="nav-gh-btn" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="nav-cta" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" aria-expanded="false">
+          <svg class="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          <svg class="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="nav-mobile-drawer">
+      <div>
+        <ul class="nav-mobile-links">
+          <li><a href="../index.html"><span data-i18n="solBackHome">Home</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#features"><span data-i18n="navFeatures">Features</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#how-it-works"><span data-i18n="navHow">How It Works</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#privacy"><span data-i18n="navPrivacy">Privacy</span> <span>&rarr;</span></a></li>
+        </ul>
+        <div class="nav-mobile-section-label" data-i18n="navSolutions">Solutions</div>
+        <div class="nav-mobile-solutions-grid">
+          <a href="defense-air-gapped-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+              <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+            </div>
+          </a>
+          <a href="fintech-banking-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+              <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+            </div>
+          </a>
+          <a href="ecommerce-ux-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+              <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+            </div>
+          </a>
+          <a href="saas-dashboard-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+              <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+            </div>
+          </a>
+          <a href="accessibility-wcag-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+              <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+            </div>
+          </a>
+          <a href="user-flow-personas.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+              <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" rel="noopener">
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="solution-page-hero">
+    <div class="container">
+      <div class="solution-breadcrumb fade-in">
+        <a href="../index.html" data-i18n="solBackHome">Home</a>
+        <span>/</span>
+        <a href="../index.html#solutions" data-i18n="navSolutions">Solutions</a>
+        <span>/</span>
+        <span data-i18n="pageBreadcrumb">Multi-Page Flows &amp; Synthetic Personas</span>
+      </div>
+
+      <div class="solution-hero-grid">
+        <div class="solution-hero-content fade-in">
+          <div class="solution-hero-badges">
+            <span class="badge"><span class="dot"></span> <span data-i18n="heroBadge1">Visual Flow Builder Canvas</span></span>
+            <span class="badge badge-new" data-i18n="heroBadge2">3 Built-In + 5 Custom Personas</span>
+          </div>
+          <h1 data-i18n="pageH1">Audit Multi-Page User Journeys &amp; Simulate Diverse Synthetic Personas</h1>
+          <p class="solution-hero-lead" data-i18n="pageLead">
+            Users do not experience web pages in isolation — they move across funnels from Landing Page to Pricing, Sign-Up, and Checkout. synthux maps entire multi-page journeys on a visual canvas and evaluates every step through distinct synthetic user personas.
+          </p>
+          <div class="solution-hero-actions">
+            <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" data-i18n="solInstallCta">Add to Chrome — Free</a>
+            <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" data-i18n="solGithubCta">Inspect Source on GitHub</a>
+          </div>
+        </div>
+
+        <div class="solution-visual-frame fade-in">
+          <img src="../assets/solutions/user-flow-personas.svg" alt="Multi-page Flow Builder canvas and synthetic user persona simulation schematic" width="1200" height="675" fetchpriority="high">
+          <div class="solution-visual-caption">
+            <span data-i18n="visualCaptionLeft">Flow Builder: Infinite Canvas + Cross-Page Synthesis</span>
+            <span data-i18n="visualCaptionRight">Page Score Matrix &amp; Persona Perspectives</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-metrics-strip fade-in">
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m1Val">8 Personas</div>
+          <div class="solution-metric-label" data-i18n="m1Label">3 built-in archetypes + up to 5 custom user profiles</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m2Val">Cross-Page</div>
+          <div class="solution-metric-label" data-i18n="m2Label">Navigation, visual, logic &amp; terminology synthesis</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m3Val">Multi-Save</div>
+          <div class="solution-metric-label" data-i18n="m3Label">Save, reload &amp; compare multiple user flows</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m4Val">Flow PDF/MD</div>
+          <div class="solution-metric-label" data-i18n="m4Label">Export Page Score Matrix &amp; Journey Action Plan</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec1Eyebrow">How Flow Builder &amp; Personas Work Together</span>
+        <h2 data-i18n="sec1Title">Test Every Step of Your Funnel Before Running Live User Sessions</h2>
+        <p data-i18n="sec1Subtitle">Recruiting human participants for every minor sprint takes weeks. synthux gives you immediate, persona-weighted feedback in minutes.</p>
+      </div>
+
+      <div class="solution-pillars-grid">
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p1Num">01 · Infinite Flow Canvas</div>
+          <h3 data-i18n="p1Title">Connect Pages &amp; Context Notes Visually</h3>
+          <p data-i18n="p1Desc">Add any open browser tab to the Flow Builder canvas, connect pages with directional arrows, and attach sticky notes explaining campaign context or business goals for the AI to consider.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p2Num">02 · Cross-Page Consistency</div>
+          <h3 data-i18n="p2Title">Detect Funnel Drop-Offs &amp; Jarring Transitions</h3>
+          <p data-i18n="p2Desc">AI analyzes each screen individually and then synthesizes the entire journey—catching terminology shifts between pricing and checkout, broken back-navigation, and visual drift.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p3Num">03 · Persona-Weighted Scoring</div>
+          <h3 data-i18n="p3Title">Custom Age, Tech Level, Disability &amp; Goal</h3>
+          <p data-i18n="p3Desc">Build custom personas with specific age brackets (18–25 to 65+), tech comfort (low/medium/high), accessibility needs, and task goals so the AI evaluates strictly from that user's perspective.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section solution-section-alt">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec2Eyebrow">Complete Persona Architecture</span>
+        <h2 data-i18n="sec2Title">The 4 Persona Archetypes Inside synthux</h2>
+        <p data-i18n="sec2Subtitle">Select a single persona for fast targeted feedback, or combine multiple personas to compare how different users experience the same page.</p>
+      </div>
+
+      <div class="solution-personas-grid">
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role1Badge">Built-In Persona 01 · Exploration Mode</span>
+          <h3 data-i18n="role1Title">First-Time Visitor</h3>
+          <p data-i18n="role1Desc">Unfamiliar with your brand, navigation, and layout. Evaluates whether the page communicates its purpose within 5 seconds without insider jargon.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role1Check1">Prioritizes Visibility of System Status &amp; Match Between System and Real World</li>
+            <li data-i18n="role1Check2">Ideal for landing pages, pricing tables, and onboarding flows</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role2Badge">Built-In Persona 02 · Efficiency Mode</span>
+          <h3 data-i18n="role2Title">Power User</h3>
+          <p data-i18n="role2Desc">Experienced specialist who values speed, keyboard shortcuts, batch operations, search/filtering, and instant undo/recovery above all else.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role2Check1">Prioritizes Flexibility &amp; Efficiency of Use and User Control &amp; Freedom</li>
+            <li data-i18n="role2Check2">Ideal for SaaS workspaces, admin panels, C4ISR, and trading terminals</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role3Badge">Built-In Persona 03 · Assistive Tech Mode</span>
+          <h3 data-i18n="role3Title">Accessibility User</h3>
+          <p data-i18n="role3Desc">Relies on screen readers (VoiceOver, NVDA, JAWS), keyboard-only navigation, high contrast (4.5:1+), and semantic HTML landmarks.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role3Check1">Prioritizes Error Prevention, Help &amp; Documentation, and Recognition Over Recall</li>
+            <li data-i18n="role3Check2">Ideal for public portals, banking, healthcare, and WCAG 2.2 AA compliance</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role4Badge">Custom Personas · Up to 5 Profiles</span>
+          <h3 data-i18n="role4Title">Role- &amp; Industry-Specific Custom Personas</h3>
+          <p data-i18n="role4Desc">Define your own target user by combining Age Range, Tech Familiarity, Accessibility Needs (Vision, Hearing, Motor, Cognitive), and a concrete Page Goal.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role4Check1">Examples: "65+ Retiree Paying Utility Bill", "SOC Analyst Under Alert Load"</li>
+            <li data-i18n="role4Check2">Dynamically generates a tailored system prompt for the AI evaluator</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="faqEyebrow">Flow Builder &amp; Personas FAQ</span>
+        <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+      </div>
+      <div class="solution-faq-grid">
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq1Q">How do I open the multi-page Flow Builder?</h3>
+          <p data-i18n="faq1A">Click the "Flow Builder" button in the synthux side panel header, or right-click any page in Chrome and choose "Analyze in synthux Flow".</p>
+        </div>
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq2Q">Can I save multiple user flows and reload them later?</h3>
+          <p data-i18n="faq2A">Yes. Flow Builder includes Multi-Flow Save & Load in local browser storage, preserving your page nodes, thumbnails, connectors, sticky notes, and analysis results.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimal Solutions Cross-Navigation (Above Wallet Module) -->
+  <section id="other-solutions" class="solutions-minimal">
+    <div class="container">
+      <div class="solutions-minimal-head fade-in">
+        <div>
+          <span class="solutions-eyebrow" data-i18n="solutionsEyebrow">Solutions &amp; Target Audiences</span>
+          <h2 data-i18n="solOtherSolutions">Other Solutions &amp; Use Cases</h2>
+        </div>
+      </div>
+      <div class="solutions-minimal-grid">
+        <a href="defense-air-gapped-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol1Tag">Air-Gapped · Local AI</span></div>
+            <h3 data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</h3>
+            <p data-i18n="sol1Desc">100% offline, on-device UX and cognitive-load auditing via Ollama for classified C4ISR systems, defense software, and core banking intranets.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="fintech-banking-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol2Tag">Fintech Rule Pack</span></div>
+            <h3 data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</h3>
+            <p data-i18n="sol2Desc">Audit fee and exchange-rate transparency, irreversible transaction guardrails, numeric input formatting, and session security indicators.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="ecommerce-ux-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol3Tag">E-Commerce Rule Pack</span></div>
+            <h3 data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</h3>
+            <p data-i18n="sol3Desc">Detect cart abandonment triggers, forced account creation friction, hidden shipping costs, and product filtering gaps before release.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="saas-dashboard-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol4Tag">SaaS Rule Pack</span></div>
+            <h3 data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</h3>
+            <p data-i18n="sol4Desc">Evaluate high-density data tables, empty-state onboarding, bulk action ergonomics, keyboard shortcuts, and destructive action guardrails.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="accessibility-wcag-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol5Tag">WCAG 2.2 AA + AI</span></div>
+            <h3 data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</h3>
+            <p data-i18n="sol5Desc">Combine deterministic axe-core WCAG 2.2 AA checks with AI screen-reader and keyboard-only persona evaluation and code fixes.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
+        <div class="lang-picker lang-picker--up" id="lang-picker-footer">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-footer')">
+            <span class="lang-picker__label">EN</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.SOLUTIONS_PAGE_I18N = {
+      en: {
+        pageTitle: 'Multi-Page User Flow Audit & Synthetic User Personas — synthux',
+        pageBreadcrumb: 'Multi-Page Flows & Synthetic Personas',
+        heroBadge1: 'Visual Flow Builder Canvas',
+        heroBadge2: '3 Built-In + 5 Custom Personas',
+        pageH1: 'Audit Multi-Page User Journeys & Simulate Diverse Synthetic Personas',
+        pageLead: 'Users do not experience web pages in isolation — they move across funnels from Landing Page to Pricing, Sign-Up, and Checkout. synthux maps entire multi-page journeys on a visual canvas and evaluates every step through distinct synthetic user personas.',
+        visualCaptionLeft: 'Flow Builder: Infinite Canvas + Cross-Page Synthesis',
+        visualCaptionRight: 'Page Score Matrix & Persona Perspectives',
+        m1Val: '8 Personas',
+        m1Label: '3 built-in archetypes + up to 5 custom user profiles',
+        m2Val: 'Cross-Page',
+        m2Label: 'Navigation, visual, logic & terminology synthesis',
+        m3Val: 'Multi-Save',
+        m3Label: 'Save, reload & compare multiple user flows',
+        m4Val: 'Flow PDF/MD',
+        m4Label: 'Export Page Score Matrix & Journey Action Plan',
+        sec1Eyebrow: 'How Flow Builder & Personas Work Together',
+        sec1Title: 'Test Every Step of Your Funnel Before Running Live User Sessions',
+        sec1Subtitle: 'Recruiting human participants for every minor sprint takes weeks. synthux gives you immediate, persona-weighted feedback in minutes.',
+        p1Num: '01 · Infinite Flow Canvas',
+        p1Title: 'Connect Pages & Context Notes Visually',
+        p1Desc: 'Add any open browser tab to the Flow Builder canvas, connect pages with directional arrows, and attach sticky notes explaining campaign context or business goals for the AI to consider.',
+        p2Num: '02 · Cross-Page Consistency',
+        p2Title: 'Detect Funnel Drop-Offs & Jarring Transitions',
+        p2Desc: 'AI analyzes each screen individually and then synthesizes the entire journey—catching terminology shifts between pricing and checkout, broken back-navigation, and visual drift.',
+        p3Num: '03 · Persona-Weighted Scoring',
+        p3Title: 'Custom Age, Tech Level, Disability & Goal',
+        p3Desc: 'Build custom personas with specific age brackets (18–25 to 65+), tech comfort (low/medium/high), accessibility needs, and task goals so the AI evaluates strictly from that user\'s perspective.',
+        sec2Eyebrow: 'Complete Persona Architecture',
+        sec2Title: 'The 4 Persona Archetypes Inside synthux',
+        sec2Subtitle: 'Select a single persona for fast targeted feedback, or combine multiple personas to compare how different users experience the same page.',
+        role1Badge: 'Built-In Persona 01 · Exploration Mode',
+        role1Title: 'First-Time Visitor',
+        role1Desc: 'Unfamiliar with your brand, navigation, and layout. Evaluates whether the page communicates its purpose within 5 seconds without insider jargon.',
+        role1Check1: 'Prioritizes Visibility of System Status & Match Between System and Real World',
+        role1Check2: 'Ideal for landing pages, pricing tables, and onboarding flows',
+        role2Badge: 'Built-In Persona 02 · Efficiency Mode',
+        role2Title: 'Power User',
+        role2Desc: 'Experienced specialist who values speed, keyboard shortcuts, batch operations, search/filtering, and instant undo/recovery above all else.',
+        role2Check1: 'Prioritizes Flexibility & Efficiency of Use and User Control & Freedom',
+        role2Check2: 'Ideal for SaaS workspaces, admin panels, C4ISR, and trading terminals',
+        role3Badge: 'Built-In Persona 03 · Assistive Tech Mode',
+        role3Title: 'Accessibility User',
+        role3Desc: 'Relies on screen readers (VoiceOver, NVDA, JAWS), keyboard-only navigation, high contrast (4.5:1+), and semantic HTML landmarks.',
+        role3Check1: 'Prioritizes Error Prevention, Help & Documentation, and Recognition Over Recall',
+        role3Check2: 'Ideal for public portals, banking, healthcare, and WCAG 2.2 AA compliance',
+        role4Badge: 'Custom Personas · Up to 5 Profiles',
+        role4Title: 'Role- & Industry-Specific Custom Personas',
+        role4Desc: 'Define your own target user by combining Age Range, Tech Familiarity, Accessibility Needs (Vision, Hearing, Motor, Cognitive), and a concrete Page Goal.',
+        role4Check1: 'Examples: "65+ Retiree Paying Utility Bill", "SOC Analyst Under Alert Load"',
+        role4Check2: 'Dynamically generates a tailored system prompt for the AI evaluator',
+        faqEyebrow: 'Flow Builder & Personas FAQ',
+        faqTitle: 'Frequently Asked Questions',
+        faq1Q: 'How do I open the multi-page Flow Builder?',
+        faq1A: 'Click the "Flow Builder" button in the synthux side panel header, or right-click any page in Chrome and choose "Analyze in synthux Flow".',
+        faq2Q: 'Can I save multiple user flows and reload them later?',
+        faq2A: 'Yes. Flow Builder includes Multi-Flow Save & Load in local browser storage, preserving your page nodes, thumbnails, connectors, sticky notes, and analysis results.'
+      },
+      tr: {
+        pageTitle: 'Çok Sayfalı Kullanıcı Akışı (Flow Builder) ve Sentetik Personalar — synthux',
+        pageBreadcrumb: 'Çok Sayfalı Akışlar ve Sentetik Personalar',
+        heroBadge1: 'Görsel Flow Builder Tuvali',
+        heroBadge2: '3 Yerleşik + 5 Özel Persona',
+        pageH1: 'Çok Sayfalı Kullanıcı Yolculuklarını Denetleyin ve Sentetik Personalarla Simüle Edin',
+        pageLead: 'Kullanıcılar web sayfalarını tek başına deneyimlemez; Açılış Sayfasından Fiyatlandırmaya, Kayıt adımından Ödemeye uzanan bir akışta ilerler. synthux, çok sayfalı yolculukları görsel tuval üzerinde haritalar ve her adımı farklı sentetik kullanıcı personalarıyla değerlendirir.',
+        visualCaptionLeft: 'Flow Builder: Sonsuz Tuval + Sayfalar Arası Sentez',
+        visualCaptionRight: 'Sayfa Skor Matrisi ve Persona Perspektifleri',
+        m1Val: '8 Persona',
+        m1Label: '3 yerleşik arketip + 5 adede kadar özel kullanıcı profili',
+        m2Val: 'Sayfalar Arası',
+        m2Label: 'Navigasyon, görsel tasarım, akış mantığı ve terminoloji analizi',
+        m3Val: 'Çoklu Kayıt',
+        m3Label: 'Birden fazla kullanıcı akışını kaydedin ve karşılaştırın',
+        m4Val: 'Flow PDF/MD',
+        m4Label: 'Sayfa Skor Matrisi ve Yolculuk Aksiyon Planı çıktısı',
+        sec1Eyebrow: 'Flow Builder ve Personalar Birlikte Nasıl Çalışır?',
+        sec1Title: 'Gerçek Kullanıcı Testleri Öncesinde Huninizin Her Adımını Test Edin',
+        sec1Subtitle: 'Her sprint için gerçek katılımcı bulmak haftalar sürer. synthux dakikalar içinde persona ağırlıklı geri bildirim sunar.',
+        p1Num: '01 · Sonsuz Akış Tuvali',
+        p1Title: 'Sayfaları ve Bağlam Notlarını Görsel Olarak Bağlayın',
+        p1Desc: 'Açık herhangi bir Chrome sekmesini Flow Builder tuvaline ekleyin, sayfaları yönlü oklarla bağlayın ve yapay zekanın dikkate alması için kampanya bağlamını anlatan yapışkan notlar ekleyin.',
+        p2Num: '02 · Sayfalar Arası Tutarlılık',
+        p2Title: 'Huni Kayıplarını ve Kopuk Geçişleri Yakalayın',
+        p2Desc: 'AI her ekranı ayrı ayrı analiz ettikten sonra tüm yolculuğu sentezler; fiyatlandırma ile ödeme arasındaki terminoloji farklarını, kopuk geri dönüşleri ve görsel tutarsızlıkları tespit eder.',
+        p3Num: '03 · Persona Ağırlıklı Puanlama',
+        p3Title: 'Özel Yaş, Teknoloji Seviyesi, Erişilebilirlik ve Hedef',
+        p3Desc: 'Yaş aralığı (18–25\'ten 65+\'ya), teknoloji yatkınlığı (düşük/orta/yüksek), erişilebilirlik ihtiyacı ve sayfa hedefi tanımlayarak AI\'ın tamamen o kullanıcının gözünden değerlendirme yapmasını sağlayın.',
+        sec2Eyebrow: 'Tam Persona Mimarisi',
+        sec2Title: 'synthux İçindeki 4 Persona Arketipi',
+        sec2Subtitle: 'Hızlı odaklı geri bildirim için tek bir persona seçin veya farklı kullanıcıların aynı sayfayı nasıl deneyimlediğini karşılaştırmak için birden fazla persona kullanın.',
+        role1Badge: 'Yerleşik Persona 01 · Keşif Modu',
+        role1Title: 'İlk Kez Gelen Ziyaretçi (First-Time Visitor)',
+        role1Desc: 'Markanıza, navigasyonunuza ve sayfa düzeninize yabancıdır. Sayfanın amacını ilk 5 saniye içinde jargonsuz olarak anlatıp anlatamadığını ölçer.',
+        role1Check1: 'Sistem Durumu Görünürlüğü ve Gerçek Dünya ile Uyum heuristiklerine odaklanır',
+        role1Check2: 'Açılış sayfaları (landing page), fiyatlandırma ve onboarding için idealdir',
+        role2Badge: 'Yerleşik Persona 02 · Verimlilik Modu',
+        role2Title: 'Uzman Kullanıcı (Power User)',
+        role2Desc: 'Hıza, klavye kısayollarına, toplu işlemlere, gelişmiş arama/filtrelemeye ve anında geri alma (undo) seçeneğine her şeyden çok değer veren deneyimli uzman.',
+        role2Check1: 'Kullanım Esnekliği/Verimliliği ve Kullanıcı Kontrolü heuristiklerine odaklanır',
+        role2Check2: 'SaaS panelleri, admin ekranları, C4ISR ve finans terminalleri için idealdir',
+        role3Badge: 'Yerleşik Persona 03 · Yardımcı Teknoloji Modu',
+        role3Title: 'Erişilebilirlik Kullanıcısı (Accessibility User)',
+        role3Desc: 'Ekran okuyuculara (VoiceOver, NVDA, JAWS), yalnızca klavye navigasyonuna, yüksek kontrasta (4.5:1+) ve semantik HTML yapısına güvenir.',
+        role3Check1: 'Hata Önleme, Yardım/Dokümantasyon ve Hatırlama Yerine Tanıma odaklıdır',
+        role3Check2: 'Kamu portalları, bankacılık, sağlık ve WCAG 2.2 AA uyumluluğu için idealdir',
+        role4Badge: 'Özel Personalar · 5 Profile Kadar',
+        role4Title: 'Role ve Sektöre Özel Kullanıcı Profilleri',
+        role4Desc: 'Yaş Aralığı, Teknoloji Yatkınlığı, Erişilebilirlik İhtiyacı (Görme, İşitme, Motor, Bilişsel) ve somut Sayfa Hedefini birleştirerek kendi hedef kullanıcınızı tanımlayın.',
+        role4Check1: 'Örnekler: "Fatura Ödeyen 65+ Emekli", "Alarm Yoğunluğu Altındaki SOC Analisti"',
+        role4Check2: 'AI değerlendiricisi için dinamik olarak özelleştirilmiş sistem istemi üretir',
+        faqEyebrow: 'Flow Builder ve Personalar SSS',
+        faqTitle: 'Sıkça Sorulan Sorular',
+        faq1Q: 'Çok sayfalı Flow Builder ekranını nasıl açabilirim?',
+        faq1A: 'synthux yan panelinin üst çubuğundaki "Flow Builder" butonuna tıklayabilir veya Chrome\'da herhangi bir sayfada sağ tıklayıp "Analyze in synthux Flow" seçeneğini kullanabilirsiniz.',
+        faq2Q: 'Birden fazla kullanıcı akışını kaydedip daha sonra tekrar yükleyebilir miyim?',
+        faq2A: 'Evet. Flow Builder tarayıcı depolamasında Çoklu Akış Kaydetme ve Yükleme özelliğine sahiptir; sayfa düğümlerinizi, önizlemeleri, okları, notları ve analiz sonuçlarını saklar.'
+      }
+    };
+  </script>
+  <script src="../i18n.js?v=2.0.1"></script>
+  <script src="../script.js?v=2.0.1"></script>
+</body>
+</html>

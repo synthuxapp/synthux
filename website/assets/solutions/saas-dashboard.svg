@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" fill="none">
+  <defs>
+    <linearGradient id="scanBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="saasGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="675" fill="#09090b"/>
+  <rect width="1200" height="675" fill="url(#saasGrid)"/>
+
+  <!-- B2B SaaS Workspace Shell -->
+  <rect x="84" y="68" width="1032" height="540" rx="16" fill="#0f0f12" stroke="#27272a" stroke-width="1.5"/>
+  <!-- Sidebar -->
+  <rect x="84" y="68" width="196" height="540" rx="16" fill="#121216" stroke="#27272a"/>
+  <rect x="108" y="96" width="110" height="14" rx="4" fill="#3b82f6"/>
+  <rect x="108" y="140" width="148" height="28" rx="6" fill="#3b82f6" fill-opacity="0.14"/>
+  <rect x="120" y="150" width="90" height="8" rx="4" fill="#60a5fa"/>
+  <rect x="120" y="188" width="104" height="8" rx="4" fill="#52525b"/>
+  <rect x="120" y="218" width="88" height="8" rx="4" fill="#52525b"/>
+  <rect x="120" y="248" width="116" height="8" rx="4" fill="#52525b"/>
+
+  <!-- Power User Shortcut Callout in Sidebar -->
+  <rect x="104" y="492" width="156" height="92" rx="10" fill="#09090b" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="120" y="518" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10" font-weight="700">POWER USER AUDIT</text>
+  <rect x="120" y="532" width="54" height="22" rx="4" fill="#18181b" stroke="#3f3f46"/>
+  <text x="130" y="547" fill="#e4e4e7" font-family="SF Mono, monospace" font-size="10">Cmd+K</text>
+  <text x="184" y="547" fill="#22c55e" font-family="Inter, sans-serif" font-size="10.5" font-weight="700">Active</text>
+  <text x="120" y="570" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="10">Batch &amp; hotkeys verified</text>
+
+  <!-- Top Command Header -->
+  <rect x="308" y="94" width="460" height="36" rx="8" fill="#09090b" stroke="#27272a"/>
+  <text x="328" y="116" fill="#71717a" font-family="Inter, sans-serif" font-size="11.5">Filter 12,480 workspace records, roles, or API tokens...</text>
+  <rect x="786" y="94" width="302" height="36" rx="8" fill="#3b82f6" fill-opacity="0.12" stroke="#3b82f6"/>
+  <text x="806" y="116" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11" font-weight="700">RULE PACK: SAAS.JSON · SCORE 89/100</text>
+
+  <!-- KPI Cards Row (Visual Hierarchy Scan) -->
+  <rect x="308" y="150" width="780" height="104" rx="10" fill="url(#scanBeam)" stroke="#3b82f6" stroke-opacity="0.5"/>
+  <rect x="324" y="166" width="236" height="72" rx="8" fill="#09090b" stroke="#27272a"/>
+  <text x="342" y="190" fill="#71717a" font-family="Inter, sans-serif" font-size="10.5">ACTIVE WORKSPACES</text>
+  <text x="342" y="220" fill="#fafafa" font-family="Inter, sans-serif" font-size="20" font-weight="800">1,428</text>
+  <text x="488" y="220" fill="#22c55e" font-family="SF Mono, monospace" font-size="11">+14.2%</text>
+
+  <rect x="580" y="166" width="236" height="72" rx="8" fill="#09090b" stroke="#27272a"/>
+  <text x="598" y="190" fill="#71717a" font-family="Inter, sans-serif" font-size="10.5">QUERY LATENCY (P95)</text>
+  <text x="598" y="220" fill="#fafafa" font-family="Inter, sans-serif" font-size="20" font-weight="800">42 ms</text>
+  <text x="742" y="220" fill="#22c55e" font-family="SF Mono, monospace" font-size="11">OPTIMAL</text>
+
+  <rect x="836" y="166" width="236" height="72" rx="8" fill="#09090b" stroke="#22c55e" stroke-opacity="0.6"/>
+  <text x="854" y="190" fill="#4ade80" font-family="SF Mono, monospace" font-size="10" font-weight="700">DATA DENSITY CHECK</text>
+  <text x="854" y="216" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="11.5">Clear primary/secondary KPI hierarchy</text>
+
+  <!-- Empty State Onboarding Card vs Destructive Action Guardrail -->
+  <rect x="308" y="274" width="378" height="306" rx="12" fill="#09090b" stroke="#3b82f6" stroke-width="1.75"/>
+  <text x="332" y="306" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">EMPTY STATE &amp; ONBOARDING CLARITY</text>
+  <rect x="332" y="326" width="330" height="156" rx="8" fill="#141418" stroke="#27272a" stroke-dasharray="5 5"/>
+  <circle cx="497" cy="378" r="20" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6"/>
+  <path d="M497 370v16M489 378h16" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+  <text x="412" y="422" fill="#fafafa" font-family="Inter, sans-serif" font-size="13" font-weight="700">No Webhook Endpoints Yet</text>
+  <rect x="416" y="438" width="162" height="28" rx="6" fill="#3b82f6"/>
+  <text x="438" y="456" fill="#ffffff" font-family="Inter, sans-serif" font-size="11" font-weight="600">Create First Webhook</text>
+  <text x="332" y="516" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Verified: Actionable empty state with starter</text>
+  <text x="332" y="536" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">template prevents first-time user drop-off.</text>
+
+  <!-- Right Card: Bulk Actions & Destructive Guardrails -->
+  <rect x="706" y="274" width="382" height="306" rx="12" fill="#09090b" stroke="#f59e0b" stroke-width="1.75"/>
+  <text x="730" y="306" fill="#fbbf24" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">DESTRUCTIVE ACTION &amp; RBAC GUARDRAIL</text>
+  <rect x="730" y="326" width="334" height="156" rx="8" fill="#141418" stroke="#27272a"/>
+  <text x="750" y="356" fill="#fafafa" font-family="Inter, sans-serif" font-size="13" font-weight="700">Revoke Production API Key?</text>
+  <text x="750" y="380" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11">Type workspace slug to confirm permanent deletion:</text>
+  <rect x="750" y="394" width="294" height="30" rx="5" fill="#09090b" stroke="#ef4444"/>
+  <text x="764" y="413" fill="#f87171" font-family="SF Mono, monospace" font-size="11">acme-prod-cluster</text>
+  <rect x="750" y="436" width="138" height="30" rx="5" fill="#ef4444"/>
+  <text x="774" y="455" fill="#ffffff" font-family="Inter, sans-serif" font-size="11" font-weight="700">Confirm Revoke</text>
+  <text x="730" y="516" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Audited: Role-permission state + explicit</text>
+  <text x="730" y="536" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">confirmation protects critical B2B workflows.</text>
+</svg>

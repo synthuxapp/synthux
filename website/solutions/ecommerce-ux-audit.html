@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Commerce & Checkout Conversion UX Audit — synthux</title>
+  <meta name="description" content="Reduce cart abandonment and checkout friction with synthux's E-Commerce UX Rule Pack. Audit guest checkout, shipping transparency, product pages (PDP), and mobile conversion funnels.">
+  <meta name="keywords" content="ecommerce ux audit, checkout usability audit, cart abandonment ux checker, product page conversion optimization, baymard ecommerce heuristics, synthux">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/solutions/ecommerce-ux-audit">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../style.css?v=2.0.1">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://synthux.app/solutions/ecommerce-ux-audit">
+  <meta property="og:title" content="E-Commerce & Checkout Conversion UX Audit — synthux">
+  <meta property="og:description" content="Eliminate cart abandonment, forced registration walls, hidden shipping fees, and mobile checkout friction using AI vision + the E-Commerce Rule Pack.">
+  <meta property="og:image" content="https://synthux.app/assets/solutions/ecommerce-checkout.svg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "E-Commerce & Checkout Conversion UX Audit",
+        "url": "https://synthux.app/solutions/ecommerce-ux-audit",
+        "description": "Audit product detail pages, shopping carts, and checkout funnels with synthux's 10-rule E-Commerce UX Rule Pack."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How does synthux help reduce e-commerce cart abandonment?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "synthux's ecommerce.json rule pack inspects the top drivers of cart abandonment: forced account creation, late shipping/tax disclosure, intrusive coupon code fields, ambiguous variant selection, and missing return policy reassurance."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can synthux visualize friction density on a live product or checkout page?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. After running an audit, toggle the Issue Heatmap overlay to visualize critical, moderate, and minor conversion blockers directly on the live page."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="../index.html" class="nav-logo" aria-label="synthux Home">
+          <img src="../assets/logo.svg" alt="synthux" height="22" class="logo-img">
+        </a>
+        <span class="nav-ver-pill">v2.0</span>
+      </div>
+
+      <ul class="nav-center">
+        <li class="nav-item"><a href="../index.html#features" class="nav-link" data-i18n="navFeatures">Features</a></li>
+        <li class="nav-item"><a href="../index.html#how-it-works" class="nav-link" data-i18n="navHow">How It Works</a></li>
+        <li class="nav-item" id="nav-solutions-item">
+          <button type="button" class="nav-link active" onclick="toggleSolutionsDropdown(event)" aria-expanded="false" aria-haspopup="true">
+            <span data-i18n="navSolutions">Solutions</span>
+            <svg class="nav-link-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-dropdown" role="menu">
+            <div class="nav-dropdown-grid">
+              <a href="defense-air-gapped-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+                  <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+                </div>
+              </a>
+              <a href="fintech-banking-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+                  <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+                </div>
+              </a>
+              <a href="ecommerce-ux-audit.html" class="nav-dropdown-card active">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+                  <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+                </div>
+              </a>
+              <a href="saas-dashboard-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+                  <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+                </div>
+              </a>
+              <a href="accessibility-wcag-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+                  <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+                </div>
+              </a>
+              <a href="user-flow-personas.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+                  <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+                </div>
+              </a>
+            </div>
+            <div class="nav-dropdown-footer">
+              <span data-i18n="solutionsEyebrow">Solutions &amp; Target Personas</span>
+              <a href="../index.html#solutions"><span data-i18n="solExploreLink">Explore solution</span> &rarr;</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item"><a href="../index.html#privacy" class="nav-link" data-i18n="navPrivacy">Privacy</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">Auto</button>
+        <div class="lang-picker" id="lang-picker-nav">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-nav')" aria-label="Select language">
+            <span class="lang-picker__label">EN</span>
+            <svg class="lang-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+        <a href="https://github.com/synthuxapp/synthux" class="nav-gh-btn" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="nav-cta" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" aria-expanded="false">
+          <svg class="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          <svg class="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="nav-mobile-drawer">
+      <div>
+        <ul class="nav-mobile-links">
+          <li><a href="../index.html"><span data-i18n="solBackHome">Home</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#features"><span data-i18n="navFeatures">Features</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#how-it-works"><span data-i18n="navHow">How It Works</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#privacy"><span data-i18n="navPrivacy">Privacy</span> <span>&rarr;</span></a></li>
+        </ul>
+        <div class="nav-mobile-section-label" data-i18n="navSolutions">Solutions</div>
+        <div class="nav-mobile-solutions-grid">
+          <a href="defense-air-gapped-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+              <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+            </div>
+          </a>
+          <a href="fintech-banking-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+              <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+            </div>
+          </a>
+          <a href="ecommerce-ux-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+              <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+            </div>
+          </a>
+          <a href="saas-dashboard-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+              <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+            </div>
+          </a>
+          <a href="accessibility-wcag-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+              <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+            </div>
+          </a>
+          <a href="user-flow-personas.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+              <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" rel="noopener">
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="solution-page-hero">
+    <div class="container">
+      <div class="solution-breadcrumb fade-in">
+        <a href="../index.html" data-i18n="solBackHome">Home</a>
+        <span>/</span>
+        <a href="../index.html#solutions" data-i18n="navSolutions">Solutions</a>
+        <span>/</span>
+        <span data-i18n="pageBreadcrumb">E-Commerce &amp; Checkout Conversion</span>
+      </div>
+
+      <div class="solution-hero-grid">
+        <div class="solution-hero-content fade-in">
+          <div class="solution-hero-badges">
+            <span class="badge"><span class="dot"></span> <span data-i18n="heroBadge1">Built-In E-Commerce Rule Pack</span></span>
+            <span class="badge badge-new" data-i18n="heroBadge2">Live Conversion Heatmap</span>
+          </div>
+          <h1 data-i18n="pageH1">Eliminate Cart Abandonment &amp; Checkout Friction with AI UX Auditing</h1>
+          <p class="solution-hero-lead" data-i18n="pageLead">
+            Nearly 70% of online shopping carts are abandoned due to preventable usability friction — forced registration walls, hidden shipping fees, and confusing form validation. synthux audits product pages, carts, and checkout flows in minutes.
+          </p>
+          <div class="solution-hero-actions">
+            <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" data-i18n="solInstallCta">Add to Chrome — Free</a>
+            <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" data-i18n="solGithubCta">Inspect Source on GitHub</a>
+          </div>
+        </div>
+
+        <div class="solution-visual-frame fade-in">
+          <img src="../assets/solutions/ecommerce-checkout.svg" alt="E-Commerce checkout funnel UX audit and conversion heatmap schematic" width="1200" height="675" fetchpriority="high">
+          <div class="solution-visual-caption">
+            <span data-i18n="visualCaptionLeft">Rule Pack: ecommerce.json (10 Conversion Heuristics)</span>
+            <span data-i18n="visualCaptionRight">Live Issue Heatmap + P0 Quick Wins</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-metrics-strip fade-in">
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m1Val">10 Rules</div>
+          <div class="solution-metric-label" data-i18n="m1Label">Research-backed E-Commerce &amp; Checkout heuristics</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m2Val">Heatmap</div>
+          <div class="solution-metric-label" data-i18n="m2Label">Live severity overlay on PDP, Cart &amp; Checkout</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m3Val">Flow Audit</div>
+          <div class="solution-metric-label" data-i18n="m3Label">Audit Category → PDP → Cart → Payment journeys</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m4Val">Code Fixes</div>
+          <div class="solution-metric-label" data-i18n="m4Label">Before/After HTML &amp; CSS snippets for every issue</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec1Eyebrow">What the E-Commerce Rule Pack Audits</span>
+        <h2 data-i18n="sec1Title">Pinpoint Every Conversion Blocker Across Your Storefront</h2>
+        <p data-i18n="sec1Subtitle">From first product impression to order confirmation, synthux evaluates both visual hierarchy (via screenshot vision) and DOM ergonomics.</p>
+      </div>
+
+      <div class="solution-pillars-grid">
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p1Num">01 · Cart &amp; Checkout Flow</div>
+          <h3 data-i18n="p1Title">Guest Checkout &amp; Total Cost Transparency</h3>
+          <p data-i18n="p1Desc">Flags forced account creation walls, late shipping/tax surprises, and open promo-code boxes that send shoppers off-site hunting for discount codes.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p2Num">02 · Product Detail Pages (PDP)</div>
+          <h3 data-i18n="p2Title">Variant Clarity, Sizing &amp; Primary CTA Hierarchy</h3>
+          <p data-i18n="p2Desc">Audits image gallery resolution, stock availability indicators, size guide proximity, and Add-to-Cart contrast across desktop and mobile viewports.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p3Num">03 · Discovery &amp; Trust Signals</div>
+          <h3 data-i18n="p3Title">Faceted Search, Reviews &amp; Return Reassurance</h3>
+          <p data-i18n="p3Desc">Checks active filter chips, sort persistence, verified review authenticity cues, and return policy visibility near high-commitment purchase buttons.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section solution-section-alt">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec2Eyebrow">Target Roles &amp; Synthetic Personas</span>
+        <h2 data-i18n="sec2Title">Who Uses This Solution &amp; Which Personas Simulate the Shopper</h2>
+        <p data-i18n="sec2Subtitle">Evaluate your store through the eyes of hesitant first-time buyers, repeat shoppers, and CRO specialists.</p>
+      </div>
+
+      <div class="solution-personas-grid">
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role1Badge">Target Audience · Growth &amp; CRO</span>
+          <h3 data-i18n="role1Title">E-Commerce Growth, CRO &amp; Merchandising Teams</h3>
+          <p data-i18n="role1Desc">Teams responsible for increasing Add-to-Cart rates, checkout completion, and average order value across Shopify, Magento, custom headless storefronts, and marketplaces.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role1Check1">Identify P0 Quick Wins before launching paid ad campaigns</li>
+            <li data-i18n="role1Check2">Audit competitor product and checkout pages side-by-side</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role2Badge">Target Audience · Agencies</span>
+          <h3 data-i18n="role2Title">E-Commerce Agencies &amp; UX Consultants</h3>
+          <p data-i18n="role2Desc">Digital agencies producing rapid, evidence-backed UX audit deliverables for prospective retail clients and redesign kickoffs.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role2Check1">Export branded PDF reports with Annotated Visual Audit screenshots</li>
+            <li data-i18n="role2Check2">Deliver prioritized P0/P1/P2 engineering backlogs in minutes</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role3Badge">Synthetic AI Persona · Built-In</span>
+          <h3 data-i18n="role3Title">First-Time Visitor (Skeptical New Shopper)</h3>
+          <p data-i18n="role3Desc">Simulates a shopper arriving from a search or social ad who does not know your brand and looks immediately for shipping costs, delivery dates, and return guarantees.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role3Check1">Tests 5-second product value comprehension and trust badge placement</li>
+            <li data-i18n="role3Check2">Flags unclear error messages on address and credit card inputs</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role4Badge">Synthetic AI Persona · Custom Profile</span>
+          <h3 data-i18n="role4Title">Time-Pressed Mobile Impulse Buyer</h3>
+          <p data-i18n="role4Desc">Configure a custom persona representing a distracted shopper looking for fast filtering, express checkout options, and friction-free guest payment.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role4Check1">Highlights multi-field form bloat and missing autofill attributes</li>
+            <li data-i18n="role4Check2">Audits sticky CTA visibility and cart drawer editability</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="faqEyebrow">E-Commerce UX Audit FAQ</span>
+        <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+      </div>
+      <div class="solution-faq-grid">
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq1Q">Does synthux work on Shopify, WooCommerce, and custom SPAs?</h3>
+          <p data-i18n="faq1A">Yes. synthux inspects the live rendered DOM and viewport screenshot directly in Chrome, so it works on any storefront including React/Next.js headless commerce, Shopify, Magento, and staging URLs.</p>
+        </div>
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq2Q">Can we import our own brand or marketplace UX checklist?</h3>
+          <p data-i18n="faq2A">Yes. In addition to the built-in E-Commerce Rule Pack, you can download the JSON template in the Scan tab and import your own custom e-commerce heuristics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimal Solutions Cross-Navigation (Above Wallet Module) -->
+  <section id="other-solutions" class="solutions-minimal">
+    <div class="container">
+      <div class="solutions-minimal-head fade-in">
+        <div>
+          <span class="solutions-eyebrow" data-i18n="solutionsEyebrow">Solutions &amp; Target Audiences</span>
+          <h2 data-i18n="solOtherSolutions">Other Solutions &amp; Use Cases</h2>
+        </div>
+      </div>
+      <div class="solutions-minimal-grid">
+        <a href="defense-air-gapped-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol1Tag">Air-Gapped · Local AI</span></div>
+            <h3 data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</h3>
+            <p data-i18n="sol1Desc">100% offline, on-device UX and cognitive-load auditing via Ollama for classified C4ISR systems, defense software, and core banking intranets.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="fintech-banking-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol2Tag">Fintech Rule Pack</span></div>
+            <h3 data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</h3>
+            <p data-i18n="sol2Desc">Audit fee and exchange-rate transparency, irreversible transaction guardrails, numeric input formatting, and session security indicators.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="saas-dashboard-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol4Tag">SaaS Rule Pack</span></div>
+            <h3 data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</h3>
+            <p data-i18n="sol4Desc">Evaluate high-density data tables, empty-state onboarding, bulk action ergonomics, keyboard shortcuts, and destructive action guardrails.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="accessibility-wcag-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol5Tag">WCAG 2.2 AA + AI</span></div>
+            <h3 data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</h3>
+            <p data-i18n="sol5Desc">Combine deterministic axe-core WCAG 2.2 AA checks with AI screen-reader and keyboard-only persona evaluation and code fixes.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="user-flow-personas.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol6Tag">Flow Builder · Personas</span></div>
+            <h3 data-i18n="sol6Title">Multi-Page Flows &amp; Synthetic Personas</h3>
+            <p data-i18n="sol6Desc">Simulate end-to-end user journeys across connected pages through First-Time, Power User, Accessibility, and custom domain personas.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
+        <div class="lang-picker lang-picker--up" id="lang-picker-footer">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-footer')">
+            <span class="lang-picker__label">EN</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.SOLUTIONS_PAGE_I18N = {
+      en: {
+        pageTitle: 'E-Commerce & Checkout Conversion UX Audit — synthux',
+        pageBreadcrumb: 'E-Commerce & Checkout Conversion',
+        heroBadge1: 'Built-In E-Commerce Rule Pack',
+        heroBadge2: 'Live Conversion Heatmap',
+        pageH1: 'Eliminate Cart Abandonment & Checkout Friction with AI UX Auditing',
+        pageLead: 'Nearly 70% of online shopping carts are abandoned due to preventable usability friction — forced registration walls, hidden shipping fees, and confusing form validation. synthux audits product pages, carts, and checkout flows in minutes.',
+        visualCaptionLeft: 'Rule Pack: ecommerce.json (10 Conversion Heuristics)',
+        visualCaptionRight: 'Live Issue Heatmap + P0 Quick Wins',
+        m1Val: '10 Rules',
+        m1Label: 'Research-backed E-Commerce & Checkout heuristics',
+        m2Val: 'Heatmap',
+        m2Label: 'Live severity overlay on PDP, Cart & Checkout',
+        m3Val: 'Flow Audit',
+        m3Label: 'Audit Category → PDP → Cart → Payment journeys',
+        m4Val: 'Code Fixes',
+        m4Label: 'Before/After HTML & CSS snippets for every issue',
+        sec1Eyebrow: 'What the E-Commerce Rule Pack Audits',
+        sec1Title: 'Pinpoint Every Conversion Blocker Across Your Storefront',
+        sec1Subtitle: 'From first product impression to order confirmation, synthux evaluates both visual hierarchy (via screenshot vision) and DOM ergonomics.',
+        p1Num: '01 · Cart & Checkout Flow',
+        p1Title: 'Guest Checkout & Total Cost Transparency',
+        p1Desc: 'Flags forced account creation walls, late shipping/tax surprises, and open promo-code boxes that send shoppers off-site hunting for discount codes.',
+        p2Num: '02 · Product Detail Pages (PDP)',
+        p2Title: 'Variant Clarity, Sizing & Primary CTA Hierarchy',
+        p2Desc: 'Audits image gallery resolution, stock availability indicators, size guide proximity, and Add-to-Cart contrast across desktop and mobile viewports.',
+        p3Num: '03 · Discovery & Trust Signals',
+        p3Title: 'Faceted Search, Reviews & Return Reassurance',
+        p3Desc: 'Checks active filter chips, sort persistence, verified review authenticity cues, and return policy visibility near high-commitment purchase buttons.',
+        sec2Eyebrow: 'Target Roles & Synthetic Personas',
+        sec2Title: 'Who Uses This Solution & Which Personas Simulate the Shopper',
+        sec2Subtitle: 'Evaluate your store through the eyes of hesitant first-time buyers, repeat shoppers, and CRO specialists.',
+        role1Badge: 'Target Audience · Growth & CRO',
+        role1Title: 'E-Commerce Growth, CRO & Merchandising Teams',
+        role1Desc: 'Teams responsible for increasing Add-to-Cart rates, checkout completion, and average order value across Shopify, Magento, custom headless storefronts, and marketplaces.',
+        role1Check1: 'Identify P0 Quick Wins before launching paid ad campaigns',
+        role1Check2: 'Audit competitor product and checkout pages side-by-side',
+        role2Badge: 'Target Audience · Agencies',
+        role2Title: 'E-Commerce Agencies & UX Consultants',
+        role2Desc: 'Digital agencies producing rapid, evidence-backed UX audit deliverables for prospective retail clients and redesign kickoffs.',
+        role2Check1: 'Export branded PDF reports with Annotated Visual Audit screenshots',
+        role2Check2: 'Deliver prioritized P0/P1/P2 engineering backlogs in minutes',
+        role3Badge: 'Synthetic AI Persona · Built-In',
+        role3Title: 'First-Time Visitor (Skeptical New Shopper)',
+        role3Desc: 'Simulates a shopper arriving from a search or social ad who does not know your brand and looks immediately for shipping costs, delivery dates, and return guarantees.',
+        role3Check1: 'Tests 5-second product value comprehension and trust badge placement',
+        role3Check2: 'Flags unclear error messages on address and credit card inputs',
+        role4Badge: 'Synthetic AI Persona · Custom Profile',
+        role4Title: 'Time-Pressed Mobile Impulse Buyer',
+        role4Desc: 'Configure a custom persona representing a distracted shopper looking for fast filtering, express checkout options, and friction-free guest payment.',
+        role4Check1: 'Highlights multi-field form bloat and missing autofill attributes',
+        role4Check2: 'Audits sticky CTA visibility and cart drawer editability',
+        faqEyebrow: 'E-Commerce UX Audit FAQ',
+        faqTitle: 'Frequently Asked Questions',
+        faq1Q: 'Does synthux work on Shopify, WooCommerce, and custom SPAs?',
+        faq1A: 'Yes. synthux inspects the live rendered DOM and viewport screenshot directly in Chrome, so it works on any storefront including React/Next.js headless commerce, Shopify, Magento, and staging URLs.',
+        faq2Q: 'Can we import our own brand or marketplace UX checklist?',
+        faq2A: 'Yes. In addition to the built-in E-Commerce Rule Pack, you can download the JSON template in the Scan tab and import your own custom e-commerce heuristics.'
+      },
+      tr: {
+        pageTitle: 'E-Ticaret ve Ödeme (Checkout) Dönüşüm UX Denetimi — synthux',
+        pageBreadcrumb: 'E-Ticaret ve Ödeme Dönüşümü',
+        heroBadge1: 'Yerleşik E-Ticaret Kural Paketi',
+        heroBadge2: 'Canlı Dönüşüm Isı Haritası',
+        pageH1: 'Yapay Zeka UX Denetimi ile Sepet Terk Etme ve Ödeme Sürtünmelerini Ortadan Kaldırın',
+        pageLead: 'Online alışveriş sepetlerinin yaklaşık %70\'i önlenebilir kullanılabilirlik sorunları yüzünden terk edilir: zorunlu üyelik duvarları, son adımda çıkan kargo ücretleri ve karmaşık form doğrulamaları. synthux ürün, sepet ve ödeme sayfalarını dakikalar içinde denetler.',
+        visualCaptionLeft: 'Kural Paketi: ecommerce.json (10 Dönüşüm Heuristiği)',
+        visualCaptionRight: 'Canlı Sorun Isı Haritası + P0 Hızlı Kazanımlar',
+        m1Val: '10 Kural',
+        m1Label: 'Araştırma tabanlı E-Ticaret ve Ödeme heuristikleri',
+        m2Val: 'Isı Haritası',
+        m2Label: 'Ürün, Sepet ve Ödeme sayfasında canlı sorun yoğunluğu',
+        m3Val: 'Akış Analizi',
+        m3Label: 'Kategori → Ürün → Sepet → Ödeme yolculuğu denetimi',
+        m4Val: 'Kod Çözümü',
+        m4Label: 'Her bulgu için Öncesi/Sonrası HTML ve CSS düzeltmeleri',
+        sec1Eyebrow: 'E-Ticaret Kural Paketi Neleri Denetler?',
+        sec1Title: 'Mağazanızdaki Tüm Dönüşüm Engellerini Nokta Atışı Tespit Edin',
+        sec1Subtitle: 'İlk ürün izleniminden sipariş onayına kadar hem görsel hiyerarşiyi (ekran görüntüsü vizyonu ile) hem de DOM ergonomisini değerlendirir.',
+        p1Num: '01 · Sepet ve Ödeme Akışı',
+        p1Title: 'Üyesiz Ödeme (Guest Checkout) ve Maliyet Şeffaflığı',
+        p1Desc: 'Zorunlu hesap oluşturma duvarlarını, son adımda ortaya çıkan kargo/vergi sürprizlerini ve kullanıcıyı kupon aramak için siteden çıkaran açık kupon kutularını yakalar.',
+        p2Num: '02 · Ürün Detay Sayfaları (PDP)',
+        p2Title: 'Varyant Netliği, Beden Rehberi ve Ana CTA Hiyerarşisi',
+        p2Desc: 'Ürün görsel galerisini, stok durumu bilgisini, beden tablosu erişilebilirliğini ve Sepete Ekle butonunun görsel kontrastını masaüstü ve mobilde denetler.',
+        p3Num: '03 · Ürün Keşfi ve Güven Sinyalleri',
+        p3Title: 'Filtreleme, Yorumlar ve İade Güvencesi',
+        p3Desc: 'Aktif filtre etiketlerini, sıralama tutarlılığını, doğrulanmış müşteri yorumlarını ve satın alma butonları yakınındaki iade politikası görünürlüğünü kontrol eder.',
+        sec2Eyebrow: 'Hedef Roller ve Sentetik Personalar',
+        sec2Title: 'Bu Çözümü Kimler Kullanmalı ve Hangi Personalar Alışverişçiyi Simüle Eder?',
+        sec2Subtitle: 'Mağazanızı ilk kez gelen şüpheci müşterilerin, hızlı alışverişçilerin ve CRO uzmanlarının gözünden değerlendirin.',
+        role1Badge: 'Hedef Kitle · Büyüme & CRO',
+        role1Title: 'E-Ticaret Büyüme, CRO ve Kategori Ekipleri',
+        role1Desc: 'Shopify, Magento, özel headless mağazalar ve pazaryerlerinde sepete ekleme oranını, ödeme tamamlamayı ve sepet ortalamasını artırmaktan sorumlu ekipler.',
+        role1Check1: 'Reklam kampanyaları öncesinde P0 Hızlı Kazanımları tespit edin',
+        role1Check2: 'Rakip ürün ve ödeme sayfalarını yan yana analiz edin',
+        role2Badge: 'Hedef Kitle · Ajanslar',
+        role2Title: 'E-Ticaret Ajansları ve UX Danışmanları',
+        role2Desc: 'Potansiyel e-ticaret müşterilerine ve yenileme (redesign) projelerine dakikalar içinde kanıt odaklı UX denetim raporu sunan ajanslar.',
+        role2Check1: 'İşaretli ekran görüntüsü (Annotated Visual Audit) içeren PDF raporlar üretin',
+        role2Check2: 'P0/P1/P2 önceliklendirilmiş yazılımcı aksiyon listesini anında teslim edin',
+        role3Badge: 'Sentetik AI Personası · Yerleşik',
+        role3Title: 'İlk Kez Gelen Ziyaretçi (Şüpheci Yeni Müşteri)',
+        role3Desc: 'Reklam veya arama motorundan gelen, markanızı tanımayan ve kargo ücreti, teslimat tarihi ile iade garantisini ilk saniyelerde arayan kullanıcıyı simüle eder.',
+        role3Check1: '5 saniyelik ürün değer algısını ve güven rozeti yerleşimini test eder',
+        role3Check2: 'Adres ve kredi kartı alanlarındaki belirsiz hata mesajlarını işaretler',
+        role4Badge: 'Sentetik AI Personası · Özel Profil',
+        role4Title: 'Zamanı Kısıtlı Mobil Alışverişçi',
+        role4Desc: 'Hızlı filtreleme, tek tıkla ödeme ve zahmetsiz üyesiz alışveriş arayan mobil kullanıcı profilini özel persona olarak tanımlayın.',
+        role4Check1: 'Gereksiz form alanlarını ve eksik otomatik doldurma (autofill) etiketlerini yakalar',
+        role4Check2: 'Sabit (sticky) Sepete Ekle butonunu ve sepet çekmecesi ergonomisini denetler',
+        faqEyebrow: 'E-Ticaret UX Denetimi SSS',
+        faqTitle: 'Sıkça Sorulan Sorular',
+        faq1Q: 'synthux Shopify, WooCommerce ve özel SPA mağazalarda çalışır mı?',
+        faq1A: 'Evet. synthux doğrudan Chrome üzerinde render edilmiş canlı DOM yapısını ve ekran görüntüsünü incelediği için React/Next.js headless mağazalar, Shopify, Magento ve test ortamlarında sorunsuz çalışır.',
+        faq2Q: 'Kendi markamıza veya pazaryerimize özel UX kurallarını yükleyebilir miyiz?',
+        faq2A: 'Evet. Yerleşik E-Ticaret Kural Paketine ek olarak Tara sekmesinden örnek JSON şablonunu indirip kendi özel e-ticaret kural paketinizi içe aktarabilirsiniz.'
+      }
+    };
+  </script>
+  <script src="../i18n.js?v=2.0.1"></script>
+  <script src="../script.js?v=2.0.1"></script>
+</body>
+</html>

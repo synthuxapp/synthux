@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" fill="none">
+  <defs>
+    <radialGradient id="finGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#22c55e" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="finGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="675" fill="#09090b"/>
+  <rect width="1200" height="675" fill="url(#finGrid)"/>
+  <rect width="1200" height="675" fill="url(#finGlow)"/>
+
+  <!-- Main Banking Wire Transfer UI Card -->
+  <rect x="110" y="76" width="540" height="520" rx="16" fill="#0f0f12" stroke="#27272a" stroke-width="1.5"/>
+  <rect x="110" y="76" width="540" height="44" rx="16" fill="#141418"/>
+  <text x="140" y="103" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6">INTERNATIONAL WIRE TRANSFER · FINTECH AUDIT</text>
+  <rect x="518" y="88" width="112" height="22" rx="5" fill="#22c55e" fill-opacity="0.12" stroke="#22c55e" stroke-opacity="0.4"/>
+  <text x="530" y="103" fill="#4ade80" font-family="SF Mono, monospace" font-size="10" font-weight="700">TLS 1.3 · 2FA</text>
+
+  <!-- Amount & IBAN Input Block (Audited #1) -->
+  <rect x="142" y="146" width="476" height="114" rx="10" fill="#09090b" stroke="#3b82f6" stroke-width="1.75"/>
+  <text x="164" y="172" fill="#71717a" font-family="Inter, sans-serif" font-size="11" font-weight="600">RECIPIENT IBAN (FORMATTED GROUPS)</text>
+  <text x="164" y="198" fill="#fafafa" font-family="SF Mono, monospace" font-size="15" font-weight="700" letter-spacing="1.5">DE89  3704  0044  0532  0130  00</text>
+  <line x1="164" y1="214" x2="594" y2="214" stroke="#27272a"/>
+  <text x="164" y="240" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="12">Transfer Amount:</text>
+  <text x="456" y="242" fill="#fafafa" font-family="SF Mono, monospace" font-size="18" font-weight="800">$24,500.00 USD</text>
+  <circle cx="614" cy="150" r="13" fill="#3b82f6"/>
+  <text x="610" y="154" fill="#ffffff" font-family="Inter, sans-serif" font-size="11" font-weight="800">1</text>
+
+  <!-- Fee & FX Breakdown Block (Audited #2) -->
+  <rect x="142" y="280" width="476" height="132" rx="10" fill="#09090b" stroke="#22c55e" stroke-width="1.75"/>
+  <text x="164" y="308" fill="#4ade80" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">FEE &amp; EXCHANGE RATE TRANSPARENCY · PASS</text>
+  <text x="164" y="336" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="12">Network &amp; Wire Fee (0.15%)</text>
+  <text x="524" y="336" fill="#e4e4e7" font-family="SF Mono, monospace" font-size="12">$36.75</text>
+  <text x="164" y="362" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="12">Guaranteed FX Rate (Locked 120s)</text>
+  <text x="488" y="362" fill="#e4e4e7" font-family="SF Mono, monospace" font-size="12">1 USD = 0.9241 EUR</text>
+  <text x="164" y="390" fill="#fafafa" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">Total Recipient Gets</text>
+  <text x="484" y="390" fill="#22c55e" font-family="SF Mono, monospace" font-size="13.5" font-weight="800">€22,606.55 EUR</text>
+  <circle cx="614" cy="284" r="13" fill="#22c55e"/>
+  <text x="610" y="288" fill="#09090b" font-family="Inter, sans-serif" font-size="11" font-weight="800">2</text>
+
+  <!-- Irreversible Action Guardrail Block (Audited #3) -->
+  <rect x="142" y="432" width="476" height="134" rx="10" fill="#09090b" stroke="#f59e0b" stroke-width="1.75"/>
+  <text x="164" y="460" fill="#fbbf24" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">IRREVERSIBLE SETTLEMENT WARNING</text>
+  <rect x="164" y="474" width="432" height="26" rx="5" fill="#f59e0b" fill-opacity="0.1"/>
+  <text x="176" y="491" fill="#fde68a" font-family="Inter, sans-serif" font-size="11">SEPA Instant / Wire transfers cannot be recalled once signed.</text>
+  <rect x="164" y="514" width="206" height="36" rx="7" fill="#18181b" stroke="#3f3f46"/>
+  <text x="228" y="536" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5" font-weight="600">Review Details</text>
+  <rect x="384" y="514" width="212" height="36" rx="7" fill="#3b82f6"/>
+  <text x="424" y="536" fill="#ffffff" font-family="Inter, sans-serif" font-size="11.5" font-weight="700">Sign &amp; Confirm Transfer</text>
+  <circle cx="614" cy="436" r="13" fill="#f59e0b"/>
+  <text x="610" y="440" fill="#09090b" font-family="Inter, sans-serif" font-size="11" font-weight="800">3</text>
+
+  <!-- Right Side: synthux Fintech Rule Pack Panel -->
+  <rect x="706" y="106" width="394" height="460" rx="16" fill="#0f0f12" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="736" y="146" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11" font-weight="700">RULE PACK: FINTECH.JSON (10 HEURISTICS)</text>
+  <text x="736" y="182" fill="#fafafa" font-family="Inter, sans-serif" font-size="22" font-weight="800">Fintech UX Score: 92/100</text>
+
+  <rect x="736" y="208" width="334" height="72" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="754" y="234" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">1. Numeric &amp; IBAN Input Masking</text>
+  <text x="754" y="256" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">4-character chunking prevents transposition errors</text>
+
+  <rect x="736" y="294" width="334" height="72" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="754" y="320" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">2. Fee &amp; FX Spread Disclosure</text>
+  <text x="754" y="342" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Pre-commit net amount &amp; rate lock timer visible</text>
+
+  <rect x="736" y="380" width="334" height="72" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="754" y="406" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">3. Irreversible Transaction Friction</text>
+  <text x="754" y="428" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Explicit finality notice + secondary review path</text>
+
+  <rect x="736" y="472" width="334" height="64" rx="10" fill="#22c55e" fill-opacity="0.08" stroke="#22c55e" stroke-opacity="0.35"/>
+  <text x="754" y="498" fill="#4ade80" font-family="SF Mono, monospace" font-size="11" font-weight="700">PCI-DSS / GDPR SAFE AUDITING</text>
+  <text x="754" y="518" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11">Run locally via Ollama or BYOK direct API</text>
+</svg>

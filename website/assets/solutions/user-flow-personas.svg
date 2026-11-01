@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" fill="none">
+  <defs>
+    <pattern id="dotCanvas" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.12"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="675" fill="#09090b"/>
+  <rect width="1200" height="675" fill="url(#dotCanvas)"/>
+
+  <!-- Top Flow Canvas Toolbar -->
+  <rect x="80" y="48" width="1040" height="46" rx="10" fill="#121216" stroke="#27272a"/>
+  <text x="108" y="76" fill="#fafafa" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">synthux Flow Builder · Multi-Page Journey &amp; Persona Simulation</text>
+  <rect x="876" y="58" width="224" height="26" rx="6" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6"/>
+  <text x="894" y="75" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">FLOW CONSISTENCY: 91/100</text>
+
+  <!-- Connected Page Nodes (Row 1: Multi-Page User Journey) -->
+  <!-- Node 1: Landing Page -->
+  <rect x="80" y="132" width="220" height="164" rx="12" fill="#0f0f12" stroke="#3b82f6" stroke-width="1.75"/>
+  <rect x="80" y="132" width="220" height="30" rx="12" fill="#18181b"/>
+  <text x="98" y="151" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11" font-weight="700">01 · Landing Page</text>
+  <text x="252" y="151" fill="#22c55e" font-family="SF Mono, monospace" font-size="11" font-weight="700">94</text>
+  <rect x="98" y="178" width="184" height="36" rx="5" fill="#09090b" stroke="#27272a"/>
+  <rect x="98" y="224" width="120" height="10" rx="4" fill="#3f3f46"/>
+  <rect x="98" y="246" width="96" height="28" rx="6" fill="#3b82f6"/>
+
+  <!-- Node 2: Pricing & Plan Selection -->
+  <rect x="354" y="132" width="220" height="164" rx="12" fill="#0f0f12" stroke="#3b82f6" stroke-width="1.75"/>
+  <rect x="354" y="132" width="220" height="30" rx="12" fill="#18181b"/>
+  <text x="372" y="151" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11" font-weight="700">02 · Pricing Matrix</text>
+  <text x="526" y="151" fill="#22c55e" font-family="SF Mono, monospace" font-size="11" font-weight="700">88</text>
+  <rect x="372" y="178" width="56" height="96" rx="5" fill="#09090b" stroke="#27272a"/>
+  <rect x="436" y="178" width="56" height="96" rx="5" fill="#09090b" stroke="#3b82f6"/>
+  <rect x="500" y="178" width="56" height="96" rx="5" fill="#09090b" stroke="#27272a"/>
+
+  <!-- Node 3: Sign-Up & Auth -->
+  <rect x="628" y="132" width="220" height="164" rx="12" fill="#0f0f12" stroke="#f59e0b" stroke-width="1.75"/>
+  <rect x="628" y="132" width="220" height="30" rx="12" fill="#18181b"/>
+  <text x="646" y="151" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11" font-weight="700">03 · Sign-Up Step</text>
+  <text x="800" y="151" fill="#f59e0b" font-family="SF Mono, monospace" font-size="11" font-weight="700">76</text>
+  <rect x="646" y="178" width="184" height="26" rx="5" fill="#09090b" stroke="#27272a"/>
+  <rect x="646" y="212" width="184" height="26" rx="5" fill="#09090b" stroke="#f59e0b"/>
+  <rect x="646" y="248" width="184" height="28" rx="6" fill="#3b82f6"/>
+
+  <!-- Node 4: Workspace Onboarding -->
+  <rect x="900" y="132" width="220" height="164" rx="12" fill="#0f0f12" stroke="#22c55e" stroke-width="1.75"/>
+  <rect x="900" y="132" width="220" height="30" rx="12" fill="#18181b"/>
+  <text x="918" y="151" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11" font-weight="700">04 · Onboarding</text>
+  <text x="1072" y="151" fill="#22c55e" font-family="SF Mono, monospace" font-size="11" font-weight="700">95</text>
+  <rect x="918" y="178" width="184" height="58" rx="5" fill="#09090b" stroke="#27272a"/>
+  <rect x="918" y="246" width="116" height="28" rx="6" fill="#22c55e" fill-opacity="0.2" stroke="#22c55e"/>
+
+  <!-- Flow Connectors -->
+  <path d="M300 214 L354 214" stroke="#3b82f6" stroke-width="2.5"/>
+  <path d="M574 214 L628 214" stroke="#f59e0b" stroke-width="2.5"/>
+  <path d="M848 214 L900 214" stroke="#22c55e" stroke-width="2.5"/>
+
+  <!-- Bottom Row: Synthetic User Persona Evaluation Layer -->
+  <rect x="80" y="346" width="1040" height="272" rx="16" fill="#0f0f12" stroke="#27272a" stroke-width="1.5"/>
+  <text x="112" y="384" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11" font-weight="700">SYNTHETIC USER PERSONA SIMULATION ENGINE (3 BUILT-IN + 5 CUSTOM)</text>
+
+  <!-- Persona Card 1: First-Time Visitor -->
+  <rect x="112" y="406" width="232" height="184" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="130" y="434" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10" font-weight="700">PERSONA 01</text>
+  <text x="130" y="458" fill="#fafafa" font-family="Inter, sans-serif" font-size="14" font-weight="700">First-Time Visitor</text>
+  <text x="130" y="484" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Tests 5-second value clarity,</text>
+  <text x="130" y="502" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">jargon-free copy, CTA contrast,</text>
+  <text x="130" y="520" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">and navigation discoverability.</text>
+  <text x="130" y="564" fill="#22c55e" font-family="SF Mono, monospace" font-size="10.5" font-weight="700"> Clarity Score: 92/100</text>
+
+  <!-- Persona Card 2: Power User -->
+  <rect x="360" y="406" width="232" height="184" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="378" y="434" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10" font-weight="700">PERSONA 02</text>
+  <text x="378" y="458" fill="#fafafa" font-family="Inter, sans-serif" font-size="14" font-weight="700">Power User</text>
+  <text x="378" y="484" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Audits task speed, keyboard</text>
+  <text x="378" y="502" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">shortcuts, bulk actions, undo</text>
+  <text x="378" y="520" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">speed, and redundant steps.</text>
+  <text x="378" y="564" fill="#3b82f6" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">Efficiency Score: 88/100</text>
+
+  <!-- Persona Card 3: Accessibility User -->
+  <rect x="608" y="406" width="232" height="184" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="626" y="434" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10" font-weight="700">PERSONA 03</text>
+  <text x="626" y="458" fill="#fafafa" font-family="Inter, sans-serif" font-size="14" font-weight="700">Accessibility User</text>
+  <text x="626" y="484" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Evaluates screen-reader flow,</text>
+  <text x="626" y="502" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Tab order, WCAG contrast, ARIA</text>
+  <text x="626" y="520" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">labels, and focus indicators.</text>
+  <text x="626" y="564" fill="#22c55e" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">Inclusion Score: 94/100</text>
+
+  <!-- Persona Card 4: Custom Domain Personas -->
+  <rect x="856" y="406" width="232" height="184" rx="10" fill="#09090b" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="874" y="434" fill="#4ade80" font-family="SF Mono, monospace" font-size="10" font-weight="700">CUSTOM PERSONAS (UP TO 5)</text>
+  <text x="874" y="458" fill="#fafafa" font-family="Inter, sans-serif" font-size="14" font-weight="700">Tailored Role Profiles</text>
+  <text x="874" y="484" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">• C4ISR / SOC Operator</text>
+  <text x="874" y="504" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">• 65+ Digital Banking Senior</text>
+  <text x="874" y="524" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">• Enterprise Procurement Lead</text>
+  <text x="874" y="564" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">Age · Tech · Goal · A11y</text>
+</svg>

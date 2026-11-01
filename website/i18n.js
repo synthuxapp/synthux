@@ -508,13 +508,240 @@ const translations = {
 const langOrder = ['en', 'tr', 'de', 'zh', 'fr', 'it'];
 const langLabels = { en: 'EN', tr: 'TR', de: 'DE', zh: '中文', fr: 'FR', it: 'IT' };
 
+// ─── Solutions & Personas Homepage + Common Translations (6 Languages) ───
+Object.assign(translations.en, {
+  navSolutions: 'Solutions',
+  solutionsEyebrow: 'Solutions & Target Audiences',
+  solutionsTitle: 'Where Teams Use synthux',
+  solutionsSubtitle: 'Industry-specific UX audit workflows, air-gapped local AI deployments, and synthetic user personas tailored to your sector.',
+  solExploreLink: 'Explore solution',
+  sol1Tag: 'Air-Gapped · Local AI',
+  sol1Title: 'Defense, Military & Banking Intranets',
+  sol1Desc: '100% offline, on-device UX and cognitive-load auditing via Ollama for classified C4ISR systems, defense software, and core banking intranets.',
+  sol2Tag: 'Fintech Rule Pack',
+  sol2Title: 'Fintech, Digital Banking & Payments',
+  sol2Desc: 'Audit fee and exchange-rate transparency, irreversible transaction guardrails, numeric input formatting, and session security indicators.',
+  sol3Tag: 'E-Commerce Rule Pack',
+  sol3Title: 'E-Commerce & Checkout Conversion',
+  sol3Desc: 'Detect cart abandonment triggers, forced account creation friction, hidden shipping costs, and product filtering gaps before release.',
+  sol4Tag: 'SaaS Rule Pack',
+  sol4Title: 'SaaS, B2B Dashboards & Web Apps',
+  sol4Desc: 'Evaluate high-density data tables, empty-state onboarding, bulk action ergonomics, keyboard shortcuts, and destructive action guardrails.',
+  sol5Tag: 'WCAG 2.2 AA + AI',
+  sol5Title: 'WCAG 2.2 Accessibility & Compliance',
+  sol5Desc: 'Combine deterministic axe-core WCAG 2.2 AA checks with AI screen-reader and keyboard-only persona evaluation and code fixes.',
+  sol6Tag: 'Flow Builder · Personas',
+  sol6Title: 'Multi-Page Flows & Synthetic Personas',
+  sol6Desc: 'Simulate end-to-end user journeys across connected pages through First-Time, Power User, Accessibility, and custom domain personas.',
+  solPersonaBarLabel: 'Built for Key Roles & Synthetic Personas',
+  solPillDefense: 'Defense & C4ISR Engineers',
+  solPillBanking: 'Banking & InfoSec Teams',
+  solPillDesigners: 'Product & UX Designers',
+  solPillDevs: 'Frontend Engineers',
+  solPillGrowth: 'Growth & CRO Teams',
+  solPillA11y: 'Accessibility Specialists',
+  solBackHome: 'Home',
+  solOtherSolutions: 'Other Solutions & Use Cases',
+  solInstallCta: 'Add to Chrome — Free',
+  solGithubCta: 'Inspect Source on GitHub'
+});
+
+Object.assign(translations.tr, {
+  navSolutions: 'Çözümler',
+  solutionsEyebrow: 'Çözümler ve Hedef Kitleler',
+  solutionsTitle: 'synthux Hangi Alanlarda Kullanılır?',
+  solutionsSubtitle: 'Sektöre özel UX denetim paketleri, kapalı ağ (air-gapped) lokal AI kurulumları ve hedef kitlenize uygun sentetik kullanıcı personaları.',
+  solExploreLink: 'Çözümü incele',
+  sol1Tag: 'Kapalı Ağ · Lokal AI',
+  sol1Title: 'Savunma, Askeri Sistemler ve Banka İç Ağları',
+  sol1Desc: 'Askeri komuta-kontrol (C4ISR), savunma sanayii ve banka intranet ekranları için dış ağa tek bayt veri çıkarmadan Ollama ile %100 cihaz içi UX denetimi.',
+  sol2Tag: 'Fintech Kural Paketi',
+  sol2Title: 'Fintech, Dijital Bankacılık ve Ödeme Sistemleri',
+  sol2Desc: 'Komisyon ve kur şeffaflığını, geri alınamaz işlem onay adımlarını, IBAN/tutar formatlamasını ve oturum güvenliği göstergelerini denetleyin.',
+  sol3Tag: 'E-Ticaret Kural Paketi',
+  sol3Title: 'E-Ticaret ve Ödeme (Checkout) Dönüşümü',
+  sol3Desc: 'Sepet terk etme nedenlerini, zorunlu üyelik sürtünmelerini, gizli kargo maliyetlerini ve ürün filtreleme eksiklerini yayına çıkmadan yakalayın.',
+  sol4Tag: 'SaaS Kural Paketi',
+  sol4Title: 'SaaS, B2B Dashboard ve Kurumsal Uygulamalar',
+  sol4Desc: 'Yüksek veri yoğunluklu tabloları, boş durum (empty state) onboarding akışlarını, toplu işlemleri, kısayolları ve yıkıcı işlem korumalarını analiz edin.',
+  sol5Tag: 'WCAG 2.2 AA + AI',
+  sol5Title: 'WCAG 2.2 Erişilebilirlik ve Yasal Uyumluluk',
+  sol5Desc: 'Deterministik axe-core WCAG 2.2 AA taramasını ekran okuyucu ve klavye odaklı yapay zeka personası ve hazır kod düzeltmeleriyle birleştirin.',
+  sol6Tag: 'Flow Builder · Personalar',
+  sol6Title: 'Çok Sayfalı Akışlar ve Sentetik Personalar',
+  sol6Desc: 'Bağlantılı sayfalar arasındaki kullanıcı yolculuklarını İlk Kez Gelen, Uzman Kullanıcı, Erişilebilirlik ve özel sektör personalarıyla simüle edin.',
+  solPersonaBarLabel: 'Hedef Roller ve Sentetik Personalar İçin Tasarlandı',
+  solPillDefense: 'Savunma ve C4ISR Mühendisleri',
+  solPillBanking: 'Bankacılık ve Siber Güvenlik Ekipleri',
+  solPillDesigners: 'Ürün ve UX Tasarımcıları',
+  solPillDevs: 'Frontend Geliştiriciler',
+  solPillGrowth: 'Büyüme ve CRO Ekipleri',
+  solPillA11y: 'Erişilebilirlik Uzmanları',
+  solBackHome: 'Ana Sayfa',
+  solOtherSolutions: 'Diğer Çözümler ve Kullanım Senaryoları',
+  solInstallCta: 'Chrome\'a Ekle — Ücretsiz',
+  solGithubCta: 'Kaynak Kodunu İncele'
+});
+
+Object.assign(translations.de, {
+  navSolutions: 'Lösungen',
+  solutionsEyebrow: 'Lösungen & Zielgruppen',
+  solutionsTitle: 'Einsatzbereiche für synthux',
+  solutionsSubtitle: 'Branchenspezifische UX-Regelpakete, Air-Gapped-Local-AI-Betrieb und synthetische Nutzer-Personas für Ihr Team.',
+  solExploreLink: 'Lösung ansehen',
+  sol1Tag: 'Air-Gapped · Lokale KI',
+  sol1Title: 'Verteidigung, Militär & Banken-Intranets',
+  sol1Desc: '100 % Offline-UX- und Cognitive-Load-Audits über lokales Ollama für C4ISR-Systeme, Verteidigungssoftware und interne Bankensysteme.',
+  sol2Tag: 'Fintech-Regelpaket',
+  sol2Title: 'Fintech, Digital Banking & Zahlungssysteme',
+  sol2Desc: 'Prüfen Sie Gebührentransparenz, Schutzmechanismen für unwiderrufliche Transaktionen, Eingabeformatierung und Sicherheitsindikatoren.',
+  sol3Tag: 'E-Commerce-Regelpaket',
+  sol3Title: 'E-Commerce & Checkout-Conversion',
+  sol3Desc: 'Erkennen Sie Warenkorbabbrüche, Gast-Checkout-Hürden, versteckte Versandkosten und Filterprobleme vor dem Release.',
+  sol4Tag: 'SaaS-Regelpaket',
+  sol4Title: 'SaaS, B2B-Dashboards & Web-Apps',
+  sol4Desc: 'Bewerten Sie komplexe Datentabellen, Empty-State-Onboarding, Massenaktionen, Tastenkürzel und Schutz vor destruktiven Aktionen.',
+  sol5Tag: 'WCAG 2.2 AA + KI',
+  sol5Title: 'WCAG 2.2 Barrierefreiheit & Compliance',
+  sol5Desc: 'Kombinieren Sie deterministische axe-core WCAG 2.2 AA-Prüfungen mit KI-gestützter Screenreader-Persona-Analyse und Code-Fixes.',
+  sol6Tag: 'Flow Builder · Personas',
+  sol6Title: 'Mehrseitige Flows & Synthetische Personas',
+  sol6Desc: 'Simulieren Sie Nutzerreisen über verbundene Seiten hinweg mit Erstbesucher-, Power-User-, Barrierefreiheits- und individuellen Personas.',
+  solPersonaBarLabel: 'Entwickelt für Schlüsselrollen & Synthetische Personas',
+  solPillDefense: 'Verteidigungs- & C4ISR-Teams',
+  solPillBanking: 'Banken- & InfoSec-Teams',
+  solPillDesigners: 'Produkt- & UX-Designer',
+  solPillDevs: 'Frontend-Entwickler',
+  solPillGrowth: 'Growth- & CRO-Teams',
+  solPillA11y: 'Accessibility-Spezialisten',
+  solBackHome: 'Startseite',
+  solOtherSolutions: 'Weitere Lösungen & Anwendungsfälle',
+  solInstallCta: 'Zu Chrome hinzufügen',
+  solGithubCta: 'Quellcode auf GitHub'
+});
+
+Object.assign(translations.zh, {
+  navSolutions: '解决方案',
+  solutionsEyebrow: '解决方案与目标受众',
+  solutionsTitle: '团队如何使用 synthux',
+  solutionsSubtitle: '针对特定行业的 UX 审计规则包、物理隔离（Air-Gapped）本地 AI 部署以及合成用户画像。',
+  solExploreLink: '了解方案',
+  sol1Tag: '物理隔离 · 本地 AI',
+  sol1Title: '国防、军工系统与银行内网',
+  sol1Desc: '通过本地 Ollama 对涉密 C4ISR 系统、军工软件和核心银行内网进行 100% 离线、零数据外传的 UX 与认知负荷审计。',
+  sol2Tag: '金融科技规则包',
+  sol2Title: '金融科技、数字银行与支付系统',
+  sol2Desc: '审计手续费与汇率透明度、不可逆交易确认护栏、数字输入格式化以及会话安全指示器。',
+  sol3Tag: '电商规则包',
+  sol3Title: '电子商务与结账转化率优化',
+  sol3Desc: '在发布前识别购物车放弃诱因、强制注册摩擦、隐藏运费以及商品筛选缺陷。',
+  sol4Tag: 'SaaS 规则包',
+  sol4Title: 'SaaS、B2B 仪表盘与企业应用',
+  sol4Desc: '评估高密度数据表格、空状态引导、批量操作人体工学、键盘快捷键以及高危操作防护。',
+  sol5Tag: 'WCAG 2.2 AA + AI',
+  sol5Title: 'WCAG 2.2 无障碍与合规审计',
+  sol5Desc: '将确定性的 axe-core WCAG 2.2 AA 检测与 AI 屏幕阅读器及纯键盘用户画像评估相结合。',
+  sol6Tag: '流程构建器 · 用户画像',
+  sol6Title: '多页面用户流程与合成用户画像',
+  sol6Desc: '通过首次访问者、高级用户、无障碍用户及自定义行业画像模拟跨页面端到端旅程。',
+  solPersonaBarLabel: '专为关键角色与合成画像打造',
+  solPillDefense: '国防与 C4ISR 工程师',
+  solPillBanking: '银行与信息安全团队',
+  solPillDesigners: '产品与 UX 设计师',
+  solPillDevs: '前端工程师',
+  solPillGrowth: '增长与转化率团队',
+  solPillA11y: '无障碍专家',
+  solBackHome: '首页',
+  solOtherSolutions: '其他解决方案与应用场景',
+  solInstallCta: '添加至 Chrome — 免费',
+  solGithubCta: '在 GitHub 查看源码'
+});
+
+Object.assign(translations.fr, {
+  navSolutions: 'Solutions',
+  solutionsEyebrow: 'Solutions & Publics Cibles',
+  solutionsTitle: 'Pourquoi les équipes utilisent synthux',
+  solutionsSubtitle: 'Packs de règles UX sectoriels, déploiements IA locaux air-gapped et personas synthétiques adaptés à votre domaine.',
+  solExploreLink: 'Explorer la solution',
+  sol1Tag: 'Air-Gapped · IA Locale',
+  sol1Title: 'Défense, Militaire & Intranets Bancaires',
+  sol1Desc: 'Audit UX et charge cognitive 100 % hors ligne sur appareil via Ollama pour systèmes C4ISR, logiciels de défense et intranets bancaires.',
+  sol2Tag: 'Pack Fintech',
+  sol2Title: 'Fintech, Banque Digitale & Paiements',
+  sol2Desc: 'Auditez la transparence des frais et taux, les garde-fous des transactions irréversibles, le formatage IBAN et la sécurité de session.',
+  sol3Tag: 'Pack E-Commerce',
+  sol3Title: 'E-Commerce & Conversion Checkout',
+  sol3Desc: 'Détectez les causes d\'abandon de panier, les frictions du paiement invité, les frais cachés et les lacunes de filtrage produit.',
+  sol4Tag: 'Pack SaaS',
+  sol4Title: 'SaaS, Tableaux de Bord B2B & Web Apps',
+  sol4Desc: 'Évaluez les tables de données denses, l\'onboarding des états vides, les actions groupées, les raccourcis clavier et les actions destructives.',
+  sol5Tag: 'WCAG 2.2 AA + IA',
+  sol5Title: 'Accessibilité WCAG 2.2 & Conformité',
+  sol5Desc: 'Combinez les tests déterministes axe-core WCAG 2.2 AA avec l\'évaluation par persona lecteur d\'écran et navigation clavier.',
+  sol6Tag: 'Flow Builder · Personas',
+  sol6Title: 'Parcours Multi-Pages & Personas Synthétiques',
+  sol6Desc: 'Simulez des parcours complets via les personas Nouveau Visiteur, Power User, Accessibilité et profils métiers personnalisés.',
+  solPersonaBarLabel: 'Conçu pour les Rôles Clés & Personas Synthétiques',
+  solPillDefense: 'Ingénieurs Défense & C4ISR',
+  solPillBanking: 'Équipes Banque & InfoSec',
+  solPillDesigners: 'Product & UX Designers',
+  solPillDevs: 'Développeurs Frontend',
+  solPillGrowth: 'Équipes Growth & CRO',
+  solPillA11y: 'Spécialistes Accessibilité',
+  solBackHome: 'Accueil',
+  solOtherSolutions: 'Autres Solutions & Cas d\'Usage',
+  solInstallCta: 'Ajouter à Chrome',
+  solGithubCta: 'Voir le code sur GitHub'
+});
+
+Object.assign(translations.it, {
+  navSolutions: 'Soluzioni',
+  solutionsEyebrow: 'Soluzioni e Destinatari',
+  solutionsTitle: 'Come i team usano synthux',
+  solutionsSubtitle: 'Pacchetti di regole UX settoriali, ambienti IA locali air-gapped e personas sintetiche su misura per il tuo settore.',
+  solExploreLink: 'Esplora soluzione',
+  sol1Tag: 'Air-Gapped · IA Locale',
+  sol1Title: 'Difesa, Sistemi Militari e Intranet Bancarie',
+  sol1Desc: 'Audit UX e carico cognitivo 100% offline sul dispositivo tramite Ollama per sistemi C4ISR, software di difesa e intranet bancarie.',
+  sol2Tag: 'Pacchetto Fintech',
+  sol2Title: 'Fintech, Digital Banking e Pagamenti',
+  sol2Desc: 'Verifica trasparenza di commissioni e tassi, conferme per transazioni irreversibili, formattazione numerica e sicurezza di sessione.',
+  sol3Tag: 'Pacchetto E-Commerce',
+  sol3Title: 'E-Commerce e Conversione Checkout',
+  sol3Desc: 'Individua cause di abbandono del carrello, attriti nel checkout ospite, costi di spedizione nascosti e problemi di filtro prodotti.',
+  sol4Tag: 'Pacchetto SaaS',
+  sol4Title: 'SaaS, Dashboard B2B e Web App',
+  sol4Desc: 'Valuta tabelle dati ad alta densità, onboarding degli stati vuoti, azioni di massa, scorciatoie da tastiera e protezioni per azioni distruttive.',
+  sol5Tag: 'WCAG 2.2 AA + IA',
+  sol5Title: 'Accessibilità WCAG 2.2 e Conformità',
+  sol5Desc: 'Combina i controlli deterministici axe-core WCAG 2.2 AA con la valutazione IA tramite persona screen-reader e navigazione da tastiera.',
+  sol6Tag: 'Flow Builder · Personas',
+  sol6Title: 'Flussi Multi-Pagina e Personas Sintetiche',
+  sol6Desc: 'Simula percorsi utente completi attraverso le personas Primo Visitatore, Power User, Accessibilità e profili personalizzati.',
+  solPersonaBarLabel: 'Progettato per Ruoli Chiave e Personas Sintetiche',
+  solPillDefense: 'Ingegneri Difesa & C4ISR',
+  solPillBanking: 'Team Banking & InfoSec',
+  solPillDesigners: 'Product & UX Designer',
+  solPillDevs: 'Sviluppatori Frontend',
+  solPillGrowth: 'Team Growth & CRO',
+  solPillA11y: 'Specialisti Accessibilità',
+  solBackHome: 'Home',
+  solOtherSolutions: 'Altre Soluzioni e Casi d\'Uso',
+  solInstallCta: 'Aggiungi a Chrome',
+  solGithubCta: 'Codice su GitHub'
+});
+
 function applyLanguage(lang) {
-  const t = translations[lang];
-  if (!t) return;
+  const base = translations[lang] || translations.en;
+  const pageExtra = (window.SOLUTIONS_PAGE_I18N && (window.SOLUTIONS_PAGE_I18N[lang] || window.SOLUTIONS_PAGE_I18N.en)) || {};
+  const t = Object.assign({}, base, pageExtra);
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (t[key]) el.textContent = t[key];
   });
+  if (pageExtra.pageTitle) {
+    document.title = pageExtra.pageTitle;
+  }
   document.documentElement.lang = lang;
   localStorage.setItem('synthux-lang', lang);
 
@@ -551,6 +778,13 @@ function toggleLangPicker(id) {
   // Close all other pickers first
   document.querySelectorAll('.lang-picker.open').forEach(p => {
     if (p.id !== id) p.classList.remove('open');
+  });
+
+  // Close desktop Solutions dropdown if open
+  document.querySelectorAll('.nav-item.dropdown-open').forEach(el => {
+    el.classList.remove('dropdown-open');
+    const trigger = el.querySelector('.nav-link');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
   });
 
   picker.classList.toggle('open');

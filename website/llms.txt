@@ -18,6 +18,15 @@ All local analysis runs entirely on the user's machine. Cloud analysis connects 
 - **Interactive Page Overlays & Flow Builder**: Live issue heatmap, hover-to-highlight element borders, and multi-page visual Flow Builder canvas
 - **100% Private**: No telemetry, no analytics, no data collection in the extension
 
+## Solutions & Target Audiences
+
+- **Defense, Military & Banking Intranets (Air-Gapped UX)**: https://synthux.app/solutions/defense-air-gapped-ux — 100% offline, on-device UX and cognitive-load auditing via local Ollama for classified C4ISR systems, defense software, and core banking intranets.
+- **Fintech, Digital Banking & Payments UX**: https://synthux.app/solutions/fintech-banking-ux — Built-in `fintech.json` rule pack for fee/FX transparency, irreversible transaction guardrails, IBAN masking, and session security.
+- **E-Commerce & Checkout Conversion UX**: https://synthux.app/solutions/ecommerce-ux-audit — Built-in `ecommerce.json` rule pack for cart abandonment, guest checkout friction, shipping transparency, and PDP conversion.
+- **SaaS, B2B Dashboards & Enterprise Web Apps**: https://synthux.app/solutions/saas-dashboard-ux — Built-in `saas.json` rule pack for empty-state onboarding, high-density data tables, bulk actions, keyboard shortcuts, and RBAC guardrails.
+- **WCAG 2.2 AA Accessibility & Compliance**: https://synthux.app/solutions/accessibility-wcag-audit — Dual-engine axe-core deterministic DOM rules + AI Accessibility User persona simulation for EAA, Section 508, and EN 301 549.
+- **Multi-Page User Flows & Synthetic Personas**: https://synthux.app/solutions/user-flow-personas — Visual Flow Builder canvas + 3 built-in personas (First-Time Visitor, Power User, Accessibility User) and up to 5 custom user personas.
+
 ## Technical Stack
 
 - Chrome Extension (Manifest V3)
@@ -31,7 +40,6 @@ All local analysis runs entirely on the user's machine. Cloud analysis connects 
 
 - Website: https://synthux.app
 - GitHub: https://github.com/synthuxapp/synthux
-- Documentation: https://github.com/synthuxapp/synthux/blob/main/docs/getting-started.md
 - Privacy Policy: https://github.com/synthuxapp/synthux/blob/main/PRIVACY.md
 - Security Policy: https://github.com/synthuxapp/synthux/blob/main/SECURITY.md
 - Changelog: https://github.com/synthuxapp/synthux/blob/main/CHANGELOG.md

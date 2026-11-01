@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WCAG 2.2 AA Accessibility & Inclusive UX Audit — synthux</title>
+  <meta name="description" content="Combine deterministic axe-core WCAG 2.2 AA compliance testing with AI Accessibility User persona simulation, visual contrast inspection, and HTML/ARIA code fixes.">
+  <meta name="keywords" content="wcag 2.2 aa audit chrome extension, axe-core accessibility checker, european accessibility act eaa compliance, screen reader persona ai, aria code fix generator, synthux">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/solutions/accessibility-wcag-audit">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../style.css?v=2.0.1">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://synthux.app/solutions/accessibility-wcag-audit">
+  <meta property="og:title" content="WCAG 2.2 AA Accessibility & Inclusive UX Audit — synthux">
+  <meta property="og:description" content="Dual-engine accessibility testing: deterministic axe-core WCAG 2.2 AA DOM checks + AI screen-reader and keyboard-only persona evaluation.">
+  <meta property="og:image" content="https://synthux.app/assets/solutions/accessibility-wcag.svg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "WCAG 2.2 AA Accessibility & Inclusive UX Audit",
+        "url": "https://synthux.app/solutions/accessibility-wcag-audit",
+        "description": "Dual-engine WCAG 2.2 AA accessibility auditing combining axe-core with synthetic Accessibility User persona simulation."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Why combine axe-core with an AI Accessibility Persona?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Automated linters like axe-core catch deterministic DOM violations with zero false positives, while synthux's AI Accessibility User persona and vision model evaluate contextual usability—such as whether alt text is actually meaningful, whether focus order makes logical sense, and whether visual layout is overwhelming."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does synthux help with European Accessibility Act (EAA), ADA, and Section 508 compliance?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. synthux tests against WCAG 2.2 Level A and AA criteria—the technical foundation for the European Accessibility Act (EN 301 549), ADA Title III, and Section 508—and exports audit reports in PDF and Markdown."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="../index.html" class="nav-logo" aria-label="synthux Home">
+          <img src="../assets/logo.svg" alt="synthux" height="22" class="logo-img">
+        </a>
+        <span class="nav-ver-pill">v2.0</span>
+      </div>
+
+      <ul class="nav-center">
+        <li class="nav-item"><a href="../index.html#features" class="nav-link" data-i18n="navFeatures">Features</a></li>
+        <li class="nav-item"><a href="../index.html#how-it-works" class="nav-link" data-i18n="navHow">How It Works</a></li>
+        <li class="nav-item" id="nav-solutions-item">
+          <button type="button" class="nav-link active" onclick="toggleSolutionsDropdown(event)" aria-expanded="false" aria-haspopup="true">
+            <span data-i18n="navSolutions">Solutions</span>
+            <svg class="nav-link-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-dropdown" role="menu">
+            <div class="nav-dropdown-grid">
+              <a href="defense-air-gapped-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+                  <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+                </div>
+              </a>
+              <a href="fintech-banking-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+                  <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+                </div>
+              </a>
+              <a href="ecommerce-ux-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+                  <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+                </div>
+              </a>
+              <a href="saas-dashboard-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+                  <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+                </div>
+              </a>
+              <a href="accessibility-wcag-audit.html" class="nav-dropdown-card active">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+                  <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+                </div>
+              </a>
+              <a href="user-flow-personas.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+                  <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+                </div>
+              </a>
+            </div>
+            <div class="nav-dropdown-footer">
+              <span data-i18n="solutionsEyebrow">Solutions &amp; Target Personas</span>
+              <a href="../index.html#solutions"><span data-i18n="solExploreLink">Explore solution</span> &rarr;</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item"><a href="../index.html#privacy" class="nav-link" data-i18n="navPrivacy">Privacy</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">Auto</button>
+        <div class="lang-picker" id="lang-picker-nav">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-nav')" aria-label="Select language">
+            <span class="lang-picker__label">EN</span>
+            <svg class="lang-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+        <a href="https://github.com/synthuxapp/synthux" class="nav-gh-btn" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="nav-cta" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" aria-expanded="false">
+          <svg class="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          <svg class="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="nav-mobile-drawer">
+      <div>
+        <ul class="nav-mobile-links">
+          <li><a href="../index.html"><span data-i18n="solBackHome">Home</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#features"><span data-i18n="navFeatures">Features</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#how-it-works"><span data-i18n="navHow">How It Works</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#privacy"><span data-i18n="navPrivacy">Privacy</span> <span>&rarr;</span></a></li>
+        </ul>
+        <div class="nav-mobile-section-label" data-i18n="navSolutions">Solutions</div>
+        <div class="nav-mobile-solutions-grid">
+          <a href="defense-air-gapped-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+              <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+            </div>
+          </a>
+          <a href="fintech-banking-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+              <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+            </div>
+          </a>
+          <a href="ecommerce-ux-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+              <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+            </div>
+          </a>
+          <a href="saas-dashboard-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+              <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+            </div>
+          </a>
+          <a href="accessibility-wcag-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+              <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+            </div>
+          </a>
+          <a href="user-flow-personas.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+              <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" rel="noopener">
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="solution-page-hero">
+    <div class="container">
+      <div class="solution-breadcrumb fade-in">
+        <a href="../index.html" data-i18n="solBackHome">Home</a>
+        <span>/</span>
+        <a href="../index.html#solutions" data-i18n="navSolutions">Solutions</a>
+        <span>/</span>
+        <span data-i18n="pageBreadcrumb">WCAG 2.2 Accessibility &amp; Compliance</span>
+      </div>
+
+      <div class="solution-hero-grid">
+        <div class="solution-hero-content fade-in">
+          <div class="solution-hero-badges">
+            <span class="badge"><span class="dot"></span> <span data-i18n="heroBadge1">axe-core WCAG 2.2 AA Engine</span></span>
+            <span class="badge badge-new" data-i18n="heroBadge2">AI Screen-Reader Persona</span>
+          </div>
+          <h1 data-i18n="pageH1">Dual-Engine WCAG 2.2 AA &amp; Inclusive UX Auditing</h1>
+          <p class="solution-hero-lead" data-i18n="pageLead">
+            Passing a basic HTML linter does not mean a blind, low-vision, or motor-impaired user can actually complete a task on your site. synthux unites Deque's industry-standard axe-core engine with AI-driven Accessibility Persona simulation.
+          </p>
+          <div class="solution-hero-actions">
+            <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" data-i18n="solInstallCta">Add to Chrome — Free</a>
+            <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" data-i18n="solGithubCta">Inspect Source on GitHub</a>
+          </div>
+        </div>
+
+        <div class="solution-visual-frame fade-in">
+          <img src="../assets/solutions/accessibility-wcag.svg" alt="WCAG 2.2 AA accessibility and keyboard focus path inspection schematic" width="1200" height="675" fetchpriority="high">
+          <div class="solution-visual-caption">
+            <span data-i18n="visualCaptionLeft">Dual Layer: axe-core DOM Rules + Accessibility Persona</span>
+            <span data-i18n="visualCaptionRight">EAA · Section 508 · EN 301 549 Ready</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-metrics-strip fade-in">
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m1Val">WCAG 2.2 AA</div>
+          <div class="solution-metric-label" data-i18n="m1Label">Automated axe-core compliance rule coverage</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m2Val">4.5 : 1+</div>
+          <div class="solution-metric-label" data-i18n="m2Label">Contrast ratio &amp; visual readability verification</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m3Val">ARIA &amp; Tab</div>
+          <div class="solution-metric-label" data-i18n="m3Label">Semantic landmarks, labels &amp; keyboard focus order</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m4Val">4 Disability</div>
+          <div class="solution-metric-label" data-i18n="m4Label">Custom Vision, Hearing, Motor &amp; Cognitive profiles</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec1Eyebrow">How Dual-Engine Accessibility Works</span>
+        <h2 data-i18n="sec1Title">Technical Compliance Meets Real Assistive-Tech Usability</h2>
+        <p data-i18n="sec1Subtitle">synthux inspects both the underlying DOM tree and the rendered visual experience to catch barriers static scanners miss.</p>
+      </div>
+
+      <div class="solution-pillars-grid">
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p1Num">01 · Deterministic DOM Audit</div>
+          <h3 data-i18n="p1Title">axe-core WCAG 2.1 / 2.2 AA Rule Engine</h3>
+          <p data-i18n="p1Desc">Detects missing form labels, invalid ARIA attributes, insufficient color contrast, missing document language tags, and duplicate IDs with impacted element selectors and W3C links.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p2Num">02 · Contextual AI Evaluation</div>
+          <h3 data-i18n="p2Title">Screen-Reader &amp; Keyboard Persona Simulation</h3>
+          <p data-i18n="p2Desc">Adopts the Accessibility User persona (JAWS/NVDA/VoiceOver + Tab-only navigation) to evaluate heading hierarchy comprehension, skip-link availability, and focus indicator visibility.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p3Num">03 · Remediation Ready</div>
+          <h3 data-i18n="p3Title">Before/After ARIA &amp; CSS Code Fixes</h3>
+          <p data-i18n="p3Desc">Generates concrete HTML, ARIA, and CSS fixes for every accessibility violation and highlights the exact element on the live page when you hover in the report.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section solution-section-alt">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec2Eyebrow">Target Roles &amp; Synthetic Personas</span>
+        <h2 data-i18n="sec2Title">Who Uses This Solution &amp; Which Personas Simulate Assistive Users</h2>
+        <p data-i18n="sec2Subtitle">Built for public sector, banking, healthcare, e-commerce, and engineering teams committed to inclusive design.</p>
+      </div>
+
+      <div class="solution-personas-grid">
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role1Badge">Target Audience · Compliance &amp; QA</span>
+          <h3 data-i18n="role1Title">Accessibility Specialists, GovTech &amp; Enterprise QA</h3>
+          <p data-i18n="role1Desc">Organizations preparing for European Accessibility Act (EAA), Section 508, EN 301 549, and ADA audits across public portals, banking apps, and e-commerce sites.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role1Check1">Export combined WCAG + Heuristic PDF compliance reports</li>
+            <li data-i18n="role1Check2">Prioritize critical blockers with the P0/P1/P2 Action Plan</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role2Badge">Target Audience · Frontend &amp; Design</span>
+          <h3 data-i18n="role2Title">UI Engineers &amp; Design System Maintainers</h3>
+          <p data-i18n="role2Desc">Component library authors verifying that modals, dropdowns, data tables, and custom controls maintain proper focus management and contrast in both light and dark themes.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role2Check1">Catch contrast and ARIA regressions on localhost before merge</li>
+            <li data-i18n="role2Check2">Use Hover-to-Highlight to locate hidden or unlabelled DOM nodes</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role3Badge">Synthetic AI Persona · Built-In</span>
+          <h3 data-i18n="role3Title">Accessibility User (Screen Reader &amp; Keyboard Only)</h3>
+          <p data-i18n="role3Desc">Evaluates the page as a user navigating exclusively with VoiceOver/NVDA and keyboard keys (Tab, Shift+Tab, Enter, Escape, Arrow keys) with low vision.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role3Check1">Audits semantic landmarks (&lt;header&gt;, &lt;nav&gt;, &lt;main&gt;) and heading levels</li>
+            <li data-i18n="role3Check2">Flags non-descriptive link text ("Click here") and missing alt attributes</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role4Badge">Synthetic AI Persona · Custom Profile</span>
+          <h3 data-i18n="role4Title">Motor &amp; Cognitive Accessibility Personas</h3>
+          <p data-i18n="role4Desc">Build custom personas combining specific age ranges (e.g. 65+) with motor or cognitive accessibility profiles to test click-target sizing and plain-language clarity.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role4Check1">Detects cramped interactive controls that violate target-size guidelines</li>
+            <li data-i18n="role4Check2">Identifies distracting animations, auto-advancing carousels, and dense copy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="faqEyebrow">Accessibility Audit FAQ</span>
+        <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+      </div>
+      <div class="solution-faq-grid">
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq1Q">Does axe-core run automatically during every synthux scan?</h3>
+          <p data-i18n="faq1A">Yes. Every page scan runs deterministic axe-core WCAG 2.1/2.2 Level A & AA checks alongside your selected AI personas and UX rule pack.</p>
+        </div>
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq2Q">Are WCAG violations included in the exported PDF and Markdown reports?</h3>
+          <p data-i18n="faq2A">Yes. Both PDF and Markdown exports include a dedicated WCAG Accessibility Audit section detailing impact severity, affected element counts, and remediation links.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimal Solutions Cross-Navigation (Above Wallet Module) -->
+  <section id="other-solutions" class="solutions-minimal">
+    <div class="container">
+      <div class="solutions-minimal-head fade-in">
+        <div>
+          <span class="solutions-eyebrow" data-i18n="solutionsEyebrow">Solutions &amp; Target Audiences</span>
+          <h2 data-i18n="solOtherSolutions">Other Solutions &amp; Use Cases</h2>
+        </div>
+      </div>
+      <div class="solutions-minimal-grid">
+        <a href="defense-air-gapped-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol1Tag">Air-Gapped · Local AI</span></div>
+            <h3 data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</h3>
+            <p data-i18n="sol1Desc">100% offline, on-device UX and cognitive-load auditing via Ollama for classified C4ISR systems, defense software, and core banking intranets.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="fintech-banking-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol2Tag">Fintech Rule Pack</span></div>
+            <h3 data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</h3>
+            <p data-i18n="sol2Desc">Audit fee and exchange-rate transparency, irreversible transaction guardrails, numeric input formatting, and session security indicators.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="ecommerce-ux-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol3Tag">E-Commerce Rule Pack</span></div>
+            <h3 data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</h3>
+            <p data-i18n="sol3Desc">Detect cart abandonment triggers, forced account creation friction, hidden shipping costs, and product filtering gaps before release.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="saas-dashboard-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol4Tag">SaaS Rule Pack</span></div>
+            <h3 data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</h3>
+            <p data-i18n="sol4Desc">Evaluate high-density data tables, empty-state onboarding, bulk action ergonomics, keyboard shortcuts, and destructive action guardrails.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="user-flow-personas.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol6Tag">Flow Builder · Personas</span></div>
+            <h3 data-i18n="sol6Title">Multi-Page Flows &amp; Synthetic Personas</h3>
+            <p data-i18n="sol6Desc">Simulate end-to-end user journeys across connected pages through First-Time, Power User, Accessibility, and custom domain personas.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
+        <div class="lang-picker lang-picker--up" id="lang-picker-footer">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-footer')">
+            <span class="lang-picker__label">EN</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.SOLUTIONS_PAGE_I18N = {
+      en: {
+        pageTitle: 'WCAG 2.2 AA Accessibility & Inclusive UX Audit — synthux',
+        pageBreadcrumb: 'WCAG 2.2 Accessibility & Compliance',
+        heroBadge1: 'axe-core WCAG 2.2 AA Engine',
+        heroBadge2: 'AI Screen-Reader Persona',
+        pageH1: 'Dual-Engine WCAG 2.2 AA & Inclusive UX Auditing',
+        pageLead: 'Passing a basic HTML linter does not mean a blind, low-vision, or motor-impaired user can actually complete a task on your site. synthux unites Deque\'s industry-standard axe-core engine with AI-driven Accessibility Persona simulation.',
+        visualCaptionLeft: 'Dual Layer: axe-core DOM Rules + Accessibility Persona',
+        visualCaptionRight: 'EAA · Section 508 · EN 301 549 Ready',
+        m1Val: 'WCAG 2.2 AA',
+        m1Label: 'Automated axe-core compliance rule coverage',
+        m2Val: '4.5 : 1+',
+        m2Label: 'Contrast ratio & visual readability verification',
+        m3Val: 'ARIA & Tab',
+        m3Label: 'Semantic landmarks, labels & keyboard focus order',
+        m4Val: '4 Disability',
+        m4Label: 'Custom Vision, Hearing, Motor & Cognitive profiles',
+        sec1Eyebrow: 'How Dual-Engine Accessibility Works',
+        sec1Title: 'Technical Compliance Meets Real Assistive-Tech Usability',
+        sec1Subtitle: 'synthux inspects both the underlying DOM tree and the rendered visual experience to catch barriers static scanners miss.',
+        p1Num: '01 · Deterministic DOM Audit',
+        p1Title: 'axe-core WCAG 2.1 / 2.2 AA Rule Engine',
+        p1Desc: 'Detects missing form labels, invalid ARIA attributes, insufficient color contrast, missing document language tags, and duplicate IDs with impacted element selectors and W3C links.',
+        p2Num: '02 · Contextual AI Evaluation',
+        p2Title: 'Screen-Reader & Keyboard Persona Simulation',
+        p2Desc: 'Adopts the Accessibility User persona (JAWS/NVDA/VoiceOver + Tab-only navigation) to evaluate heading hierarchy comprehension, skip-link availability, and focus indicator visibility.',
+        p3Num: '03 · Remediation Ready',
+        p3Title: 'Before/After ARIA & CSS Code Fixes',
+        p3Desc: 'Generates concrete HTML, ARIA, and CSS fixes for every accessibility violation and highlights the exact element on the live page when you hover in the report.',
+        sec2Eyebrow: 'Target Roles & Synthetic Personas',
+        sec2Title: 'Who Uses This Solution & Which Personas Simulate Assistive Users',
+        sec2Subtitle: 'Built for public sector, banking, healthcare, e-commerce, and engineering teams committed to inclusive design.',
+        role1Badge: 'Target Audience · Compliance & QA',
+        role1Title: 'Accessibility Specialists, GovTech & Enterprise QA',
+        role1Desc: 'Organizations preparing for European Accessibility Act (EAA), Section 508, EN 301 549, and ADA audits across public portals, banking apps, and e-commerce sites.',
+        role1Check1: 'Export combined WCAG + Heuristic PDF compliance reports',
+        role1Check2: 'Prioritize critical blockers with the P0/P1/P2 Action Plan',
+        role2Badge: 'Target Audience · Frontend & Design',
+        role2Title: 'UI Engineers & Design System Maintainers',
+        role2Desc: 'Component library authors verifying that modals, dropdowns, data tables, and custom controls maintain proper focus management and contrast in both light and dark themes.',
+        role2Check1: 'Catch contrast and ARIA regressions on localhost before merge',
+        role2Check2: 'Use Hover-to-Highlight to locate hidden or unlabelled DOM nodes',
+        role3Badge: 'Synthetic AI Persona · Built-In',
+        role3Title: 'Accessibility User (Screen Reader & Keyboard Only)',
+        role3Desc: 'Evaluates the page as a user navigating exclusively with VoiceOver/NVDA and keyboard keys (Tab, Shift+Tab, Enter, Escape, Arrow keys) with low vision.',
+        role3Check1: 'Audits semantic landmarks (<header>, <nav>, <main>) and heading levels',
+        role3Check2: 'Flags non-descriptive link text ("Click here") and missing alt attributes',
+        role4Badge: 'Synthetic AI Persona · Custom Profile',
+        role4Title: 'Motor & Cognitive Accessibility Personas',
+        role4Desc: 'Build custom personas combining specific age ranges (e.g. 65+) with motor or cognitive accessibility profiles to test click-target sizing and plain-language clarity.',
+        role4Check1: 'Detects cramped interactive controls that violate target-size guidelines',
+        role4Check2: 'Identifies distracting animations, auto-advancing carousels, and dense copy',
+        faqEyebrow: 'Accessibility Audit FAQ',
+        faqTitle: 'Frequently Asked Questions',
+        faq1Q: 'Does axe-core run automatically during every synthux scan?',
+        faq1A: 'Yes. Every page scan runs deterministic axe-core WCAG 2.1/2.2 Level A & AA checks alongside your selected AI personas and UX rule pack.',
+        faq2Q: 'Are WCAG violations included in the exported PDF and Markdown reports?',
+        faq2A: 'Yes. Both PDF and Markdown exports include a dedicated WCAG Accessibility Audit section detailing impact severity, affected element counts, and remediation links.'
+      },
+      tr: {
+        pageTitle: 'WCAG 2.2 AA Erişilebilirlik ve Kapsayıcı UX Denetimi — synthux',
+        pageBreadcrumb: 'WCAG 2.2 Erişilebilirlik ve Uyumluluk',
+        heroBadge1: 'axe-core WCAG 2.2 AA Motoru',
+        heroBadge2: 'AI Ekran Okuyucu Personası',
+        pageH1: 'Çift Motorlu WCAG 2.2 AA ve Kapsayıcı UX Denetimi',
+        pageLead: 'Basit bir HTML taramasından geçmek; görme engelli, düşük görme kapasiteli veya motor kısıtlılığı olan bir kullanıcının sitenizde gerçekten işlem yapabildiği anlamına gelmez. synthux, endüstri standardı axe-core motorunu AI destekli Erişilebilirlik Personası simülasyonuyla birleştirir.',
+        visualCaptionLeft: 'Çift Katman: axe-core DOM Kuralları + Erişilebilirlik Personası',
+        visualCaptionRight: 'EAA · EN 301 549 · Kamu Erişilebilirlik Uyumlu',
+        m1Val: 'WCAG 2.2 AA',
+        m1Label: 'Otomatik axe-core uyumluluk kuralı kapsamı',
+        m2Val: '4.5 : 1+',
+        m2Label: 'Kontrast oranı ve görsel okunabilirlik doğrulaması',
+        m3Val: 'ARIA & Tab',
+        m3Label: 'Semantik bölgeler, etiketler ve klavye odak sırası',
+        m4Val: '4 Engel Tipi',
+        m4Label: 'Görme, İşitme, Motor ve Bilişsel özel persona profilleri',
+        sec1Eyebrow: 'Çift Motorlu Erişilebilirlik Nasıl Çalışır?',
+        sec1Title: 'Teknik Uyumluluk ile Gerçek Yardımcı Teknoloji Deneyimi Bir Arada',
+        sec1Subtitle: 'synthux, statik tarayıcıların kaçırdığı engelleri yakalamak için hem DOM ağacını hem de görsel ekran görüntüsünü birlikte inceler.',
+        p1Num: '01 · Deterministik DOM Denetimi',
+        p1Title: 'axe-core WCAG 2.1 / 2.2 AA Kural Motoru',
+        p1Desc: 'Eksik form etiketlerini, hatalı ARIA özniteliklerini, yetersiz renk kontrastını, eksik dil etiketlerini ve tekrarlanan ID\'leri etkilenen element seçicileri ve W3C referanslarıyla tespit eder.',
+        p2Num: '02 · Bağlamsal AI Değerlendirmesi',
+        p2Title: 'Ekran Okuyucu ve Klavye Personası Simülasyonu',
+        p2Desc: 'Erişilebilirlik Kullanıcısı personasını (VoiceOver/NVDA + yalnızca Tab navigasyonu) benimseyerek başlık hiyerarşisini, içeriğe atla (skip-link) bağlantısını ve odak halkası görünürlüğünü denetler.',
+        p3Num: '03 · Çözüme Hazır Çıktı',
+        p3Title: 'Öncesi/Sonrası ARIA ve CSS Kod Düzeltmeleri',
+        p3Desc: 'Her erişilebilirlik ihlali için somut HTML, ARIA ve CSS düzeltme kodu üretir ve raporda üzerine geldiğinizde canlı sayfadaki ilgili elementi anında vurgular.',
+        sec2Eyebrow: 'Hedef Roller ve Sentetik Personalar',
+        sec2Title: 'Bu Çözümü Kimler Kullanmalı ve Hangi Personalar Simüle Edilir?',
+        sec2Subtitle: 'Kamu kurumları, bankalar, sağlık, e-ticaret ve kapsayıcı tasarım odaklı mühendislik ekipleri için geliştirildi.',
+        role1Badge: 'Hedef Kitle · Uyumluluk & QA',
+        role1Title: 'Erişilebilirlik Uzmanları, Kamu (GovTech) ve Kurumsal QA',
+        role1Desc: 'Avrupa Erişilebilirlik Yasası (EAA), EN 301 549, Section 508 ve ulusal erişilebilirlik denetimlerine hazırlanan kamu portalları, bankalar ve e-ticaret siteleri.',
+        role1Check1: 'WCAG + Heuristik sonuçları birleştiren PDF uyumluluk raporları indirin',
+        role1Check2: 'Kritik engelleri P0/P1/P2 Aksiyon Planı ile önceliklendirin',
+        role2Badge: 'Hedef Kitle · Frontend & Tasarım',
+        role2Title: 'UI Geliştiriciler ve Design System Sorumluları',
+        role2Desc: 'Modal, açılır menü, veri tablosu ve özel bileşenlerin hem açık hem koyu temada odak yönetimini ve kontrastını doğrulayan bileşen kütüphanesi ekipleri.',
+        role2Check1: 'Kod birleştirme (merge) öncesinde localhost üzerinde kontrast ve ARIA hatalarını yakalayın',
+        role2Check2: 'Üzerine Gelince Vurgulama ile etiketsiz DOM düğümlerini sayfada görün',
+        role3Badge: 'Sentetik AI Personası · Yerleşik',
+        role3Title: 'Erişilebilirlik Kullanıcısı (Ekran Okuyucu ve Yalnızca Klavye)',
+        role3Desc: 'Sayfayı yalnızca VoiceOver/NVDA ve klavye tuşlarıyla (Tab, Shift+Tab, Enter, Escape) gezen düşük görme kapasiteli bir kullanıcı gözünden değerlendirir.',
+        role3Check1: 'Semantik bölgeleri (<header>, <nav>, <main>) ve başlık seviyelerini denetler',
+        role3Check2: 'Açıklayıcı olmayan link metinlerini ("Buraya tıklayın") ve eksik alt metinleri yakalar',
+        role4Badge: 'Sentetik AI Personası · Özel Profil',
+        role4Title: 'Motor ve Bilişsel Erişilebilirlik Personaları',
+        role4Desc: 'Tıklama alanı büyüklüğünü ve sade dil anlaşılırlığını test etmek için belirli yaş gruplarını (ör. 65+) motor veya bilişsel erişilebilirlik profilleriyle birleştirin.',
+        role4Check1: 'Hedef boyutu kurallarını ihlal eden sıkışık butonları tespit eder',
+        role4Check2: 'Dikkat dağıtan animasyonları, otomatik kayan slider\'ları ve karmaşık metinleri belirler',
+        faqEyebrow: 'Erişilebilirlik Denetimi SSS',
+        faqTitle: 'Sıkça Sorulan Sorular',
+        faq1Q: 'axe-core her synthux taramasında otomatik olarak çalışır mı?',
+        faq1A: 'Evet. Her sayfa taramasında seçtiğiniz AI personaları ve UX kural paketinin yanı sıra deterministik axe-core WCAG 2.1/2.2 A ve AA kontrolleri otomatik çalıştırılır.',
+        faq2Q: 'WCAG ihlalleri indirilen PDF ve Markdown raporlarında yer alır mı?',
+        faq2A: 'Evet. Hem PDF hem de Markdown raporlarında etki derecesini, etkilenen element sayısını ve çözüm referanslarını içeren özel bir WCAG Erişilebilirlik Denetimi bölümü bulunur.'
+      }
+    };
+  </script>
+  <script src="../i18n.js?v=2.0.1"></script>
+  <script src="../script.js?v=2.0.1"></script>
+</body>
+</html>
