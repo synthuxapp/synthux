@@ -75,6 +75,7 @@ if (isWatch) {
   await ctx2.watch();
   console.log('👀 Watching for changes...');
 } else {
+  fs.rmSync('extension/sidepanel/chunks', { recursive: true, force: true });
   await esbuild.build(sidepanelConfig);
   await esbuild.build(pdfExportConfig);
   console.log('✅ Build complete!');

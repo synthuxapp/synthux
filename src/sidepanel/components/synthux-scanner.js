@@ -7,6 +7,13 @@
 
 import { LitElement, html, css } from 'lit';
 import { getCustomProfiles, saveCustomProfile, deleteCustomProfile } from '../../../extension/core/profiles.js';
+import {
+  BUILT_IN_RULE_PACKS,
+  getAllRulePacks,
+  loadHeuristics,
+  saveCustomRulePack,
+  deleteCustomRulePack
+} from '../../../extension/core/heuristics.js';
 import './synthux-score.js';
 
 export class SynthuxScanner extends LitElement {
@@ -16,9 +23,14 @@ export class SynthuxScanner extends LitElement {
     progress: { type: Object },
     pageInfo: { type: Object },
     selectedProfiles: { type: Array },
+    selectedRulePack: { type: String },
+    rulePacks: { type: Array },
     mode: { type: String },
     logEntries: { type: Array },
     customProfiles: { type: Array },
+    _packRules: { type: Array, state: true },
+    _showRulePackImporter: { type: Boolean, state: true },
+    _rulePackError: { type: String, state: true },
     _showProfileForm: { type: Boolean, state: true },
     _editingProfile: { type: Object, state: true },
     _openMenuId: { type: String, state: true },
@@ -787,6 +799,198 @@ export class SynthuxScanner extends LitElement {
 
     .log-msg.success { color: var(--sx-success, #22c55e); }
     .log-msg.active { color: var(--sx-text-primary, #ededf0); }
+
+    /* ─── Rule Pack Selector ────────────────── */
+    .section-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .section-header-row .section-header {
+      margin-bottom: 0;
+    }
+
+    .pack-import-link {
+      background: transparent;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      color: var(--sx-text-secondary, #b4b4bc);
+      font-size: 10px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    .pack-import-link:hover {
+      border-color: var(--sx-accent, #3b82f6);
+      color: var(--sx-accent, #3b82f6);
+    }
+
+    .rule-pack-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .rule-pack-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 9px 10px;
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    .rule-pack-card:hover {
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    .rule-pack-card.active {
+      background: var(--sx-accent-dim, rgba(59,130,246,0.08));
+      border-color: var(--sx-accent, #3b82f6);
+    }
+
+    .rule-pack-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 4px;
+      margin-bottom: 2px;
+    }
+
+    .rule-pack-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sx-text-primary, #ededf0);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rule-pack-card.active .rule-pack-name {
+      color: var(--sx-accent, #3b82f6);
+    }
+
+    .rule-pack-count {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      color: var(--sx-text-tertiary, #8a8a96);
+      flex-shrink: 0;
+    }
+
+    .rule-pack-cat {
+      font-size: 10px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .rule-pack-del {
+      background: transparent;
+      border: none;
+      color: var(--sx-text-tertiary, #8a8a96);
+      font-size: 11px;
+      padding: 0 3px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .rule-pack-del:hover {
+      color: var(--sx-error, #ef4444);
+    }
+
+    .rule-pack-desc-bar {
+      font-size: 11px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .pack-importer {
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.1));
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .pack-importer-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sx-text-primary, #ededf0);
+      margin-bottom: 4px;
+    }
+
+    .pack-importer-sub {
+      font-size: 11px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .pack-textarea {
+      width: 100%;
+      min-height: 90px;
+      background: #121215;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      border-radius: 6px;
+      color: var(--sx-text-primary, #ededf0);
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 10px;
+      padding: 8px;
+      box-sizing: border-box;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+
+    .pack-file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .pack-file-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px dashed rgba(255,255,255,0.16);
+      color: var(--sx-text-secondary, #b4b4bc);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .pack-file-label:hover {
+      border-color: var(--sx-accent, #3b82f6);
+      color: var(--sx-accent, #3b82f6);
+    }
+
+    .pack-error {
+      font-size: 11px;
+      color: var(--sx-error, #ef4444);
+      margin-bottom: 8px;
+    }
   `;
 
   constructor() {
@@ -796,9 +1000,14 @@ export class SynthuxScanner extends LitElement {
     this.progress = null;
     this.pageInfo = null;
     this.selectedProfiles = ['first-time', 'power-user', 'accessibility'];
+    this.selectedRulePack = 'nielsen-10';
+    this.rulePacks = [...BUILT_IN_RULE_PACKS];
     this.mode = 'deep';
     this.logEntries = [];
     this.customProfiles = [];
+    this._packRules = [];
+    this._showRulePackImporter = false;
+    this._rulePackError = '';
     this._showProfileForm = false;
     this._editingProfile = null;
     this._openMenuId = null;
@@ -811,6 +1020,7 @@ export class SynthuxScanner extends LitElement {
     this._fetchPageInfo();
     this._loadCustomProfiles();
     this._loadSettings();
+    this._loadRulePacks();
     chrome.tabs?.onActivated?.addListener(() => this._fetchPageInfo());
     chrome.tabs?.onUpdated?.addListener((_, info) => {
       if (info.status === 'complete') this._fetchPageInfo();
@@ -827,12 +1037,125 @@ export class SynthuxScanner extends LitElement {
     try {
       const data = await chrome.storage.local.get({
         synthux_selected_profiles: ['first-time', 'power-user', 'accessibility'],
-        synthux_selected_mode: 'deep'
+        synthux_selected_mode: 'deep',
+        rulePackId: 'nielsen-10'
       });
       this.selectedProfiles = data.synthux_selected_profiles;
       this.mode = data.synthux_selected_mode;
+      this.selectedRulePack = data.rulePackId || 'nielsen-10';
+      await this._loadActivePackRules(this.selectedRulePack);
       this.requestUpdate();
     } catch {}
+  }
+
+  async _loadRulePacks() {
+    try {
+      this.rulePacks = await getAllRulePacks();
+      await this._loadActivePackRules(this.selectedRulePack);
+    } catch {
+      this.rulePacks = [...BUILT_IN_RULE_PACKS];
+    }
+  }
+
+  async _loadActivePackRules(packId) {
+    try {
+      const data = await loadHeuristics(packId);
+      this._packRules = Array.isArray(data?.rules) ? data.rules : [];
+    } catch {
+      this._packRules = [];
+    }
+  }
+
+  async _selectRulePack(packId) {
+    if (this.isAnalyzing) return;
+    this.selectedRulePack = packId;
+    this._selectedHeuristics = [];
+    await chrome.storage.local.set({ rulePackId: packId });
+    await this._loadActivePackRules(packId);
+  }
+
+  async _handleRulePackFileUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const textarea = this.shadowRoot?.getElementById('pack-json-input');
+      if (textarea) textarea.value = text;
+      this._rulePackError = '';
+    } catch (err) {
+      this._rulePackError = 'Failed to read file: ' + err.message;
+    }
+  }
+
+  async _handleSaveCustomRulePack() {
+    const raw = this.shadowRoot?.getElementById('pack-json-input')?.value?.trim();
+    if (!raw) {
+      this._rulePackError = 'Please upload a .json file or paste JSON content.';
+      return;
+    }
+    try {
+      const saved = await saveCustomRulePack(raw);
+      this._rulePackError = '';
+      this._showRulePackImporter = false;
+      await this._loadRulePacks();
+      await this._selectRulePack(saved.id);
+    } catch (err) {
+      this._rulePackError = err.message || 'Invalid rule pack JSON.';
+    }
+  }
+
+  async _handleDeleteCustomRulePack(e, packId) {
+    e.stopPropagation();
+    if (this.isAnalyzing) return;
+    try {
+      await deleteCustomRulePack(packId);
+      if (this.selectedRulePack === packId) {
+        await this._selectRulePack('nielsen-10');
+      }
+      await this._loadRulePacks();
+    } catch (err) {
+      console.error('[synthux] Failed to delete rule pack:', err);
+    }
+  }
+
+  _downloadSamplePackTemplate() {
+    const sample = {
+      id: 'my-custom-ux-pack',
+      name: 'Custom Healthcare UX Pack',
+      shortName: 'Healthcare',
+      category: 'Healthcare & Patient Portals',
+      description: 'Custom UX evaluation rules for patient portals and telemedicine apps.',
+      version: '1.0.0',
+      rules: [
+        {
+          id: 'patient-clarity',
+          name: { en: 'Plain Medical Language & Clarity', tr: 'Anlaşılır Tıbbi Dil ve Netlik' },
+          description: {
+            en: 'Medical terms, appointment instructions, and test results should be explained in plain, empathetic language.',
+            tr: 'Tıbbi terimler, randevu talimatları ve sonuçlar sade ve anlaşılır bir dille açıklanmalıdır.'
+          },
+          weight: 1.2,
+          evaluation_guide: 'Look for plain-language explanations, clear next steps for patients, and readable typography.'
+        },
+        {
+          id: 'booking-simplicity',
+          name: { en: 'Frictionless Appointment Booking', tr: 'Kolay Randevu Alma Deneyimi' },
+          description: {
+            en: 'Patients should be able to find providers, check availability, and book or reschedule appointments with minimal steps.',
+            tr: 'Hastalar doktorları, uygun saatleri ve randevu adımlarını en az tıklamayla tamamlayabilmelidir.'
+          },
+          weight: 1.0,
+          evaluation_guide: 'Look for clear CTAs, visible calendar/schedule availability, and accessible form controls.'
+        }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'synthux-rulepack-template.json';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   updated(changedProperties) {
@@ -883,6 +1206,9 @@ export class SynthuxScanner extends LitElement {
   }
 
   get _allHeuristics() {
+    if (this._packRules && this._packRules.length > 0) {
+      return this._packRules;
+    }
     return [
       { id: 'visibility-of-system-status', name: { en: 'Visibility of System Status' } },
       { id: 'match-real-world', name: { en: 'Match Real World' } },
@@ -974,6 +1300,7 @@ export class SynthuxScanner extends LitElement {
         type: 'START_ANALYSIS',
         payload: {
           mode: this.mode,
+          rulePackId: this.selectedRulePack || 'nielsen-10',
           profiles: this.selectedProfiles,
           ...(this.mode === 'custom' && this._selectedHeuristics.length > 0
             ? { heuristics: this._selectedHeuristics }
@@ -1186,15 +1513,82 @@ export class SynthuxScanner extends LitElement {
         `}
       </div>
 
+      <div class="section-header-row">
+        <div class="section-header">Rule Pack</div>
+        <button
+          class="pack-import-link"
+          @click="${() => { this._showRulePackImporter = !this._showRulePackImporter; this._rulePackError = ''; }}"
+        >${this._showRulePackImporter ? 'Close' : '+ Import JSON'}</button>
+      </div>
+
+      ${this._showRulePackImporter ? html`
+        <div class="pack-importer">
+          <div class="pack-importer-title">Import Custom Rule Pack (Plugin)</div>
+          <div class="pack-importer-sub">Upload a custom sectoral UX rule pack (.json) or paste JSON below.</div>
+          <div class="pack-file-row">
+            <label class="pack-file-label">
+              <input type="file" accept=".json,application/json" style="display:none" @change="${this._handleRulePackFileUpload}" />
+              <span>Upload .json File</span>
+            </label>
+            <button class="pack-import-link" @click="${this._downloadSamplePackTemplate}">Download Template</button>
+          </div>
+          <textarea
+            id="pack-json-input"
+            class="pack-textarea"
+            placeholder='{"name": "My UX Pack", "category": "Custom", "rules": [{"id": "rule-1", "name": "Clarity", "description": "..."}]}'
+          ></textarea>
+          ${this._rulePackError ? html`<div class="pack-error">${this._rulePackError}</div>` : ''}
+          <div class="pf-actions">
+            <button class="pf-save" @click="${this._handleSaveCustomRulePack}">Import Pack</button>
+            <button class="pf-cancel" @click="${() => { this._showRulePackImporter = false; this._rulePackError = ''; }}">Cancel</button>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="rule-pack-grid">
+        ${(this.rulePacks || BUILT_IN_RULE_PACKS).map(pack => {
+          const isActive = (this.selectedRulePack || 'nielsen-10') === pack.id;
+          const count = pack.ruleCount || pack.rules?.length || 10;
+          return html`
+            <button
+              class="rule-pack-card ${isActive ? 'active' : ''}"
+              @click="${() => this._selectRulePack(pack.id)}"
+              title="${pack.description || pack.name}"
+            >
+              <div class="rule-pack-top">
+                <span class="rule-pack-name">${pack.shortName || pack.name}</span>
+                <div style="display:flex;align-items:center;gap:3px;">
+                  <span class="rule-pack-count">${count}</span>
+                  ${pack.isCustom ? html`
+                    <span
+                      class="rule-pack-del"
+                      title="Delete custom rule pack"
+                      @click="${(e) => this._handleDeleteCustomRulePack(e, pack.id)}"
+                    >✕</span>
+                  ` : ''}
+                </div>
+              </div>
+              <span class="rule-pack-cat">${pack.category || 'UX Rules'}</span>
+            </button>
+          `;
+        })}
+      </div>
+      ${(() => {
+        const activePack = (this.rulePacks || BUILT_IN_RULE_PACKS).find(p => p.id === (this.selectedRulePack || 'nielsen-10'));
+        return activePack?.description
+          ? html`<div class="rule-pack-desc-bar">${activePack.description}</div>`
+          : '';
+      })()}
+
       <div class="section-header">Mode</div>
       <div class="mode-selector">
         <button class="mode-btn ${this.mode === 'quick' ? 'active' : ''}" @click="${() => this._setMode('quick')}">
           <span class="mode-label">Quick</span>
-          <span class="mode-desc">3 heuristics · ~${this._estimateTime(3)}</span>
+          <span class="mode-desc">${Math.min(3, this._allHeuristics.length)} rules · ~${this._estimateTime(Math.min(3, this._allHeuristics.length))}</span>
         </button>
         <button class="mode-btn ${this.mode === 'deep' ? 'active' : ''}" @click="${() => this._setMode('deep')}">
           <span class="mode-label">Deep</span>
-          <span class="mode-desc">10 heuristics · ~${this._estimateTime(10)}</span>
+          <span class="mode-desc">${this._allHeuristics.length} rules · ~${this._estimateTime(this._allHeuristics.length)}</span>
         </button>
         <button class="mode-btn ${this.mode === 'custom' ? 'active' : ''}" @click="${() => this._setMode('custom')}">
           <span class="mode-label">Custom</span>

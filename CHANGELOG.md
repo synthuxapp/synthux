@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-01
+
+### Added
+- **Sectoral Rule Packs & Plugin Ecosystem (#12):**
+  - 4 built-in UX rule packs in `extension/rules/`: **General UX (Nielsen's 10)**, **E-Commerce & Conversion UX** (8 rules), **SaaS & Web Application UX** (8 rules), and **Fintech, Banking & Web3 UX** (8 rules).
+  - **Custom JSON Rule Pack Plugin Importer:** Upload `.json` rule packs or paste JSON directly in the Scanner, download a starter template, and manage up to 10 custom rule packs in local storage.
+  - Dynamic Quick / Deep / Custom heuristic selection adapting automatically to the active rule pack.
+- **Enhanced Reporting (PDF & Markdown v2.0):**
+  - **Executive KPI Scorecard:** Visual cards for Overall UX Score, Accessibility Score, Issue Severity Breakdown, and Quick Wins count.
+  - **2×2 Impact × Effort Priority Matrix:** Categorizes issues into Quick Wins, Major Projects, Fill-Ins, and Backlog in both PDF and Markdown exports.
+  - **Annotated Viewport Issue Map in PDF:** Automatically captures and embeds the annotated viewport screenshot with numbered severity badges into the PDF report.
+  - **Visual Heuristic Score Bars, Positives & Before/After Code Fixes:** Horizontal progress bars per rule, positive findings section, and full Before/After code blocks in PDF and collapsible `<details>` blocks in Markdown.
+- **2026 Local LLM Updates:**
+  - Standardized default local model to `gemma4` across all modules and added one-click copyable 2026 model recommendations (`gemma4`, `gemma4:e4b`, `qwen3.8`, `qwen3.5`, `llama4:scout`, `deepseek-r1`) in Settings, README, and Website.
+  - Added automatic `<think>...</think>` reasoning block sanitization in `heuristics.js` and `flow-manager.js` so reasoning models (`deepseek-r1`, `qwen3`) never break JSON extraction.
+- **Context Menu Integration:** Added `contextMenus` permission and right-click `"Analyze in synthux Flow"` handler in `service-worker.js`.
+
+### Fixed
+- **CORS Error Listener Crash:** Fixed `ReferenceError: msg is not defined` in `src/sidepanel/app.js` when handling `ANALYSIS_ERROR` messages.
+- **Annotated Screenshot `scrollX` Bug:** Fixed `ReferenceError: window is not defined` in `extension/core/screenshot.js` (`captureAnnotatedScreenshot`) when running in the MV3 Service Worker and clamped marker coordinates within canvas bounds.
+- **Flow Report Missing Page Issues & Thumbnails:** Fixed `flow-manager.js` losing page thumbnails (`scannedInfo.screenshot`), and fixed `generateFlowPDF` (`pdf-export.js`) and `generateMarkdown` (`flow-results-panel.js`) omitting per-page issues (`p.report.issues`).
+- **Flow Receipt Provider Name:** Fixed `claude` provider display name in `flow-toolbar.js`.
+- **Turkish Character Stripping in PDF:** Added Latin transliteration for Turkish characters (`ğ, Ğ, ı, İ, ş, Ş`) in `pdf-export.js` before Latin-1 sanitization.
+
+---
+
 ## [1.9.0] - 2026-06-09
 
 ### Added

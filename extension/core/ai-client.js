@@ -56,7 +56,7 @@ export class AIClient {
    */
   async evaluate(prompt, options = {}) {
     const {
-      model = 'gemma3',
+      model = 'gemma4',
       systemPrompt = '',
       temperature = 0.3,
       format = 'json',
@@ -164,7 +164,7 @@ export class AIClient {
    */
   async *evaluateStream(prompt, options = {}) {
     const {
-      model = 'gemma3',
+      model = 'gemma4',
       systemPrompt = '',
       temperature = 0.3
     } = options;

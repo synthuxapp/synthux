@@ -819,7 +819,7 @@ export class SynthuxReport extends LitElement {
       <div class="overall-section">
         <synthux-score value="${r.overallScore || 0}" label="Overall UX Score" size="lg"></synthux-score>
         <div class="report-meta">
-          ${this._shortenUrl(r.url)}${r.model ? html`<br>${r.model} · ` : ''}${r.mode === 'deep' ? 'Deep' : 'Quick'}
+          ${this._shortenUrl(r.url)}${r.model ? html`<br>${r.model} · ` : ''}${r.mode === 'deep' ? 'Deep' : r.mode === 'custom' ? 'Custom' : 'Quick'}${r.rulePackShortName || r.rulePackName ? html` · <span style="color: var(--sx-accent, #3b82f6); font-weight: 500;">${r.rulePackShortName || r.rulePackName}</span>` : ''}
           ${r.timestamp ? html` · ${new Date(r.timestamp).toLocaleString()}` : ''}
           ${r.costSummary ? html`<br><span style="color: ${r.costSummary.isLocal ? 'var(--sx-success, #22c55e)' : 'var(--sx-warning, #eab308)'}">${r.costSummary.formatted}</span>` : ''}
         </div>

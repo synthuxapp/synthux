@@ -326,7 +326,7 @@ function showReceipt(pages) {
     const costEl = document.getElementById('receipt-cost');
     const timeEl = document.getElementById('receipt-time');
     if (providerEl) {
-      const providerNames = { ollama: 'Ollama (local)', openai: 'OpenAI', gemini: 'Gemini', anthropic: 'Anthropic' };
+      const providerNames = { ollama: 'Ollama (local)', openai: 'OpenAI', gemini: 'Gemini', claude: 'Claude', anthropic: 'Claude' };
       providerEl.textContent = `${providerNames[settings.providerId] || settings.providerId} · ${settings.ollamaModel}`;
     }
     if (costEl) {

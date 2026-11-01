@@ -29,6 +29,36 @@ chrome.action.onClicked.addListener(async (tab) => {
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
   .catch((err) => console.error('[synthux] Failed to set panel behavior:', err));
 
+// ─── Context Menu Integration ────────────────────────────────────────────────
+
+function setupContextMenus() {
+  if (!chrome.contextMenus) return;
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: 'synthux-analyze-flow',
+      title: 'Analyze in synthux Flow',
+      contexts: ['page', 'link']
+    });
+  });
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  setupContextMenus();
+});
+
+if (chrome.contextMenus?.onClicked) {
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'synthux-analyze-flow') {
+      const targetUrl = info.linkUrl || info.pageUrl || tab?.url || '';
+      const targetTitle = info.linkUrl ? '' : (tab?.title || '');
+      const flowUrl = chrome.runtime.getURL(
+        `flow/index.html?url=${encodeURIComponent(targetUrl)}&title=${encodeURIComponent(targetTitle)}`
+      );
+      chrome.tabs.create({ url: flowUrl });
+    }
+  });
+}
+
 // ─── State ───────────────────────────────────────────────────────────────────
 
 let currentAnalysis = null;
@@ -78,7 +108,7 @@ async function checkOllamaConnection() {
   try {
     const settings = await chrome.storage.local.get({
       ollamaEndpoint: 'http://localhost:11434',
-      ollamaModel: 'gemma4:31b',
+      ollamaModel: 'gemma4',
       providerId: 'ollama',
       apiKey: ''
     });
@@ -181,9 +211,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'GET_SETTINGS':
       chrome.storage.local.get({
         ollamaEndpoint: 'http://localhost:11434',
-        ollamaModel: 'gemma4:31b',
+        ollamaModel: 'gemma4',
         language: 'en',
         analysisMode: 'deep',
+        rulePackId: 'nielsen-10',
         providerId: 'ollama',
         apiKey: ''
       }).then(sendResponse);
@@ -290,14 +321,16 @@ async function handleStartAnalysis(options) {
     // Get settings
     const settings = await chrome.storage.local.get({
       ollamaEndpoint: 'http://localhost:11434',
-      ollamaModel: 'gemma4:31b',
+      ollamaModel: 'gemma4',
       analysisMode: 'deep',
+      rulePackId: 'nielsen-10',
       providerId: 'ollama',
       apiKey: '',
       enableVision: true
     });
 
     const mode = options?.mode || settings.analysisMode;
+    const rulePackId = options?.rulePackId || settings.rulePackId || 'nielsen-10';
     const profiles = options?.profiles || ['first-time', 'power-user', 'accessibility'];
     const customHeuristics = options?.heuristics || null;
 
@@ -306,6 +339,7 @@ async function handleStartAnalysis(options) {
       endpoint: settings.ollamaEndpoint,
       model: settings.ollamaModel,
       mode,
+      rulePackId,
       profiles,
       heuristics: customHeuristics,
       provider: settings.providerId,
@@ -384,21 +418,24 @@ async function handleStartAnalysis(options) {
     const report = await analyzer.analyze({
       url: tab.url,
       title: tab.title,
+      tabId: tab.id,
       pageData,
       screenshot,
       timestamp: new Date().toISOString()
     });
 
-    // Step 4: Store report and add to history (strip screenshot to save storage)
+    // Step 4: Store report and add to history (strip full-page screenshot to save storage)
     const reportForStorage = { ...report };
-    delete reportForStorage.screenshot; // base64 images are too large for chrome.storage
+    delete reportForStorage.screenshot; // full-page base64 images are too large for chrome.storage
     await chrome.storage.local.set({
       lastReport: reportForStorage,
       lastReportTimestamp: Date.now()
     });
 
-    // Save to history (max 20 reports) — without screenshot
-    await addToHistory(reportForStorage);
+    // Save to history (max 20 reports) — without screenshots
+    const reportForHistory = { ...reportForStorage };
+    delete reportForHistory.annotatedScreenshot;
+    await addToHistory(reportForHistory);
 
     currentAnalysis = null;
 
@@ -610,7 +647,7 @@ async function handleFlowAnalysis(payload, sender) {
 
   const settings = await chrome.storage.local.get({
     ollamaEndpoint: 'http://localhost:11434',
-    ollamaModel: 'gemma4:31b',
+    ollamaModel: 'gemma4',
     providerId: 'ollama',
     apiKey: '',
     synthux_selected_profiles: ['first-time', 'power-user', 'accessibility'],

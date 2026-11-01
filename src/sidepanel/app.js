@@ -293,7 +293,7 @@ export class SynthuxApp extends LitElement {
           this.isAnalyzing = false;
           this.analysisProgress = null;
           // If CORS error, switch to scan tab and show fix wizard
-          if (msg.payload?.errorType === 'cors') {
+          if (message.payload?.errorType === 'cors') {
             this.ollamaStatus = { ...this.ollamaStatus, connected: false, corsBlocked: true };
             this.activeTab = 'scan';
           }

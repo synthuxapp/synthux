@@ -268,7 +268,7 @@ Figma tasarım aşamasında UX audit.
 | 8 | Annotated Screenshot | ~6 gün | v1.7 | 🟢 Çok Yüksek |
 | 9 | Walkthrough Mode | ~8 gün | v2.0 | 🟢 Çok Yüksek |
 | 10 | Rakip Karşılaştırma | ~7 gün | v2.0 | 🟢 Yüksek |
-| 11 | Multi-page Flow | ~8 gün | v2.0 | 🟢 Yüksek |
-| 12 | Plugin Kural Ekosistemi | ~10 gün | v2.0 | 🟢 Çok Yüksek |
+| 11 | Multi-page Flow | ~8 gün | v1.9 ✅ | 🟢 Yüksek |
+| 12 | Plugin Kural Ekosistemi | ~10 gün | v2.0 ✅ | 🟢 Çok Yüksek |
 | 13 | WebGPU Browser AI | ~12 gün | v2.0 | 🟡 Orta |
 | 14 | Figma Plugin | ~15+ gün | v3.0 | 🟢 Yüksek |

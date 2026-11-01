@@ -7,14 +7,226 @@
 
 import { getProfile } from './profiles.js';
 
+export const MAX_CUSTOM_RULE_PACKS = 10;
+
+export const BUILT_IN_RULE_PACKS = [
+  {
+    id: 'nielsen-10',
+    name: "Nielsen's 10 Usability Heuristics",
+    shortName: 'Nielsen 10',
+    category: 'General UX',
+    description: 'Industry-standard general usability framework by Jakob Nielsen.',
+    file: 'rules/nielsen-10.json',
+    ruleCount: 10,
+    isBuiltIn: true
+  },
+  {
+    id: 'ecommerce',
+    name: 'E-Commerce & Conversion UX',
+    shortName: 'E-Commerce',
+    category: 'E-Commerce & Retail',
+    description: 'Specialized UX rules for online stores, product pages, carts, and checkout flows.',
+    file: 'rules/ecommerce.json',
+    ruleCount: 8,
+    isBuiltIn: true
+  },
+  {
+    id: 'saas',
+    name: 'SaaS & Web Application UX',
+    shortName: 'SaaS',
+    category: 'SaaS & Dashboards',
+    description: 'Specialized UX rules for SaaS apps, dashboards, onboarding, and self-service workflows.',
+    file: 'rules/saas.json',
+    ruleCount: 8,
+    isBuiltIn: true
+  },
+  {
+    id: 'fintech',
+    name: 'Fintech, Banking & Web3 UX',
+    shortName: 'Fintech',
+    category: 'Finance & Banking',
+    description: 'High-trust financial UX rules covering transaction safety, fee transparency, and numerical legibility.',
+    file: 'rules/fintech.json',
+    ruleCount: 8,
+    isBuiltIn: true
+  }
+];
+
+const DEFAULT_SCORING_RUBRIC = {
+  '0-20': 'Critical violations — severe usability barriers',
+  '21-40': 'Major issues — frequent user friction and confusion',
+  '41-60': 'Moderate — functional but with notable UX gaps',
+  '61-80': 'Good — solid implementation with minor issues',
+  '81-100': 'Excellent — best-in-class user experience'
+};
+
 /**
- * Load the default Nielsen 10 heuristic rules
+ * Validate and normalize a custom/community JSON rule pack
  */
-export async function loadHeuristics(rulePath = '../rules/nielsen-10.json') {
+export function validateAndNormalizeRulePack(rawInput) {
+  let parsed = rawInput;
+  if (typeof rawInput === 'string') {
+    try {
+      parsed = JSON.parse(rawInput);
+    } catch (e) {
+      throw new Error('Invalid JSON syntax in rule pack.');
+    }
+  }
+
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('Rule pack must be a JSON object.');
+  }
+
+  const packName = String(parsed.name || parsed.shortName || '').trim();
+  if (!packName) {
+    throw new Error('Rule pack must include a "name" field.');
+  }
+
+  if (!Array.isArray(parsed.rules) || parsed.rules.length === 0) {
+    throw new Error('Rule pack must contain a non-empty "rules" array.');
+  }
+
+  if (parsed.rules.length > 25) {
+    throw new Error('Rule pack can contain at most 25 rules.');
+  }
+
+  const slug = String(parsed.id || packName)
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/^-+|-+$/g, '') || `custom-pack-${Date.now()}`;
+
+  const builtInIds = new Set(BUILT_IN_RULE_PACKS.map(p => p.id));
+  const id = builtInIds.has(slug) ? `custom-${slug}` : slug;
+
+  const normalizedRules = parsed.rules.map((r, idx) => {
+    const ruleNameEn = typeof r.name === 'object' && r.name !== null
+      ? String(r.name.en || r.name.tr || `Rule ${idx + 1}`).trim()
+      : String(r.name || `Rule ${idx + 1}`).trim();
+    const ruleNameTr = typeof r.name === 'object' && r.name !== null
+      ? String(r.name.tr || ruleNameEn).trim()
+      : ruleNameEn;
+
+    const descEn = typeof r.description === 'object' && r.description !== null
+      ? String(r.description.en || r.description.tr || ruleNameEn).trim()
+      : String(r.description || ruleNameEn).trim();
+    const descTr = typeof r.description === 'object' && r.description !== null
+      ? String(r.description.tr || descEn).trim()
+      : descEn;
+
+    const ruleId = String(r.id || `${id}-rule-${idx + 1}`)
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]+/g, '-');
+
+    const weight = Number.isFinite(Number(r.weight))
+      ? Math.max(0.1, Math.min(3.0, Number(r.weight)))
+      : 1.0;
+
+    return {
+      id: ruleId,
+      name: { en: ruleNameEn, tr: ruleNameTr },
+      description: { en: descEn, tr: descTr },
+      weight,
+      automated_checks: Array.isArray(r.automated_checks) ? r.automated_checks : [],
+      evaluation_guide: String(r.evaluation_guide || r.criteria?.join(', ') || descEn).trim(),
+      prompt_template: String(r.prompt_template || `Evaluate this web page for '${ruleNameEn}'.`).trim(),
+      scoring_rubric: (r.scoring_rubric && typeof r.scoring_rubric === 'object')
+        ? r.scoring_rubric
+        : DEFAULT_SCORING_RUBRIC
+    };
+  });
+
+  return {
+    id,
+    name: packName,
+    shortName: String(parsed.shortName || packName.slice(0, 22)).trim(),
+    category: String(parsed.category || 'Custom Pack').trim(),
+    description: String(parsed.description || `Custom UX rule pack (${normalizedRules.length} rules)`).trim(),
+    version: String(parsed.version || '1.0.0').trim(),
+    source: String(parsed.source || 'custom').trim(),
+    ruleCount: normalizedRules.length,
+    isCustom: true,
+    rules: normalizedRules
+  };
+}
+
+/**
+ * Get custom rule packs from chrome.storage.local
+ */
+export async function getCustomRulePacks() {
   try {
+    const data = await chrome.storage.local.get('customRulePacks');
+    return Array.isArray(data.customRulePacks) ? data.customRulePacks : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Get all available rule packs (built-in + custom)
+ */
+export async function getAllRulePacks() {
+  const custom = await getCustomRulePacks();
+  return [...BUILT_IN_RULE_PACKS, ...custom];
+}
+
+/**
+ * Save or update a custom rule pack in chrome.storage.local
+ */
+export async function saveCustomRulePack(rawPack) {
+  const normalized = validateAndNormalizeRulePack(rawPack);
+  const existing = await getCustomRulePacks();
+  const idx = existing.findIndex(p => p.id === normalized.id);
+
+  if (idx >= 0) {
+    existing[idx] = normalized;
+  } else {
+    if (existing.length >= MAX_CUSTOM_RULE_PACKS) {
+      throw new Error(`Maximum of ${MAX_CUSTOM_RULE_PACKS} custom rule packs reached.`);
+    }
+    existing.push(normalized);
+  }
+
+  await chrome.storage.local.set({ customRulePacks: existing });
+  return normalized;
+}
+
+/**
+ * Delete a custom rule pack from chrome.storage.local
+ */
+export async function deleteCustomRulePack(packId) {
+  const existing = await getCustomRulePacks();
+  const filtered = existing.filter(p => p.id !== packId);
+  await chrome.storage.local.set({ customRulePacks: filtered });
+  return filtered;
+}
+
+/**
+ * Load heuristic rules by rulePackId (built-in or custom)
+ */
+export async function loadHeuristics(rulePackId = 'nielsen-10') {
+  try {
+    const builtIn = BUILT_IN_RULE_PACKS.find(p => p.id === rulePackId);
+    if (builtIn) {
+      const response = await fetch(chrome.runtime.getURL(builtIn.file));
+      const data = await response.json();
+      return {
+        ...data,
+        id: data.id || builtIn.id,
+        shortName: data.shortName || builtIn.shortName,
+        category: data.category || builtIn.category
+      };
+    }
+
+    // Check custom rule packs in storage
+    const customPacks = await getCustomRulePacks();
+    const customMatch = customPacks.find(p => p.id === rulePackId);
+    if (customMatch && Array.isArray(customMatch.rules) && customMatch.rules.length > 0) {
+      return customMatch;
+    }
+
+    // Fallback to default Nielsen 10
     const response = await fetch(chrome.runtime.getURL('rules/nielsen-10.json'));
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (err) {
     console.error('[synthux] Failed to load heuristics:', err);
     return getDefaultHeuristics();
@@ -23,20 +235,25 @@ export async function loadHeuristics(rulePath = '../rules/nielsen-10.json') {
 
 /**
  * Select heuristics based on analysis mode
- * Quick mode: top 3 heuristics by priority
- * Deep mode: all 10 heuristics
+ * Quick mode: top 3 heuristics by priority or weight
+ * Deep mode: all heuristics in the pack
  */
 export function selectHeuristics(rules, mode = 'deep', profileId = null) {
   const allRules = rules.rules || [];
 
   if (mode === 'quick') {
-    // For quick mode, select highest-priority heuristics for the profile
+    // Check if the profile specifies priority heuristics matching this rule pack
     const profile = getProfile(profileId);
     if (profile?.priorityHeuristics) {
-      return allRules.filter(r => profile.priorityHeuristics.includes(r.id));
+      const matched = allRules.filter(r => profile.priorityHeuristics.includes(r.id));
+      if (matched.length >= 3) {
+        return matched.slice(0, 3);
+      }
     }
-    // Default quick selection
-    return allRules.slice(0, 3);
+    // Sort by weight descending and take top 3
+    return [...allRules]
+      .sort((a, b) => (b.weight || 1.0) - (a.weight || 1.0))
+      .slice(0, 3);
   }
 
   return allRules;
@@ -63,16 +280,20 @@ Pay special attention to:
 Include visual observations in your issue descriptions when relevant (e.g., "The CTA button blends into the background").
 ` : '';
 
-  const prompt = `You are a UX evaluation expert. Evaluate the following web page against the heuristic "${heuristic.name.en}".
+  const heuristicName = typeof heuristic.name === 'object' ? (heuristic.name.en || heuristic.name.tr) : String(heuristic.name || '');
+  const heuristicDesc = typeof heuristic.description === 'object' ? (heuristic.description.en || heuristic.description.tr) : String(heuristic.description || '');
+  const rubric = heuristic.scoring_rubric || DEFAULT_SCORING_RUBRIC;
+
+  const prompt = `You are a UX evaluation expert. Evaluate the following web page against the heuristic "${heuristicName}".
 
 ## Heuristic Definition
-${heuristic.description.en}
+${heuristicDesc}
 
 ## Evaluation Criteria
 ${heuristic.evaluation_guide || 'Evaluate based on the heuristic definition and common UX best practices.'}
 
 ## Scoring Rubric
-${Object.entries(heuristic.scoring_rubric).map(([range, desc]) => `- ${range}: ${desc}`).join('\n')}
+${Object.entries(rubric).map(([range, desc]) => `- ${range}: ${desc}`).join('\n')}
 
 ## Page Data
 ${pageSummary}
@@ -209,12 +430,16 @@ export function calculateOverallScore(evaluations, rules) {
 // ─── Sanitization Helpers ────────────────────────────────────────────────────
 
 /**
- * Remove JavaScript-style comments from LLM output before JSON parse
+ * Remove reasoning <think> blocks and JavaScript-style comments from LLM output before JSON parse
  */
 function sanitizeLLMOutput(text) {
   if (!text || typeof text !== 'string') return '';
 
   let cleaned = text;
+
+  // Strip reasoning blocks (<think>...</think> or unclosed <think> before JSON)
+  cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  cleaned = cleaned.replace(/^[\s\S]*?<\/think>/gi, '');
 
   // Remove single-line comments
   cleaned = cleaned.replace(/,\s*\/\/[^\n]*/g, ',');
@@ -243,11 +468,17 @@ function tryParseJSON(text) {
     return null;
   }
 
+  // Pre-strip reasoning <think> blocks so braces inside thoughts don't hijack regex matching
+  const strippedText = text
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/^[\s\S]*?<\/think>/gi, '')
+    .trim();
+
   // Strategy 1: Direct parse
-  try { return JSON.parse(text); } catch {}
+  try { return JSON.parse(strippedText); } catch {}
 
   // Strategy 2: Extract JSON block + basic clean
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  const jsonMatch = strippedText.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     try { return JSON.parse(jsonMatch[0]); } catch {}
 
@@ -265,13 +496,13 @@ function tryParseJSON(text) {
   }
 
   // Strategy 5: Extract fields individually from malformed JSON
-  const scoreMatch = text.match(/"score"\s*:\s*(\d+)/);
-  const summaryMatch = text.match(/"summary"\s*:\s*"([^"]+)"/);
-  const justificationMatch = text.match(/"score_justification"\s*:\s*"([^"]+)"/);
+  const scoreMatch = strippedText.match(/"score"\s*:\s*(\d+)/);
+  const summaryMatch = strippedText.match(/"summary"\s*:\s*"([^"]+)"/);
+  const justificationMatch = strippedText.match(/"score_justification"\s*:\s*"([^"]+)"/);
   if (scoreMatch) {
     // Try to extract issues array even if full parse failed
     let issues = [];
-    const issuesBlockMatch = text.match(/"issues"\s*:\s*\[([\s\S]*?)\]/);
+    const issuesBlockMatch = strippedText.match(/"issues"\s*:\s*\[([\s\S]*?)\]/);
     if (issuesBlockMatch) {
       try {
         const cleaned = sanitizeLLMOutput(`[${issuesBlockMatch[1]}]`);

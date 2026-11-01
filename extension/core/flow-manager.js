@@ -167,7 +167,7 @@ export class FlowManager {
         page,
         report,
         score,
-        thumbnail: scannedInfo?.thumbnail || null
+        thumbnail: scannedInfo?.screenshot || scannedInfo?.thumbnail || null
       };
     });
 
@@ -488,13 +488,19 @@ You must respond with ONLY a valid JSON object. Do NOT include markdown fences, 
     try {
       if (!text) return null;
 
-      // Clean up markdown code fences if present
-      let cleanText = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+      // Clean up reasoning <think> blocks and markdown code fences if present
+      let cleanText = text
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        .replace(/^[\s\S]*?<\/think>/gi, '')
+        .replace(/^```json\s*/i, '')
+        .replace(/```\s*$/, '')
+        .replace(/,\s*([\]}])/g, '$1')
+        .trim();
 
       // Find JSON block matching {...}
       const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        return JSON.parse(jsonMatch[0].replace(/,\s*([\]}])/g, '$1'));
       }
       return JSON.parse(cleanText);
     } catch (err) {

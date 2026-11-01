@@ -4,7 +4,7 @@
     "description": "Eklenti görünen adı"
   },
   "extensionDescription": {
-    "message": "Tarayıcınızda AI destekli UX değerlendirmesi. Sentetik kullanıcı profilleri ve Nielsen'ın 10 heuristiğiyle herhangi bir sayfayı lokal AI ile analiz edin.",
+    "message": "Tarayıcınızda AI destekli UX denetimi. Nielsen 10 heuristiği, sektörel kural paketleri ve lokal/bulut AI ile sayfaları analiz edin.",
     "description": "Chrome Web Store ve eklentiler sayfasında gösterilen açıklama"
   },
   "tabScan": {

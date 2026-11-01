@@ -14,12 +14,14 @@ import { runAccessibilityChecks } from './accessibility.js';
 import { generateReport } from './report-generator.js';
 import { calculateCost, aggregateCosts } from './cost-calculator.js';
 import { checkVisionSupport } from './providers.js';
+import { captureAnnotatedScreenshot } from './screenshot.js';
 
 export class Analyzer {
   constructor(options = {}) {
     this.endpoint = options.endpoint || 'http://localhost:11434';
-    this.model = options.model || 'gemma4:31b';
+    this.model = options.model || 'gemma4';
     this.mode = options.mode || 'deep';
+    this.rulePackId = options.rulePackId || 'nielsen-10';
     this.profileIds = options.profiles || ['first-time', 'power-user', 'accessibility'];
     this.customHeuristics = options.heuristics || null; // custom mode: array of heuristic IDs
     this.onProgress = options.onProgress || (() => {});
@@ -39,7 +41,7 @@ export class Analyzer {
    * Run full page analysis
    */
   async analyze(input) {
-    const { url, title, pageData, screenshot, timestamp } = input;
+    const { url, title, pageData, screenshot, timestamp, tabId } = input;
 
     // Check vision capability before sending screenshots
     const visionSupported = await checkVisionSupport(this.providerId, this.model, this.endpoint);
@@ -50,8 +52,8 @@ export class Analyzer {
 
     this.cancelled = false;
 
-    // Step 1: Load heuristic rules
-    const rules = await loadHeuristics();
+    // Step 1: Load heuristic rules for selected rule pack
+    const rules = await loadHeuristics(this.rulePackId);
     
     // Step 2: Run deterministic accessibility checks
     this.reportProgress('accessibility', 20, 'Running accessibility checks...');
@@ -260,8 +262,17 @@ export class Analyzer {
       // Cost calculation failed — non-critical
     }
 
-    // Step 7: Generate report object
+    // Step 7: Capture annotated viewport screenshot (non-blocking fallback) and generate report
     this.reportProgress('generating', 92, 'Generating report...');
+
+    let annotatedScreenshot = null;
+    if (sortedIssues.length > 0) {
+      try {
+        annotatedScreenshot = await captureAnnotatedScreenshot(tabId, sortedIssues);
+      } catch (e) {
+        console.warn('[synthux] Could not capture annotated screenshot:', e.message);
+      }
+    }
 
     const report = generateReport({
       url,
@@ -270,11 +281,16 @@ export class Analyzer {
       model: this.model,
       mode: this.mode,
       provider: this.providerId,
+      rulePackId: rules.id || this.rulePackId,
+      rulePackName: rules.name || "Nielsen's 10 Usability Heuristics",
+      rulePackShortName: rules.shortName || 'Nielsen 10',
+      ruleCount: (rules.rules || []).length,
       overallScore,
       profileResults,
       accessibilityResults,
       issues: sortedIssues,
       screenshot,
+      annotatedScreenshot,
       costSummary
     });
 

@@ -207,7 +207,8 @@ export async function captureAnnotatedScreenshot(tabId, issues) {
       func: () => ({
         viewportWidth: window.innerWidth,
         viewportHeight: window.innerHeight,
-        scrollY: window.scrollY,
+        scrollX: window.scrollX || 0,
+        scrollY: window.scrollY || 0,
         dpr: window.devicePixelRatio || 1
       })
     });
@@ -233,13 +234,14 @@ export async function captureAnnotatedScreenshot(tabId, issues) {
 
     // Draw markers for each found element
     let markerIndex = 1;
+    const legend = [];
     foundRects.forEach((rect) => {
       const issue = issues.find(i => i.element === rect.selector);
       if (!issue) return;
 
       // Convert page coordinates to viewport-relative
-      const x = (rect.x - window.scrollX) * scaleX;
-      const y = (rect.y - dims.scrollY) * scaleY;
+      const x = (rect.x - (dims.scrollX || 0)) * scaleX;
+      const y = (rect.y - (dims.scrollY || 0)) * scaleY;
       const w = rect.width * scaleX;
       const h = rect.height * scaleY;
 
@@ -261,18 +263,21 @@ export async function captureAnnotatedScreenshot(tabId, issues) {
       ctx.strokeRect(x, y, w, h);
 
       // Draw semi-transparent fill
-      ctx.fillStyle = color + '15';
+      ctx.fillStyle = color + '18';
       ctx.fillRect(x, y, w, h);
 
-      // Draw numbered marker circle
-      const markerRadius = 12;
-      const markerX = x + w - markerRadius;
-      const markerY = y - markerRadius;
+      // Draw numbered marker circle (clamped inside canvas bounds)
+      const markerRadius = 13;
+      const markerX = Math.max(markerRadius + 2, Math.min(bitmap.width - markerRadius - 2, x + w - markerRadius));
+      const markerY = Math.max(markerRadius + 2, Math.min(bitmap.height - markerRadius - 2, y - markerRadius));
 
       ctx.beginPath();
       ctx.arc(markerX, markerY, markerRadius, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
 
       // Marker number
       ctx.fillStyle = '#ffffff';
@@ -281,16 +286,26 @@ export async function captureAnnotatedScreenshot(tabId, issues) {
       ctx.textBaseline = 'middle';
       ctx.fillText(String(markerIndex), markerX, markerY);
 
+      legend.push({
+        index: markerIndex,
+        severity: issue.severity || 'moderate',
+        element: issue.element || '',
+        description: issue.description || ''
+      });
+
       markerIndex++;
     });
 
+    if (legend.length === 0) return null;
+
     // Convert annotated canvas to JPEG
-    const annotatedBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.8 });
+    const annotatedBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.82 });
     const reader = new FileReader();
-    return new Promise((resolve) => {
+    const dataUrl = await new Promise((resolve) => {
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(annotatedBlob);
     });
+    return dataUrl;
   } catch (err) {
     console.error('[synthux] Annotated screenshot failed:', err);
     return null;

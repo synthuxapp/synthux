@@ -7,7 +7,6 @@
 
 import { LitElement, html, css } from 'lit';
 import { getProvider, getProviderList } from '../../../extension/core/providers.js';
-import { getCustomProfiles, saveCustomProfile, deleteCustomProfile } from '../../../extension/core/profiles.js';
 
 export class SynthuxSettings extends LitElement {
   static properties = {
@@ -22,9 +21,7 @@ export class SynthuxSettings extends LitElement {
     providerId: { type: String },
     apiKey: { type: String },
     enableVision: { type: Boolean },
-    _saved: { type: Boolean, state: true },
-    _customProfiles: { type: Array, state: true },
-    _showProfileForm: { type: Boolean, state: true }
+    _saved: { type: Boolean, state: true }
   };
 
   static styles = css`
@@ -436,7 +433,7 @@ export class SynthuxSettings extends LitElement {
     super();
     this.ollamaStatus = { connected: false, models: [] };
     this.endpoint = 'http://localhost:11434';
-    this.model = 'gemma4:31b';
+    this.model = 'gemma4';
     this.models = [];
     this.language = 'en';
     this.connectionState = 'idle';
@@ -447,10 +444,7 @@ export class SynthuxSettings extends LitElement {
     this.enableVision = true;
     this._saved = false;
     this._copiedCmd = '';
-    this._customProfiles = [];
-    this._showProfileForm = false;
     this._loadSettings();
-    this._loadCustomProfiles();
   }
 
   updated(changedProperties) {
@@ -475,7 +469,7 @@ export class SynthuxSettings extends LitElement {
     try {
       const settings = await chrome.storage.local.get({
         ollamaEndpoint: 'http://localhost:11434',
-        ollamaModel: 'gemma4:31b',
+        ollamaModel: 'gemma4',
         language: 'en',
         providerId: 'ollama',
         apiKey: '',
@@ -559,7 +553,7 @@ export class SynthuxSettings extends LitElement {
       if (this.models.length > 0 && !this.models.includes(this.model)) {
         // Saved model not in Ollama — keep it as typed text, don't auto-switch
       } else if (!this.model) {
-        this.model = this.models[0] || 'gemma4:31b';
+        this.model = this.models[0] || 'gemma4';
       }
     } else {
       this.endpoint = provider.defaultEndpoint;
@@ -635,53 +629,6 @@ export class SynthuxSettings extends LitElement {
 
   async _saveSettings() {
     await this._autoSave();
-  }
-
-  async _loadCustomProfiles() {
-    try {
-      this._customProfiles = await getCustomProfiles();
-    } catch {
-      this._customProfiles = [];
-    }
-  }
-
-  async _saveProfile() {
-    const name = this.shadowRoot.getElementById('cp-name')?.value?.trim();
-    if (!name) return;
-
-    const ageRange = this.shadowRoot.getElementById('cp-age')?.value || '25-35';
-    const techLevel = this.shadowRoot.getElementById('cp-tech')?.value || 'medium';
-    const goal = this.shadowRoot.getElementById('cp-goal')?.value?.trim() || '';
-    const disabilityCheckboxes = this.shadowRoot.querySelectorAll('.cp-disability:checked');
-    const disabilities = Array.from(disabilityCheckboxes).map(cb => cb.value);
-
-    try {
-      await saveCustomProfile({
-        name,
-        description: `${ageRange}, ${techLevel} tech${goal ? ` — ${goal}` : ''}`,
-        ageRange,
-        techLevel,
-        disabilities,
-        goal,
-        priorityHeuristics: [] // uses all heuristics by default
-      });
-      this._showProfileForm = false;
-      await this._loadCustomProfiles();
-      // Notify scanner to reload profiles
-      this.dispatchEvent(new CustomEvent('profiles-changed', { bubbles: true, composed: true }));
-    } catch (err) {
-      console.error('[synthux] Failed to save profile:', err);
-    }
-  }
-
-  async _deleteProfile(id) {
-    try {
-      await deleteCustomProfile(id);
-      await this._loadCustomProfiles();
-      this.dispatchEvent(new CustomEvent('profiles-changed', { bubbles: true, composed: true }));
-    } catch (err) {
-      console.error('[synthux] Failed to delete profile:', err);
-    }
   }
 
   async _copyCommand(text, id) {
@@ -789,7 +736,7 @@ export class SynthuxSettings extends LitElement {
                 ${this.models.map(m => html`<option value="${m}" ?selected="${m === this.model}">${m}</option>`)}
               </select>
             ` : html`
-              <input class="field-input" type="text" .value="${this.model}" @input="${(e) => this.model = e.target.value}" @blur="${() => this._autoSave()}" placeholder="gemma4:31b" />
+              <input class="field-input" type="text" .value="${this.model}" @input="${(e) => this.model = e.target.value}" @blur="${() => this._autoSave()}" placeholder="gemma4" />
             `}
           </div>
           <button class="test-btn ${this.connectionState}" @click="${this._testConnection}" ?disabled="${this.connectionState === 'testing'}">${this._getTestLabel()}</button>
@@ -842,13 +789,20 @@ export class SynthuxSettings extends LitElement {
             </div>
 
             <div class="setup-step">
-              <div class="step-title"><span class="step-number">2</span> Download a model</div>
-              <div class="step-desc">Pull a language model. Any model works:</div>
+              <div class="step-title"><span class="step-number">2</span> Download a 2026 Local Model</div>
+              <div class="step-desc">Pull a vision-capable or reasoning model (click any to copy):</div>
               <div class="code-block">
                 <button class="copy-btn ${this._copiedCmd === 'pull' ? 'copied' : ''}" @click="${() => this._copyCommand('ollama pull gemma4', 'pull')}">${this._copiedCmd === 'pull' ? 'Copied' : 'Copy'}</button>
                 <code>ollama pull gemma4</code>
               </div>
-              <div class="step-desc" style="margin-top: 6px; font-size: 10px; color: var(--sx-text-tertiary);">Alternatives: <code style="font-size: 10px;">ollama pull gemma4:e4b</code> (smaller) or <code style="font-size: 10px;">ollama pull qwen3.5</code></div>
+              <div class="step-desc" style="margin-top: 6px; font-size: 10px; color: var(--sx-text-tertiary); line-height: 1.6;">
+                Recommended 2026 models:<br>
+                • <code style="font-size: 10px; cursor: pointer;" @click="${() => this._copyCommand('ollama pull gemma4:e4b', 'p1')}">ollama pull gemma4:e4b</code> (Fast Vision · Low RAM)<br>
+                • <code style="font-size: 10px; cursor: pointer;" @click="${() => this._copyCommand('ollama pull qwen3.8', 'p2')}">ollama pull qwen3.8</code> (Top JSON & Code Fixes)<br>
+                • <code style="font-size: 10px; cursor: pointer;" @click="${() => this._copyCommand('ollama pull qwen3.5', 'p3')}">ollama pull qwen3.5</code> (Multimodal Vision)<br>
+                • <code style="font-size: 10px; cursor: pointer;" @click="${() => this._copyCommand('ollama pull llama4:scout', 'p4')}">ollama pull llama4:scout</code> (Meta Multimodal MoE)<br>
+                • <code style="font-size: 10px; cursor: pointer;" @click="${() => this._copyCommand('ollama pull deepseek-r1', 'p5')}">ollama pull deepseek-r1</code> (Deep Reasoning)
+              </div>
             </div>
 
             <div class="setup-step">

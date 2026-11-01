@@ -4,26 +4,26 @@
 
 ## What is synthux?
 
-synthux is an open-source Chrome extension that evaluates web pages using synthetic user profiles and Nielsen's 10 Usability Heuristics — powered by local AI (Ollama or LM Studio).
+synthux is an open-source Chrome extension (v2.0.0) that evaluates web pages and multi-page user journeys using synthetic user personas, Sectoral UX Rule Packs (Nielsen's 10, E-Commerce, SaaS, Fintech, plus custom JSON plugins), WCAG 2.2 AA audit (axe-core), and multimodal vision analysis — powered by local AI (Ollama / LM Studio) or your own Cloud API key (Gemini, OpenAI, Claude).
 
-All analysis runs locally on the user's machine. No data is sent to external servers.
+All local analysis runs entirely on the user's machine. Cloud analysis connects directly to the provider using the user's API key (BYOK) with zero middleman.
 
 ## Key Features
 
-- Local AI Analysis via Ollama or LM Studio (Gemma, Qwen, Llama, and more)
-- Nielsen's 10 Usability Heuristics evaluation
-- 3 Synthetic User Profiles: First-Time Visitor, Power User, Accessibility User
-- Automated accessibility audit (WCAG checks)
-- 0-100 scoring per heuristic with actionable recommendations
-- Quick mode (3 heuristics) and Deep mode (10 heuristics)
-- Markdown export for reports
-- 100% private — no telemetry, no analytics, no data collection
+- **2026 Local AI & Cloud BYOK**: Local via Ollama (`gemma4`, `gemma4:e4b`, `qwen3.8`, `qwen3.5`, `llama4:scout`, `deepseek-r1`, `mistral-small`) or Cloud via Gemini 2.5, OpenAI GPT-4.1 / o4-mini, and Claude Sonnet 4 / Haiku 4.5
+- **Sectoral Rule Packs & Plugin Ecosystem**: Built-in rule packs for General UX (Nielsen's 10), E-Commerce & Conversion, SaaS & Dashboards, and Fintech & Banking — plus custom `.json` rule pack plugin import
+- **Synthetic User Profiles**: 3 built-in profiles (First-Time Visitor, Power User, Accessibility User) + up to 5 custom user personas
+- **Automated Accessibility Audit**: WCAG 2.2 AA compliance checks powered by axe-core + deterministic DOM checks
+- **Enhanced PDF & Markdown Reporting**: Executive KPI scorecard, annotated viewport screenshot issue map, 2×2 Impact × Effort priority matrix, visual score bars, and collapsible before/after code fixes
+- **Interactive Page Overlays & Flow Builder**: Live issue heatmap, hover-to-highlight element borders, and multi-page visual Flow Builder canvas
+- **100% Private**: No telemetry, no analytics, no data collection in the extension
 
 ## Technical Stack
 
 - Chrome Extension (Manifest V3)
 - Lit Web Components
-- Ollama local AI runtime
+- jsPDF (Vector PDF Export) & axe-core (WCAG 2.2 AA)
+- Ollama local AI runtime & Multi-provider Cloud adapters
 - esbuild bundler
 - MIT License
 

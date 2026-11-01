@@ -29,21 +29,21 @@ Run locally with Ollama for free, or use your own API key with Gemini, OpenAI, o
 
 ## Features
 
-- **Multi-Provider AI** — Ollama (local), Google Gemini, OpenAI GPT-5, Anthropic Claude
+- **Multi-Provider AI** — Ollama (local: Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1), Google Gemini, OpenAI, Anthropic Claude
+- **Sectoral Rule Packs & Plugin Ecosystem** — Built-in packs for General UX (Nielsen's 10), E-Commerce & Conversion, SaaS & Dashboards, and Fintech & Banking — plus custom `.json` rule pack plugin import
 - **Vision Analysis** — Full-page screenshot capture for visual layout evaluation
-- **Nielsen's 10 Heuristics** — Industry-standard UX evaluation framework
 - **Synthetic User Profiles** — 3 built-in + up to 5 custom personas (age, tech level, accessibility needs, goals)
 - **WCAG Audit (axe-core)** — Automated WCAG 2.2 AA compliance testing with impact severity and fix references
 - **Issue Heatmap** — Toggle a live heatmap overlay on the analyzed page showing issue density by severity
 - **Hover-to-Highlight** — Hover any issue in the report to highlight the affected element directly on the page
-- **Annotated Screenshots** — Viewport captures with numbered severity markers at issue element positions
+- **Annotated Screenshots** — Viewport captures with numbered severity markers at issue element positions, embedded directly in PDF reports
 - **Detailed Scoring** — 0-100 scores per heuristic with actionable recommendations
 - **Code Fixes** — Concrete before/after code suggestions for each issue
-- **Quick Wins** — Priority matrix highlights high-impact, easy-fix issues
+- **Quick Wins & 2×2 Priority Matrix** — Categorizes issues by Impact × Effort (Quick Wins, Major Projects, Fill-Ins, Backlog)
 - **Cost Tracking** — Real-time API cost estimation with verified pricing
-- **PDF & Markdown Export** — Professional reports for stakeholders
+- **Enhanced PDF & Markdown Export** — Executive KPI scorecard, annotated viewport issue maps, horizontal score bars, collapsible code fixes, and 2×2 priority matrix
 - **100% Private** — BYOK (Bring Your Own Key) — no middleman, no data collection
-- **Quick, Deep & Custom Modes** — 3-heuristic scan, full 10-heuristic analysis, or pick your own
+- **Quick, Deep & Custom Modes** — 3-rule scan, full pack analysis, or pick your own rules
 - **Dynamic Time Estimates** — Realistic duration based on profile count × heuristics × provider speed
 - **Flow Builder** — Visual canvas for multi-page user journey analysis. Connect pages, add sticky notes, run cross-page UX evaluation, save & load multiple flows
 
@@ -58,12 +58,15 @@ Run locally with Ollama for free, or use your own API key with Gemini, OpenAI, o
 brew install ollama
 ```
 
-**2. Pull a model**
+**2. Pull a 2026 model**
 
 ```bash
-ollama pull gemma4         # Gemma 4 — recommended
-ollama pull gemma4:e4b     # Gemma 4 E4B — smaller, faster
-ollama pull qwen3.5        # Qwen 3.5 — alternative
+ollama pull gemma4         # Gemma 4 — recommended (Multimodal Vision)
+ollama pull gemma4:e4b     # Gemma 4 E4B — fast, low RAM vision model
+ollama pull qwen3.8        # Qwen 3.8 — top structured JSON & code fixes
+ollama pull qwen3.5        # Qwen 3.5 — multimodal vision alternative
+ollama pull llama4:scout   # Meta Llama 4 Scout — multimodal MoE
+ollama pull deepseek-r1    # DeepSeek R1 — deep reasoning model
 ```
 
 **3. Enable CORS**
@@ -267,17 +270,21 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 - [x] Annotated screenshots
 - [x] Ollama CORS auto-diagnostics & fix wizard
 
-### v1.9.0 (Current)
+### v1.9.0
 - [x] Multi-page user flow analysis (Flow Builder)
 - [x] Heatmap visualization improvements (gradient, legend, pulse animations)
 - [x] Chrome Web Store rating prompt
 - [x] Privacy policy update (Flow Analysis, BYOK transparency, developer info)
 
+### v2.0.0 (Current)
+- [x] Sectoral Rule Packs & Plugin Ecosystem (`nielsen-10`, `ecommerce`, `saas`, `fintech` + custom JSON rule pack plugin import)
+- [x] Enhanced Reporting (richer PDF & Markdown templates with Executive KPI scorecard, 2×2 Impact × Effort priority matrix, annotated viewport issue maps, visual score bars, and collapsible before/after code fixes)
+- [x] 2026 Local LLM Updates (`gemma4`, `gemma4:e4b`, `qwen3.8`, `llama4:scout`, `deepseek-r1` with `<think>` block sanitization)
+- [x] Right-click Context Menu integration ("Analyze in synthux Flow")
+
 ### Future
 - [ ] **synthux insights** — Auto-fetched research library from NNGroup and Baymard Institute; AI uses latest UX research findings during analysis for evidence-based recommendations
 - [ ] Walkthrough mode (guided issue tour on page)
-- [ ] Sectoral rule packs (e-commerce, fintech, SaaS)
-- [ ] Enhanced reporting (richer PDF/Markdown templates)
 
 ---
 

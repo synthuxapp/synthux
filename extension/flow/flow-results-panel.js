@@ -146,24 +146,37 @@ window.__synthux_showResults = function showResults(flowReport) {
 
 function generateMarkdown(report) {
   const lines = [
-    '# synthux Flow Analysis Report',
+    '# 📊 synthux Flow Journey Report',
     '',
-    `**Flow Score: ${report.flowScore}/100**`,
-    `**Date:** ${new Date().toLocaleDateString()}`,
-    `**Pages:** ${report.pages?.length || 0}`,
+    '| Property | Value |',
+    '|:---|:---|',
+    `| **Overall Flow Score** | **${report.flowScore}/100** |`,
+    `| **Cross-Page Consistency** | **${report.crossPage?.score ?? report.flowScore}/100** |`,
+    `| **Date** | ${new Date().toLocaleString()} |`,
+    `| **Total Pages** | ${report.pages?.length || 0} |`,
+    `| **Transitions Assessed** | ${report.transitions?.length || 0} |`,
     '',
     '---',
     '',
-    '## Page Results',
+    '## 📄 Step-by-Step Page Results',
     ''
   ];
 
-  for (const p of (report.pages || [])) {
-    const score = p.report?.overallScore || p.score || 0;
-    lines.push(`### ${p.page?.label || p.page?.url}`);
+  for (let idx = 0; idx < (report.pages || []).length; idx++) {
+    const p = report.pages[idx];
+    const score = p.report?.overallScore ?? p.score ?? 0;
+    lines.push(`### Step ${idx + 1}: ${p.page?.label || p.page?.url}`);
     lines.push(`- **Score:** ${score}/100`);
     lines.push(`- **URL:** ${p.page?.url}`);
     if (p.report?.summary) lines.push(`- **Summary:** ${p.report.summary}`);
+    if (Array.isArray(p.report?.issues) && p.report.issues.length > 0) {
+      lines.push(`- **Identified Step Issues (${p.report.issues.length}):**`);
+      p.report.issues.forEach(issue => {
+        const desc = typeof issue === 'string' ? issue : (issue.description || issue.title || '');
+        const sev = (typeof issue === 'object' && issue.severity) ? `[${issue.severity.toUpperCase()}] ` : '';
+        if (desc) lines.push(`  - ⚠️ ${sev}${desc}`);
+      });
+    }
     lines.push('');
   }
 

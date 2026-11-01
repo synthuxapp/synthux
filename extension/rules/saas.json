@@ -1,0 +1,163 @@
+{
+  "id": "saas",
+  "name": "SaaS & Web Application UX",
+  "shortName": "SaaS",
+  "category": "SaaS & Dashboards",
+  "description": "Specialized UX heuristics for SaaS products, B2B/B2C web apps, dashboards, and subscription workflows.",
+  "version": "1.0.0",
+  "source": "https://www.nngroup.com/articles/",
+  "rules": [
+    {
+      "id": "saas-value-onboarding",
+      "name": { "en": "Value Proposition & Time-to-Value (Onboarding)", "tr": "Değer Önerisi ve İlk Değere Ulaşma Süresi" },
+      "description": {
+        "en": "Users should immediately grasp what the product does, who it is for, and how to start. Onboarding steps, templates, or interactive previews should minimize Time-to-Value (TTV).",
+        "tr": "Kullanıcılar ürünün ne işe yaradığını, kimin için olduğunu ve nasıl başlayacaklarını anında anlamalıdır. Onboarding adımları ve şablonlar ilk değere ulaşma süresini (TTV) en aza indirmelidir."
+      },
+      "weight": 1.2,
+      "automated_checks": ["hero_clarity", "onboarding_cues", "primary_cta"],
+      "evaluation_guide": "Look for: clear headline/value proposition on landing pages or guided onboarding checklists inside the app, low-friction sign-up/trial start, and immediate visual product context.",
+      "prompt_template": "Evaluate this page for 'Value Proposition & Time-to-Value (Onboarding)'. Does it clearly communicate product value and guide users to their first meaningful outcome quickly?",
+      "scoring_rubric": {
+        "0-20": "Vague buzzwords, unclear product purpose, dead-end start experience",
+        "21-40": "High friction to get started, confusing positioning or unguided setup",
+        "41-60": "Value is understandable with effort, standard signup/setup flow",
+        "61-80": "Clear value proposition and guided entry path with minor friction",
+        "81-100": "Excellent — instant clarity, frictionless onboarding, rapid time-to-value"
+      }
+    },
+    {
+      "id": "saas-information-density",
+      "name": { "en": "Dashboard Hierarchy & Information Density", "tr": "Panel Hiyerarşisi ve Bilgi Yoğunluğu" },
+      "description": {
+        "en": "Dashboards, tables, and analytics views must balance data density with scannability—using clear card grouping, progressive disclosure, legible typography, and semantic status colors.",
+        "tr": "Paneller, tablolar ve analitik görünümler veri yoğunluğu ile taranabilirliği dengelemeli; net kart gruplaması, aşamalı gösterim, okunaklı tipografi ve anlamsal durum renkleri kullanmalıdır."
+      },
+      "weight": 1.2,
+      "automated_checks": ["data_density", "visual_hierarchy", "table_scannability"],
+      "evaluation_guide": "Look for: scannable KPI cards, well-aligned tables/lists, clear separation between primary metrics and secondary metadata, and progressive disclosure (modals/drawers/expandables) for deep details.",
+      "prompt_template": "Evaluate this page for 'Dashboard Hierarchy & Information Density'. Is complex data organized with clear visual hierarchy, whitespace, and scannable groupings?",
+      "scoring_rubric": {
+        "0-20": "Overwhelming wall of unformatted data, competing metrics, illegible layout",
+        "21-40": "Cramped cards/tables, poor alignment, difficult to scan key metrics",
+        "41-60": "Functional layout but visually dense or lacking clear primary focus",
+        "61-80": "Well-structured interface with good hierarchy and minor density issues",
+        "81-100": "Excellent — balanced density, crisp typography, effortless metric scanning"
+      }
+    },
+    {
+      "id": "saas-navigation-wayfinding",
+      "name": { "en": "Workspace Navigation & Wayfinding", "tr": "Çalışma Alanı Navigasyonu ve Yön Bulma" },
+      "description": {
+        "en": "Users must always know where they are within the app hierarchy (active sidebar item, breadcrumbs, workspace/project switcher) and switch between core modules effortlessly.",
+        "tr": "Kullanıcılar uygulama hiyerarşisinde nerede olduklarını (aktif menü öğesi, breadcrumb, çalışma alanı/proje seçici) her zaman bilmeli ve modüller arasında zahmetsizce geçiş yapabilmelidir."
+      },
+      "weight": 1.1,
+      "automated_checks": ["active_nav_state", "breadcrumbs", "menu_structure"],
+      "evaluation_guide": "Look for: clear active state in sidebar/top navigation, logical grouping of nav items (5-7 top-level groups), visible account/workspace context, and predictable navigation behavior.",
+      "prompt_template": "Evaluate this page for 'Workspace Navigation & Wayfinding'. Can users immediately tell where they are and navigate across features without getting lost?",
+      "scoring_rubric": {
+        "0-20": "Confusing navigation, no active states, users easily lose context",
+        "21-40": "Bloated or inconsistent menus, unclear workspace/page location",
+        "41-60": "Standard navigation present but lacks clear grouping or active indicators",
+        "61-80": "Clear navigation and active states with minor organizational gaps",
+        "81-100": "Excellent — intuitive information architecture, crisp wayfinding cues"
+      }
+    },
+    {
+      "id": "saas-empty-loading-states",
+      "name": { "en": "Empty States, Zero-Data & Loading UX", "tr": "Boş Durumlar (Empty States) ve Yükleme Deneyimi" },
+      "description": {
+        "en": "Blank screens or empty tables should never feel broken. Empty states must explain why the area is empty and provide a direct CTA or sample data to populate it.",
+        "tr": "Boş ekranlar veya tablolar asla bozuk hissi vermemelidir. Boş durumlar (empty states) alanın neden boş olduğunu açıklamalı ve doldurmak için doğrudan bir CTA veya örnek veri sunmalıdır."
+      },
+      "weight": 1.0,
+      "automated_checks": ["empty_state_cta", "loading_skeletons", "placeholder_guidance"],
+      "evaluation_guide": "Look for: helpful empty state illustrations/copy with a primary 'Create / Import' button, skeleton loaders instead of jarring layout shifts, and informative zero-search-result guidance.",
+      "prompt_template": "Evaluate this page for 'Empty States, Zero-Data & Loading UX'. Are empty areas, initial states, or loading transitions handled constructively with clear next actions?",
+      "scoring_rubric": {
+        "0-20": "Blank white areas or raw 'No data' text with zero guidance on what to do next",
+        "21-40": "Unhelpful empty states, jarring layout jumps, unclear next steps",
+        "41-60": "Basic empty/loading messages exist but lack actionable buttons or context",
+        "61-80": "Helpful empty states and state transitions with minor polish needed",
+        "81-100": "Excellent — educational empty states with direct CTAs and smooth state feedback"
+      }
+    },
+    {
+      "id": "saas-power-user-efficiency",
+      "name": { "en": "Workflow Efficiency, Bulk Actions & Shortcuts", "tr": "İş Akışı Verimliliği, Toplu İşlemler ve Kısayollar" },
+      "description": {
+        "en": "Repetitive SaaS tasks should be accelerated through command palettes (Cmd+K), keyboard shortcuts, bulk selection/actions, saved filters, and inline editing.",
+        "tr": "Tekrarlayan SaaS görevleri; komut paleti (Cmd+K), klavye kısayolları, toplu seçim/işlemler, kayıtlı filtreler ve satır içi düzenleme ile hızlandırılmalıdır."
+      },
+      "weight": 1.0,
+      "automated_checks": ["search_command", "bulk_controls", "shortcut_hints"],
+      "evaluation_guide": "Look for: global search or command bar, filter/sort persistence, bulk checkboxes on lists, keyboard shortcut hints in tooltips, and minimal clicks for frequent workflows.",
+      "prompt_template": "Evaluate this page for 'Workflow Efficiency, Bulk Actions & Shortcuts'. Does the interface empower frequent users with fast search, filters, shortcuts, or streamlined workflows?",
+      "scoring_rubric": {
+        "0-20": "Tedious multi-click workflows for basic actions, no search or filtering",
+        "21-40": "Rigid interface requiring repetitive manual steps, poor keyboard support",
+        "41-60": "Basic search/controls exist but power-user accelerators are missing",
+        "61-80": "Good workflow speed with search/filters and some efficiency shortcuts",
+        "81-100": "Excellent — command palette/shortcuts, bulk actions, low-click workflows"
+      }
+    },
+    {
+      "id": "saas-pricing-plan-clarity",
+      "name": { "en": "Pricing Tiers, Feature Gating & Upgrade Clarity", "tr": "Fiyat Paketleri, Özellik Kısıtları ve Yükseltme Netliği" },
+      "description": {
+        "en": "Plan comparisons, usage quotas, billing cycles (monthly/annual), and locked-feature indicators must be transparent and easy to compare without hidden enterprise traps.",
+        "tr": "Paket karşılaştırmaları, kullanım kotaları, fatura dönemleri (aylık/yıllık) ve kilitli özellik göstergeleri şeffaf ve kolay karşılaştırılabilir olmalıdır."
+      },
+      "weight": 0.9,
+      "automated_checks": ["pricing_table", "quota_indicators", "plan_comparison"],
+      "evaluation_guide": "Look for: scannable tier differentiation, clear monthly vs. annual toggle, transparent usage limits/meters, and non-intrusive upgrade prompts for gated features.",
+      "prompt_template": "Evaluate this page for 'Pricing Tiers, Feature Gating & Upgrade Clarity'. Are plan differences, usage limits, or account capabilities communicated transparently?",
+      "scoring_rubric": {
+        "0-20": "Confusing or deceptive pricing/feature limits, aggressive paywall traps",
+        "21-40": "Hard to compare tiers or understand what is included in the current plan",
+        "41-60": "Standard pricing/plan info present but feature differences require heavy reading",
+        "61-80": "Clear tier breakdown or quota indicators with minor clarity gaps",
+        "81-100": "Excellent — crystal-clear plan comparison, transparent quotas, respectful upgrade cues"
+      }
+    },
+    {
+      "id": "saas-system-feedback-safety",
+      "name": { "en": "Action Feedback, Auto-Save & Destructive Safety", "tr": "İşlem Geri Bildirimi, Otomatik Kayıt ve Silme Güvenliği" },
+      "description": {
+        "en": "Every state change (saving, syncing, exporting, deleting) needs clear feedback. Destructive actions (delete workspace, revoke API key) must require explicit confirmation or offer undo.",
+        "tr": "Her durum değişikliği (kaydetme, senkronizasyon, dışa aktarma, silme) net geri bildirim gerektirir. Yıkıcı eylemler açık onay istemeli veya geri alma (undo) sunmalıdır."
+      },
+      "weight": 1.0,
+      "automated_checks": ["save_indicators", "destructive_confirm", "status_badges"],
+      "evaluation_guide": "Look for: clear 'Saved' / 'Unsaved changes' indicators, disabled/loading button states during async requests, semantic danger styling (red) for destructive actions, and undo/confirmation dialogs.",
+      "prompt_template": "Evaluate this page for 'Action Feedback, Auto-Save & Destructive Safety'. Does the app clearly communicate sync/save status and protect users from accidental data loss?",
+      "scoring_rubric": {
+        "0-20": "No feedback on actions, high risk of accidental data loss or double submission",
+        "21-40": "Inconsistent state indicators, destructive buttons look identical to normal buttons",
+        "41-60": "Basic button states exist but save/sync confidence could be stronger",
+        "61-80": "Clear state badges and safe action patterns with minor gaps",
+        "81-100": "Excellent — unmistakable sync/save states, safe destructive flows, undo support"
+      }
+    },
+    {
+      "id": "saas-contextual-help-docs",
+      "name": { "en": "Contextual Help, Tooltips & Self-Service Support", "tr": "Bağlamsal Yardım, İpuçları ve Öz-Hizmet Desteği" },
+      "description": {
+        "en": "Complex SaaS settings, technical terms, and integrations should include inline helper text, info tooltips, documentation links, or an accessible help widget.",
+        "tr": "Karmaşık SaaS ayarları, teknik terimler ve entegrasyonlar satır içi açıklama metinleri, bilgi ipuçları (tooltip), dokümantasyon bağlantıları veya erişilebilir bir yardım aracı içermelidir."
+      },
+      "weight": 0.8,
+      "automated_checks": ["tooltips", "helper_text", "docs_links"],
+      "evaluation_guide": "Look for: inline descriptions under complex form controls, '(?)' info tooltips for domain metrics, direct 'Learn more' documentation links, and accessible support/status links.",
+      "prompt_template": "Evaluate this page for 'Contextual Help, Tooltips & Self-Service Support'. Are complex features explained inline with tooltips, helper text, and accessible documentation?",
+      "scoring_rubric": {
+        "0-20": "Cryptic settings/metrics with zero explanation or documentation links",
+        "21-40": "Minimal help, users must leave the app and guess technical terminology",
+        "41-60": "General help link in header/footer, but lacking inline contextual guidance",
+        "61-80": "Good helper text and documentation links in most complex areas",
+        "81-100": "Excellent — seamless inline help, clear tooltips, comprehensive self-service docs"
+      }
+    }
+  ]
+}
