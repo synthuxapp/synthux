@@ -1,81 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
   <defs>
-    <radialGradient id="heatCritical" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.55"/>
-      <stop offset="55%" stop-color="#f59e0b" stop-opacity="0.25"/>
+    <radialGradient id="heatSpot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.38"/>
+      <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.14"/>
       <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="heatMod" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.45"/>
-      <stop offset="65%" stop-color="#3b82f6" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="ecomGrid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    <pattern id="gridEcom" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
     </pattern>
   </defs>
 
-  <rect width="1200" height="675" fill="#09090b"/>
-  <rect width="1200" height="675" fill="url(#ecomGrid)"/>
+  <rect width="640" height="360" fill="#09090b"/>
+  <rect width="640" height="360" fill="url(#gridEcom)"/>
 
-  <!-- Checkout Funnel UI Wireframe -->
-  <rect x="96" y="72" width="600" height="530" rx="16" fill="#0f0f12" stroke="#27272a" stroke-width="1.5"/>
-  <rect x="96" y="72" width="600" height="42" rx="16" fill="#141418"/>
-  <text x="126" y="98" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="12" font-weight="700">CHECKOUT FUNNEL · HEATMAP &amp; CONVERSION AUDIT</text>
+  <rect x="32" y="24" width="576" height="312" rx="18" fill="#101014" stroke="#27272a" stroke-width="1.5"/>
 
-  <!-- Step Progress Bar -->
-  <rect x="128" y="136" width="536" height="40" rx="8" fill="#09090b" stroke="#27272a"/>
-  <circle cx="164" cy="156" r="10" fill="#22c55e"/>
-  <text x="182" y="160" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11.5" font-weight="600">1. Cart</text>
-  <line x1="240" y1="156" x2="310" y2="156" stroke="#3b82f6" stroke-width="2"/>
-  <circle cx="334" cy="156" r="10" fill="#3b82f6"/>
-  <text x="352" y="160" fill="#fafafa" font-family="Inter, sans-serif" font-size="11.5" font-weight="700">2. Guest Checkout</text>
-  <line x1="472" y1="156" x2="528" y2="156" stroke="#27272a" stroke-width="2"/>
-  <circle cx="550" cy="156" r="10" fill="#27272a"/>
-  <text x="568" y="160" fill="#71717a" font-family="Inter, sans-serif" font-size="11.5">3. Payment</text>
+  <!-- Top Funnel Step Bar -->
+  <rect x="56" y="44" width="330" height="34" rx="8" fill="#16161c" stroke="#27272a"/>
+  <circle cx="76" cy="61" r="6" fill="#22c55e"/>
+  <text x="90" y="66" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="13" font-weight="700">1. Cart</text>
+  <text x="144" y="66" fill="#52525b" font-family="Inter, sans-serif" font-size="13">→</text>
+  <circle cx="172" cy="61" r="6" fill="#ef4444"/>
+  <text x="186" y="66" fill="#fafafa" font-family="Inter, sans-serif" font-size="13" font-weight="700">2. Checkout</text>
+  <text x="276" y="66" fill="#52525b" font-family="Inter, sans-serif" font-size="13">→</text>
+  <circle cx="304" cy="61" r="6" fill="#3b82f6"/>
+  <text x="318" y="66" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13" font-weight="600">3. Pay</text>
 
-  <!-- Forced Account Wall (Critical Friction #1) -->
-  <rect x="128" y="198" width="536" height="148" rx="10" fill="#09090b" stroke="#ef4444" stroke-width="1.75"/>
-  <ellipse cx="396" cy="272" rx="220" ry="74" fill="url(#heatCritical)"/>
-  <text x="152" y="228" fill="#f87171" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">P0 CRITICAL FRICTION · FORCED ACCOUNT CREATION</text>
-  <rect x="152" y="244" width="230" height="34" rx="6" fill="#18181b" stroke="#3f3f46"/>
-  <text x="168" y="265" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11">Create Password (Required)</text>
-  <rect x="400" y="244" width="240" height="34" rx="6" fill="#22c55e" fill-opacity="0.14" stroke="#22c55e"/>
-  <text x="418" y="265" fill="#4ade80" font-family="Inter, sans-serif" font-size="11" font-weight="700">+ Fix: Enable 1-Click Guest Checkout</text>
-  <text x="152" y="314" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="11.5">Detected: Missing Guest Checkout CTA increases cart drop-off by up to 24%.</text>
+  <rect x="404" y="44" width="180" height="34" rx="8" fill="#3b82f6" fill-opacity="0.14" stroke="#3b82f6" stroke-opacity="0.45"/>
+  <text x="422" y="66" fill="#60a5fa" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">PACK: ECOMMERCE</text>
 
-  <!-- Hidden Shipping & Promo Trap (Moderate Friction #2) -->
-  <rect x="128" y="366" width="536" height="204" rx="10" fill="#09090b" stroke="#f59e0b" stroke-width="1.75"/>
-  <ellipse cx="480" cy="468" rx="180" ry="70" fill="url(#heatMod)"/>
-  <text x="152" y="396" fill="#fbbf24" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">P1 HIGH PRIORITY · TOTAL COST &amp; SHIPPING CLARITY</text>
-  <text x="152" y="428" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="12">Subtotal (2 items)</text>
-  <text x="576" y="428" fill="#e4e4e7" font-family="SF Mono, monospace" font-size="12">$148.00</text>
-  <text x="152" y="456" fill="#fbbf24" font-family="Inter, sans-serif" font-size="12" font-weight="600">Estimated Shipping &amp; Taxes</text>
-  <text x="484" y="456" fill="#fbbf24" font-family="SF Mono, monospace" font-size="11.5">Calculated at final step (!)</text>
-  <rect x="152" y="484" width="488" height="62" rx="8" fill="#18181b" stroke="#3b82f6" stroke-opacity="0.6"/>
-  <text x="170" y="508" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">RECOMMENDED CODE FIX · ECOMMERCE.JSON</text>
-  <text x="170" y="530" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="11.5">Surface free-shipping threshold bar &amp; ZIP estimator directly in cart summary.</text>
+  <!-- P0 Critical Conversion Card with Heatmap Glow -->
+  <rect x="56" y="96" width="528" height="106" rx="14" fill="#16161c" stroke="#ef4444" stroke-width="1.75"/>
+  <ellipse cx="430" cy="148" rx="140" ry="50" fill="url(#heatSpot)"/>
+  <rect x="76" y="114" width="108" height="24" rx="6" fill="#ef4444" fill-opacity="0.2"/>
+  <text x="88" y="130" fill="#f87171" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">P0 CRITICAL</text>
+  <text x="76" y="160" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">Forced Account Creation Wall</text>
+  <text x="76" y="184" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="13.5">Fix: Enable 1-Click Guest Checkout (+24% conversion)</text>
 
-  <!-- Right Panel: E-Commerce Audit Metrics -->
-  <rect x="732" y="72" width="372" height="530" rx="16" fill="#0f0f12" stroke="#27272a" stroke-width="1.5"/>
-  <text x="762" y="114" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11" font-weight="700">RULE PACK: ECOMMERCE.JSON</text>
-  <text x="762" y="148" fill="#fafafa" font-family="Inter, sans-serif" font-size="21" font-weight="800">Conversion Readiness</text>
-
-  <rect x="762" y="176" width="312" height="84" rx="10" fill="#09090b" stroke="#27272a"/>
-  <text x="782" y="204" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Checkout Friction Index</text>
-  <text x="782" y="238" fill="#22c55e" font-family="Inter, sans-serif" font-size="24" font-weight="800">3 Quick Wins Found</text>
-
-  <rect x="762" y="278" width="312" height="90" rx="10" fill="#09090b" stroke="#27272a"/>
-  <text x="782" y="306" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">First-Time Shopper Persona</text>
-  <text x="782" y="328" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Evaluates return policy visibility, badge</text>
-  <text x="782" y="346" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">trust signals, and mobile thumb-zone CTAs.</text>
-
-  <rect x="762" y="386" width="312" height="90" rx="10" fill="#09090b" stroke="#27272a"/>
-  <text x="782" y="414" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">Live Heatmap Overlay</text>
-  <text x="782" y="436" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">Visualizes severity density directly on PDP,</text>
-  <text x="782" y="454" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="11.5">cart drawer, and multi-step payment forms.</text>
-
-  <rect x="762" y="494" width="312" height="78" rx="10" fill="#3b82f6" fill-opacity="0.1" stroke="#3b82f6" stroke-opacity="0.4"/>
-  <text x="782" y="524" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11" font-weight="700">EXPORT CLIENT-READY PDF</text>
-  <text x="782" y="548" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="11.5">Annotated visual audit + P0/P1/P2 roadmap</text>
+  <!-- P1 Quick Win Card: Shipping & Total Cost -->
+  <rect x="56" y="216" width="528" height="98" rx="14" fill="#16161c" stroke="#22c55e" stroke-opacity="0.6" stroke-width="1.5"/>
+  <rect x="76" y="234" width="118" height="24" rx="6" fill="#22c55e" fill-opacity="0.16"/>
+  <text x="88" y="250" fill="#4ade80" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">QUICK WIN FIX</text>
+  <text x="76" y="280" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">Upfront Shipping &amp; Free-Tier Bar</text>
+  <text x="76" y="302" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13.5">Eliminates surprise fee abandonment at final payment step</text>
 </svg>

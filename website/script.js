@@ -86,13 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
-  // Fetch latest version from GitHub manifest.json
+  // Fetch latest version from GitHub manifest.json and sync both hero badge and nav pill
   const versionBadge = document.getElementById('version-badge');
-  if (versionBadge) {
+  const navVerPills = document.querySelectorAll('.nav-ver-pill');
+  if (versionBadge || navVerPills.length > 0) {
     fetch('https://raw.githubusercontent.com/synthuxapp/synthux/main/extension/manifest.json')
       .then(r => r.json())
       .then(manifest => {
-        versionBadge.innerHTML = `v${manifest.version} · <a href="https://github.com/synthuxapp/synthux" target="_blank">Open Source</a>`;
+        if (versionBadge) {
+          versionBadge.innerHTML = `v${manifest.version} · <a href="https://github.com/synthuxapp/synthux" target="_blank">Open Source</a>`;
+        }
+        const shortVer = manifest.version.split('.').slice(0, 2).join('.');
+        navVerPills.forEach(pill => {
+          pill.textContent = `v${shortVer}`;
+        });
       })
       .catch(() => {});
   }

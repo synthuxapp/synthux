@@ -1,121 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
   <defs>
-    <radialGradient id="bgGlow" cx="50%" cy="45%" r="60%">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.18"/>
-      <stop offset="55%" stop-color="#22c55e" stop-opacity="0.06"/>
+    <radialGradient id="glowDef" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="#3b82f6" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="shieldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.8"/>
-      <stop offset="50%" stop-color="#22c55e" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.3"/>
-    </linearGradient>
-    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#18181b"/>
-      <stop offset="100%" stop-color="#0f0f12"/>
-    </linearGradient>
-    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    <pattern id="gridDef" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
     </pattern>
   </defs>
 
-  <!-- Background -->
-  <rect width="1200" height="675" fill="#09090b"/>
-  <rect width="1200" height="675" fill="url(#grid)"/>
-  <rect width="1200" height="675" fill="url(#bgGlow)"/>
+  <rect width="640" height="360" fill="#09090b"/>
+  <rect width="640" height="360" fill="url(#gridDef)"/>
+  <rect width="640" height="360" fill="url(#glowDef)"/>
 
-  <!-- Air-Gapped Perimeter Boundary -->
-  <rect x="64" y="54" width="820" height="567" rx="20" fill="#0c0c10" fill-opacity="0.75" stroke="url(#shieldStroke)" stroke-width="2" stroke-dasharray="10 6"/>
-  
-  <!-- Perimeter Header Badge -->
-  <rect x="92" y="38" width="356" height="32" rx="8" fill="#111827" stroke="#22c55e" stroke-opacity="0.6" stroke-width="1.5"/>
-  <circle cx="112" cy="54" r="5" fill="#22c55e"/>
-  <text x="128" y="59" fill="#e4e4e7" font-family="Inter, -apple-system, monospace" font-size="11.5" font-weight="700" letter-spacing="1.2">AIR-GAPPED PERIMETER · 127.0.0.1 ONLY</text>
+  <!-- Air-Gapped Hardware Perimeter Dashed Frame -->
+  <rect x="28" y="24" width="584" height="312" rx="18" fill="#0c0c10" fill-opacity="0.85" stroke="#22c55e" stroke-opacity="0.55" stroke-width="1.75" stroke-dasharray="8 6"/>
 
-  <!-- Left: C4ISR / Core Banking Intranet Interface Wireframe -->
-  <rect x="100" y="102" width="490" height="476" rx="14" fill="url(#cardGrad)" stroke="#27272a" stroke-width="1.5"/>
-  <!-- Window Topbar -->
-  <rect x="100" y="102" width="490" height="38" rx="14" fill="#141418"/>
-  <circle cx="122" cy="121" r="4.5" fill="#3f3f46"/>
-  <circle cx="138" cy="121" r="4.5" fill="#3f3f46"/>
-  <circle cx="154" cy="121" r="4.5" fill="#3f3f46"/>
-  <rect x="180" y="112" width="230" height="18" rx="5" fill="#09090b" stroke="#27272a"/>
-  <text x="194" y="125" fill="#71717a" font-family="SF Mono, monospace" font-size="10">https://intranet.internal.local/c4isr-ops</text>
-  <rect x="498" y="112" width="74" height="18" rx="4" fill="#22c55e" fill-opacity="0.12" stroke="#22c55e" stroke-opacity="0.4"/>
-  <text x="512" y="124" fill="#22c55e" font-family="Inter, sans-serif" font-size="9.5" font-weight="700">CLASSIFIED</text>
+  <!-- Top Security Pill -->
+  <rect x="52" y="44" width="268" height="32" rx="8" fill="#111827" stroke="#22c55e" stroke-opacity="0.5"/>
+  <circle cx="70" cy="60" r="5" fill="#22c55e"/>
+  <text x="84" y="65" fill="#4ade80" font-family="SF Mono, Inter, monospace" font-size="12.5" font-weight="700">AIR-GAPPED · 127.0.0.1 ONLY</text>
 
-  <!-- Tactical / Banking Intranet Telemetry Grid -->
-  <rect x="122" y="160" width="210" height="130" rx="8" fill="#09090b" stroke="#27272a"/>
-  <circle cx="227" cy="225" r="44" stroke="#3b82f6" stroke-opacity="0.35" stroke-width="1.5"/>
-  <circle cx="227" cy="225" r="26" stroke="#3b82f6" stroke-opacity="0.55" stroke-width="1.5" stroke-dasharray="4 4"/>
-  <line x1="183" y1="225" x2="271" y2="225" stroke="#3b82f6" stroke-opacity="0.3"/>
-  <line x1="227" y1="181" x2="227" y2="269" stroke="#3b82f6" stroke-opacity="0.3"/>
-  <path d="M227 225 L258 198" stroke="#22c55e" stroke-width="2"/>
-  <circle cx="250" cy="205" r="3.5" fill="#22c55e"/>
+  <!-- Right Egress Counter Pill -->
+  <rect x="424" y="44" width="164" height="32" rx="8" fill="#22c55e" fill-opacity="0.12" stroke="#22c55e" stroke-opacity="0.4"/>
+  <text x="442" y="65" fill="#fafafa" font-family="Inter, sans-serif" font-size="13" font-weight="800">0 Bytes Cloud Egress</text>
 
-  <!-- High-Density Metrics Panel with UX Audit Callout #1 -->
-  <rect x="348" y="160" width="220" height="130" rx="8" fill="#09090b" stroke="#f59e0b" stroke-width="1.75"/>
-  <rect x="364" y="178" width="90" height="8" rx="4" fill="#3f3f46"/>
-  <rect x="364" y="198" width="160" height="12" rx="4" fill="#27272a"/>
-  <rect x="364" y="220" width="140" height="12" rx="4" fill="#27272a"/>
-  <rect x="364" y="250" width="188" height="24" rx="5" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-opacity="0.5"/>
-  <text x="376" y="266" fill="#fbbf24" font-family="SF Mono, monospace" font-size="10" font-weight="600">COGNITIVE LOAD: HIGH DENSITY</text>
-  <!-- Marker Badge 1 -->
-  <circle cx="564" cy="164" r="13" fill="#f59e0b"/>
-  <text x="560" y="168" fill="#09090b" font-family="Inter, sans-serif" font-size="11" font-weight="800">1</text>
+  <!-- Left Node: Classified Intranet / C4ISR UI -->
+  <rect x="52" y="96" width="232" height="168" rx="14" fill="#121217" stroke="#27272a" stroke-width="1.5"/>
+  <rect x="70" y="114" width="96" height="24" rx="6" fill="#3b82f6" fill-opacity="0.15"/>
+  <text x="82" y="130" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">INTRANET UI</text>
+  <text x="70" y="164" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">C4ISR &amp; Core Banking</text>
+  <text x="70" y="188" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• DOM &amp; Contrast Scan</text>
+  <text x="70" y="210" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• Cognitive Load Check</text>
+  <text x="70" y="232" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• Custom HMI JSON Rules</text>
 
-  <!-- Data Table / Command Execution Panel -->
-  <rect x="122" y="308" width="446" height="148" rx="8" fill="#09090b" stroke="#27272a"/>
-  <rect x="140" y="326" width="120" height="8" rx="4" fill="#52525b"/>
-  <rect x="280" y="326" width="80" height="8" rx="4" fill="#3f3f46"/>
-  <rect x="380" y="326" width="90" height="8" rx="4" fill="#3f3f46"/>
-  <line x1="122" y1="348" x2="568" y2="348" stroke="#27272a"/>
-  <rect x="140" y="362" width="100" height="8" rx="4" fill="#3f3f46"/>
-  <rect x="280" y="362" width="66" height="8" rx="4" fill="#22c55e" fill-opacity="0.5"/>
-  <rect x="380" y="362" width="110" height="8" rx="4" fill="#27272a"/>
-  <rect x="140" y="388" width="112" height="8" rx="4" fill="#3f3f46"/>
-  <rect x="280" y="388" width="54" height="8" rx="4" fill="#3b82f6" fill-opacity="0.5"/>
-  <rect x="380" y="388" width="96" height="8" rx="4" fill="#27272a"/>
-  <rect x="140" y="414" width="94" height="8" rx="4" fill="#3f3f46"/>
-  <rect x="280" y="414" width="72" height="8" rx="4" fill="#22c55e" fill-opacity="0.5"/>
-  <rect x="380" y="414" width="124" height="8" rx="4" fill="#27272a"/>
+  <!-- Bidirectional Loopback Bridge -->
+  <line x1="284" y1="180" x2="356" y2="180" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="5 4"/>
+  <circle cx="320" cy="180" r="16" fill="#111827" stroke="#22c55e" stroke-width="2"/>
+  <path d="M315 180l3 3 7-7" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- Critical Action Bar with UX Audit Callout #2 -->
-  <rect x="122" y="474" width="446" height="80" rx="8" fill="#09090b" stroke="#ef4444" stroke-width="1.75"/>
-  <rect x="142" y="494" width="180" height="10" rx="4" fill="#52525b"/>
-  <rect x="142" y="514" width="220" height="8" rx="4" fill="#27272a"/>
-  <rect x="424" y="494" width="124" height="40" rx="7" fill="#ef4444" fill-opacity="0.18" stroke="#ef4444"/>
-  <text x="444" y="518" fill="#f87171" font-family="Inter, sans-serif" font-size="10.5" font-weight="700">EXECUTE OVERRIDE</text>
-  <circle cx="564" cy="478" r="13" fill="#ef4444"/>
-  <text x="560" y="482" fill="#ffffff" font-family="Inter, sans-serif" font-size="11" font-weight="800">2</text>
+  <!-- Right Node: On-Device Ollama Engine -->
+  <rect x="356" y="96" width="232" height="168" rx="14" fill="#121217" stroke="#3b82f6" stroke-width="1.75"/>
+  <rect x="374" y="114" width="128" height="24" rx="6" fill="#22c55e" fill-opacity="0.15"/>
+  <text x="386" y="130" fill="#4ade80" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">ON-DEVICE AI</text>
+  <text x="374" y="164" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">Local Ollama Runtime</text>
+  <text x="374" y="188" fill="#d4d4d8" font-family="SF Mono, monospace" font-size="12.5">gemma4 · qwen3.8</text>
+  <text x="374" y="210" fill="#d4d4d8" font-family="SF Mono, monospace" font-size="12.5">llama4:scout · deepseek</text>
+  <text x="374" y="234" fill="#60a5fa" font-family="Inter, sans-serif" font-size="12.5" font-weight="600">localhost:11434 (Offline)</text>
 
-  <!-- Bidirectional Local Loopback Connector -->
-  <path d="M590 320 L656 320" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="6 4"/>
-  <circle cx="623" cy="320" r="5" fill="#3b82f6"/>
-
-  <!-- On-Device Local AI Engine Card (Inside Perimeter) -->
-  <rect x="656" y="176" width="196" height="290" rx="14" fill="url(#cardGrad)" stroke="#3b82f6" stroke-width="2"/>
-  <rect x="676" y="198" width="156" height="26" rx="6" fill="#3b82f6" fill-opacity="0.14"/>
-  <text x="692" y="215" fill="#60a5fa" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">LOCAL AI ENGINE</text>
-
-  <rect x="676" y="240" width="156" height="58" rx="8" fill="#09090b" stroke="#27272a"/>
-  <text x="690" y="262" fill="#fafafa" font-family="Inter, sans-serif" font-size="12" font-weight="700">Ollama · gemma4</text>
-  <text x="690" y="282" fill="#22c55e" font-family="SF Mono, monospace" font-size="10">localhost:11434</text>
-
-  <rect x="676" y="312" width="156" height="58" rx="8" fill="#09090b" stroke="#27272a"/>
-  <text x="690" y="334" fill="#fafafa" font-family="Inter, sans-serif" font-size="12" font-weight="700">qwen3.8 / deepseek</text>
-  <text x="690" y="354" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="10">On-Device GPU/NPU</text>
-
-  <rect x="676" y="384" width="156" height="60" rx="8" fill="#22c55e" fill-opacity="0.08" stroke="#22c55e" stroke-opacity="0.4"/>
-  <text x="690" y="408" fill="#4ade80" font-family="Inter, sans-serif" font-size="11" font-weight="700">0 Bytes External</text>
-  <text x="690" y="426" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="10">No Cloud · No Telemetry</text>
-
-  <!-- Right Side (Outside Perimeter): Blocked External Cloud Zone -->
-  <line x1="924" y1="240" x2="984" y2="300" stroke="#ef4444" stroke-width="3"/>
-  <line x1="984" y1="240" x2="924" y2="300" stroke="#ef4444" stroke-width="3"/>
-  <rect x="920" y="330" width="224" height="156" rx="14" fill="#0f0f12" fill-opacity="0.5" stroke="#27272a" stroke-dasharray="6 6"/>
-  <text x="946" y="374" fill="#71717a" font-family="Inter, sans-serif" font-size="13" font-weight="700">EXTERNAL CLOUD APIs</text>
-  <text x="946" y="400" fill="#52525b" font-family="SF Mono, monospace" font-size="11">BLOCKED BY AIR-GAP</text>
-  <rect x="946" y="422" width="172" height="36" rx="6" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-opacity="0.35"/>
-  <text x="962" y="445" fill="#f87171" font-family="SF Mono, monospace" font-size="10.5" font-weight="700">NO EGRESS PERMITTED</text>
+  <!-- Bottom Bar: Audit Deliverable -->
+  <rect x="52" y="280" width="536" height="38" rx="10" fill="#141419" stroke="#27272a"/>
+  <text x="72" y="304" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="13" font-weight="600">Offline PDF &amp; Markdown Report</text>
+  <text x="412" y="304" fill="#4ade80" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">✓ MIT Auditable Source</text>
 </svg>
