@@ -13,6 +13,7 @@ import { AIClient } from '../core/ai-client.js';
 import { Analyzer } from '../core/analyzer.js';
 import { captureScreenshot } from '../core/screenshot.js';
 import { FlowManager } from '../core/flow-manager.js';
+import { MCPBridge } from '../core/mcp-bridge.js';
 
 // ─── Side Panel Management ───────────────────────────────────────────────────
 
@@ -299,6 +300,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true;
 
+    // ─── MCP Bridge Management ─────────────────────────────────────
+    case 'GET_MCP_STATUS':
+      sendResponse(mcpBridge.getStatus());
+      break;
+
+    case 'CONFIGURE_MCP':
+      mcpBridge.configure(payload || {})
+        .then(status => sendResponse({ success: true, status }))
+        .catch(err => sendResponse({ error: err.message }));
+      return true;
+
     default:
       console.warn('[synthux] Unknown message type:', type);
   }
@@ -312,8 +324,15 @@ async function handleStartAnalysis(options) {
   }
 
   try {
-    // Get active tab
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    // Get target tab (explicit tabId or active tab)
+    let tab = null;
+    if (options?.tabId) {
+      try { tab = await chrome.tabs.get(Number(options.tabId)); } catch {}
+    }
+    if (!tab) {
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      tab = activeTab;
+    }
     if (!tab) {
       return { error: 'No active tab found' };
     }
@@ -333,19 +352,23 @@ async function handleStartAnalysis(options) {
     const rulePackId = options?.rulePackId || settings.rulePackId || 'nielsen-10';
     const profiles = options?.profiles || ['first-time', 'power-user', 'accessibility'];
     const customHeuristics = options?.heuristics || null;
+    const provider = options?.provider || settings.providerId;
+    const model = options?.model || settings.ollamaModel;
+    const endpoint = options?.endpoint || settings.ollamaEndpoint;
+    const apiKey = options?.apiKey || settings.apiKey;
 
     // Create analyzer
     const analyzer = new Analyzer({
-      endpoint: settings.ollamaEndpoint,
-      model: settings.ollamaModel,
+      endpoint,
+      model,
       mode,
       rulePackId,
       profiles,
       heuristics: customHeuristics,
-      provider: settings.providerId,
-      apiKey: settings.apiKey,
+      provider,
+      apiKey,
       onProgress: (progress) => {
-        currentAnalysis.progress = progress;
+        if (currentAnalysis) currentAnalysis.progress = progress;
         // Broadcast progress to side panel
         broadcastToSidePanel({
           type: 'ANALYSIS_PROGRESS',
@@ -604,20 +627,24 @@ async function injectOverlayManager(tabId) {
 }
 
 /**
- * Relay an overlay message from the side panel to the active tab's content script.
+ * Relay an overlay message from the side panel or MCP bridge to the target tab's content script.
  * Automatically injects the overlay manager if needed.
  */
-async function relayOverlayMessage(type, payload) {
+async function relayOverlayMessage(type, payload, explicitTabId = null) {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) return { error: 'No active tab' };
+    let tabId = explicitTabId || payload?.tabId || null;
+    if (!tabId) {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      tabId = tab?.id;
+    }
+    if (!tabId) return { error: 'No active tab' };
 
     // Ensure overlay manager is injected
-    await injectOverlayManager(tab.id);
+    await injectOverlayManager(tabId);
 
     // Forward message to content script
     return new Promise((resolve) => {
-      chrome.tabs.sendMessage(tab.id, { type, ...payload }, (response) => {
+      chrome.tabs.sendMessage(tabId, { type, ...payload }, (response) => {
         if (chrome.runtime.lastError) {
           resolve({ error: chrome.runtime.lastError.message });
         } else {
@@ -629,6 +656,36 @@ async function relayOverlayMessage(type, payload) {
     return { error: err.message };
   }
 }
+
+async function saveCompletedReport(report) {
+  const reportForStorage = { ...report };
+  delete reportForStorage.screenshot;
+  await chrome.storage.local.set({
+    lastReport: reportForStorage,
+    lastReportTimestamp: Date.now()
+  });
+
+  const reportForHistory = { ...reportForStorage };
+  delete reportForHistory.annotatedScreenshot;
+  await addToHistory(reportForHistory);
+
+  broadcastToSidePanel({
+    type: 'ANALYSIS_COMPLETE',
+    payload: report
+  });
+}
+
+// ─── Initialize MCP Bridge ───────────────────────────────────────────────────
+
+const mcpBridge = new MCPBridge({
+  checkOllamaConnection,
+  scanPage,
+  handleStartAnalysis,
+  relayOverlayMessage,
+  saveCompletedReport
+});
+
+mcpBridge.init();
 
 // ─── Flow Analysis Workflow ──────────────────────────────────────────────────
 

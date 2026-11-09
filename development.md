@@ -61,27 +61,31 @@ Bu dosya, **synthux** projesinin geliştirme geçmişini, mimari kararlarını, 
 
 ---
 
-### 5. Yayınlama, Paketleme ve Dağıtım Bilgileri
-- **Chrome Web Store Paketi:** `synthux-v2.0.0.zip` (55 dosya, `manifest.json` v2.0.0) ve `v2.0.0-release-notes.md` oluşturuldu.
-- **Firebase Hosting:**
-  - Proje ID: `synthux-app` (`https://synthux-app.web.app`)
-  - Yetkili Hesap: `ufuk@ufukaydin.com`
-  - Dağıtım Komutu: `npx --offline firebase-tools deploy --only hosting --project synthux-app`
-- **GitHub:**
-  - Repo: `https://github.com/synthuxapp/synthux.git` (`main` branch, commit `78b2a3f`)
+### 5. Website SEO Çözüm & Persona Sayfaları ve Navigasyon Yenilemesi (`website/`)
+- **SEO Odaklı 6 Çözüm & Persona Sayfası (`website/solutions/*.html`):**
+  - Sitenin 6 dil desteğine (`en`, `tr`, `de`, `zh`, `fr`, `it`) ve koyu/açık tema sistemine tam uyumlu, emojisiz, kurumsal ve teknik mimari diyagramlı (`website/assets/solutions/*.svg` — 16:9 vektörel illüstrasyonlar) 6 ayrı SEO açılış sayfası oluşturuldu:
+    1. `website/solutions/defense-air-gapped-ux.html` — **Savunma Sanayii, Askeri Sistemler (C4ISR) & Banka İntranetleri** (Air-Gapped, %100 Offline Ollama yerel AI UX denetimi)
+    2. `website/solutions/fintech-banking-ux.html` — **Fintech, Dijital Bankacılık & Ödeme Sistemleri** (`fintech.json` kural paketi, komisyon/kur şeffaflığı, geri alınamaz işlem onayları)
+    3. `website/solutions/ecommerce-ux-audit.html` — **E-Ticaret & Checkout Dönüşüm Optimizasyonu** (`ecommerce.json` kural paketi, sepet terk nedenleri, üyesiz ödeme sürtünmesi)
+    4. `website/solutions/saas-dashboard-ux.html` — **SaaS, B2B Dashboard & Kurumsal Web Uygulamaları** (`saas.json` kural paketi, yüksek yoğunluklu tablolar, boş durum onboarding)
+    5. `website/solutions/accessibility-wcag-audit.html` — **WCAG 2.2 AA Erişilebilirlik & Uyumluluk Denetimi** (`axe-core` + AI Ekran Okuyucu / Klavye Personası simülasyonu, EAA & Section 508)
+    6. `website/solutions/user-flow-personas.html` — **Çok Sayfalı Kullanıcı Akışları (Flow Builder) & Sentetik Personalar** (`First-Time Visitor`, `Power User`, `Accessibility User` + 5 özel persona)
+  - Ana sayfaya (`website/index.html`) `#solutions` minimal modülü ve hedef rol/persona hapları eklendi; `website/sitemap.xml` (7 URL) ve `website/llms.txt` güncellendi.
+- **Masaüstü & Mobil Web Navigasyon UX/UI Yenilemesi (`website/style.css`, `website/script.js`, `website/index.html`):**
+  - **Masaüstü (`>= 901px`):** 3 bölgeli üst bar (`.nav-brand` logo + `v2.0` rozeti, `.nav-center` ortalanmış hap menü ve 2 sütunlu simetrik `Solutions` hover/click mega dropdown menüsü, `.nav-actions` SVG ikonlu tema seçici, dil seçici, `GitHub` ve `Add to Chrome` CTA).
+  - **Mobil Web (`<= 900px`):** Uzun dil çevirilerinde taşmayı önleyen hamburger/kapat butonu (`.nav-mobile-toggle`) ve `backdrop-filter` sabit kapsayıcı kısıtlamasını aşan tam ekran (`calc(100dvh - 57px)`) kaydırılabilir mobil çekmece menüsü (`.nav-mobile-drawer`).
+- **Temizlik & Kırık Bağlantı Düzeltmeleri:**
+  - Ana sayfa ve tüm çözüm detay sayfalarından `#support` (ETH / SOL cüzdan bağış) modülü kaldırıldı.
+  - Footer `Resources` sütununda ve `llms.txt` içinde 404 döndüren `docs/getting-started.md` (`Documentation` ve `Getting Started`) linkleri kaldırıldı.
 
 ---
 
-## 🗺️ Kalan Yol Haritası Maddeleri (Sonraki Sürümler İçin)
+### 6. Yayınlama, Paketleme ve Dağıtım Bilgileri
+- **Chrome Web Store Paketi:** `synthux-v2.0.0.zip` (55 dosya, `manifest.json` v2.0.0) ve `v2.0.0-release-notes.md` oluşturuldu.
+- **Firebase Hosting:**
+  - Proje ID: `synthux-app` (`https://synthux-app.web.app` / `https://synthux.app`)
+  - Yetkili Hesap: `ufuk@ufukaydin.com`
+  - Dağıtım Komutu: `npx --offline firebase-tools deploy --only hosting`
+- **GitHub:**
+  - Repo: `https://github.com/synthuxapp/synthux.git` (`main` branch, commit `315d109`)
 
-| Durum | Özellik | Kaynak | Açıklama |
-|:---:|:---|:---|:---|
-| ✅ | **Sektörel Kural Paketleri & Plugin Ekosistemi (#12)** | `v2.0.0` | E-Ticaret, SaaS, Fintech paketleri + Özel JSON içe aktarma |
-| ✅ | **Enhanced Reporting (PDF & Markdown v2.0)** | `v2.0.0` | Executive Summary, P0/P1/P2 Aksiyon Planı, Annotated Visual Audit PDF |
-| ✅ | **2026 Local LLM Lineup** | `v2.0.0` | Gemma 4, Qwen 3.8/3.5, Llama 4 Scout, DeepSeek R1 + `<think>` sanitizer |
-| ⬜ | **synthux insights** | `README.md` | NNGroup ve Baymard Institute araştırmalarını çekip kanıt bazlı öneri sunma |
-| ⬜ | **Walkthrough Mode (#9)** | `docs/implementation-plan2.md` | Sentetik kullanıcının sayfayı adım adım gezdiği animasyonlu rehber turu |
-| ⬜ | **Zaman İçi Karşılaştırma / History Diff (#7)** | `docs/implementation-plan2.md` | Aynı URL'nin farklı tarihli raporlarını karşılaştırma ve skor trendi |
-| ⬜ | **Rakip Karşılaştırma — 2 URL (#10)** | `docs/implementation-plan2.md` | İki URL'yi yan yana analiz edip heuristik bazlı karşılaştırma raporu üretme |
-| ⬜ | **WebGPU / Browser-Native AI (#13)** | `docs/implementation-plan2.md` | Ollama gerektirmeden tarayıcı içi AI (Gemini Nano / WebGPU) desteği |
-| ⬜ | **Figma Plugin (#14)** | `docs/implementation-plan2.md` | Tasarım aşamasında Figma içinde UX audit (Phase 4 / v3.0) |

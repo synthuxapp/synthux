@@ -4,12 +4,13 @@
 
 ## What is synthux?
 
-synthux is an open-source Chrome extension (v2.0.0) that evaluates web pages and multi-page user journeys using synthetic user personas, Sectoral UX Rule Packs (Nielsen's 10, E-Commerce, SaaS, Fintech, plus custom JSON plugins), WCAG 2.2 AA audit (axe-core), and multimodal vision analysis — powered by local AI (Ollama / LM Studio) or your own Cloud API key (Gemini, OpenAI, Claude).
+synthux is an open-source Chrome extension and Model Context Protocol (MCP) server (`synthux-mcp`, v2.1.0) that evaluates web pages and multi-page user journeys using synthetic user personas, Sectoral UX Rule Packs (Nielsen's 10, E-Commerce, SaaS, Fintech, plus custom JSON plugins), WCAG 2.2 AA audit (axe-core), and multimodal vision analysis — powered by local AI (Ollama / LM Studio), your own Cloud API key (Gemini, OpenAI, Claude), or desktop AI coding agents (Google Antigravity / Gemini 4 Argon, Claude Desktop & Claude Code, Cursor, OpenAI Codex, Windsurf) via MCP.
 
-All local analysis runs entirely on the user's machine. Cloud analysis connects directly to the provider using the user's API key (BYOK) with zero middleman.
+All local analysis and the MCP Agent Bridge (`127.0.0.1:17483`) run entirely on the user's machine. Cloud analysis connects directly to the provider using the user's API key (BYOK) with zero middleman.
 
 ## Key Features
 
+- **MCP Server & AI Agent Bridge (`synthux-mcp`)**: 14 MCP tools over Stdio and Streamable HTTP (`http://127.0.0.1:17483/mcp`) + local WebSocket bridge (`ws://127.0.0.1:17483/ws`) to the Chrome extension. Supports both Extension AI Engine mode and Agent-Brain mode (`prepare_external_audit` + `submit_external_audit`) where the host AI agent evaluates the page with zero extra API keys
 - **2026 Local AI & Cloud BYOK**: Local via Ollama (`gemma4`, `gemma4:e4b`, `qwen3.8`, `qwen3.5`, `llama4:scout`, `deepseek-r1`, `mistral-small`) or Cloud via Gemini 2.5, OpenAI GPT-4.1 / o4-mini, and Claude Sonnet 4 / Haiku 4.5
 - **Sectoral Rule Packs & Plugin Ecosystem**: Built-in rule packs for General UX (Nielsen's 10), E-Commerce & Conversion, SaaS & Dashboards, and Fintech & Banking — plus custom `.json` rule pack plugin import
 - **Synthetic User Profiles**: 3 built-in profiles (First-Time Visitor, Power User, Accessibility User) + up to 5 custom user personas
@@ -26,6 +27,7 @@ All local analysis runs entirely on the user's machine. Cloud analysis connects 
 - **SaaS, B2B Dashboards & Enterprise Web Apps**: https://synthux.app/solutions/saas-dashboard-ux — Built-in `saas.json` rule pack for empty-state onboarding, high-density data tables, bulk actions, keyboard shortcuts, and RBAC guardrails.
 - **WCAG 2.2 AA Accessibility & Compliance**: https://synthux.app/solutions/accessibility-wcag-audit — Dual-engine axe-core deterministic DOM rules + AI Accessibility User persona simulation for EAA, Section 508, and EN 301 549.
 - **Multi-Page User Flows & Synthetic Personas**: https://synthux.app/solutions/user-flow-personas — Visual Flow Builder canvas + 3 built-in personas (First-Time Visitor, Power User, Accessibility User) and up to 5 custom user personas.
+- **MCP Server & AI Coding Agents (`synthux-mcp`)**: https://synthux.app/solutions/mcp-agentic-ux-audit — Autonomous browser UX and WCAG 2.2 AA auditing for Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex, and Windsurf via Model Context Protocol.
 
 ## Technical Stack
 

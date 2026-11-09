@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "default_locale": "en",
 
   "permissions": [
@@ -16,6 +16,9 @@
 
   "host_permissions": [
     "http://localhost:11434/*",
+    "http://127.0.0.1:11434/*",
+    "http://127.0.0.1:17483/*",
+    "http://localhost:17483/*",
     "https://api.openai.com/*",
     "https://generativelanguage.googleapis.com/*",
     "https://api.anthropic.com/*",

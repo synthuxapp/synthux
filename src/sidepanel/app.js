@@ -14,6 +14,7 @@ export class SynthuxApp extends LitElement {
   static properties = {
     activeTab: { type: String },
     ollamaStatus: { type: Object },
+    mcpStatus: { type: Object },
     report: { type: Object },
     reportHistory: { type: Array },
     analysisProgress: { type: Object },
@@ -257,6 +258,7 @@ export class SynthuxApp extends LitElement {
     super();
     this.activeTab = 'scan';
     this.ollamaStatus = { connected: false, models: [] };
+    this.mcpStatus = { connected: false, enabled: true };
     this.report = null;
     this.reportHistory = [];
     this.analysisProgress = null;
@@ -303,14 +305,22 @@ export class SynthuxApp extends LitElement {
           this.isAnalyzing = false;
           this.analysisProgress = null;
           break;
+
+        case 'MCP_STATUS_CHANGED':
+          this.mcpStatus = message.payload || { connected: false };
+          break;
       }
     });
   }
 
   async _checkOllamaStatus() {
     try {
-      const status = await chrome.runtime.sendMessage({ type: 'GET_OLLAMA_STATUS' });
+      const [status, mcp] = await Promise.all([
+        chrome.runtime.sendMessage({ type: 'GET_OLLAMA_STATUS' }),
+        chrome.runtime.sendMessage({ type: 'GET_MCP_STATUS' }).catch(() => null)
+      ]);
       this.ollamaStatus = status || { connected: false, models: [] };
+      if (mcp) this.mcpStatus = mcp;
     } catch {
       this.ollamaStatus = { connected: false, models: [] };
     }
@@ -386,8 +396,11 @@ export class SynthuxApp extends LitElement {
 
   _getStatusInfo() {
     const s = this.ollamaStatus;
+    const mcp = this.mcpStatus;
     if (s?.connected && s?.versionChanged) return { cls: 'version-warn', label: `Updated (${s.newVersion})` };
+    if (s?.connected && mcp?.connected) return { cls: 'connected', label: 'Connected · MCP' };
     if (s?.connected) return { cls: 'connected', label: 'Connected' };
+    if (mcp?.connected) return { cls: 'connected', label: 'MCP Agent Ready' };
     if (s?.corsBlocked) return { cls: 'cors-error', label: 'CORS Error' };
     return { cls: 'disconnected', label: 'Offline' };
   }

@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" fill="none">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
+      <stop offset="55%" stop-color="#22c55e" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bridgeStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#22c55e" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#0f0f12"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#ffffff" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="675" fill="#09090b"/>
+  <rect width="1200" height="675" fill="url(#grid)"/>
+  <rect width="1200" height="675" fill="url(#bgGlow)"/>
+
+  <!-- Loopback Security Perimeter -->
+  <rect x="44" y="50" width="1112" height="580" rx="20" fill="#0c0c10" fill-opacity="0.78" stroke="url(#bridgeStroke)" stroke-width="2" stroke-dasharray="10 6"/>
+  <rect x="76" y="34" width="440" height="32" rx="8" fill="#111827" stroke="#22c55e" stroke-opacity="0.6" stroke-width="1.5"/>
+  <circle cx="96" cy="50" r="5" fill="#22c55e"/>
+  <text x="112" y="55" fill="#e4e4e7" font-family="Inter, -apple-system, monospace" font-size="11.5" font-weight="700" letter-spacing="1.1">MODEL CONTEXT PROTOCOL · 127.0.0.1:17483 LOOPBACK</text>
+
+  <!-- Left Column: Desktop AI Agents -->
+  <rect x="76" y="96" width="300" height="496" rx="14" fill="url(#cardGrad)" stroke="#27272a" stroke-width="1.5"/>
+  <rect x="96" y="116" width="260" height="28" rx="6" fill="#3b82f6" fill-opacity="0.14"/>
+  <text x="112" y="135" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11" font-weight="700">DESKTOP AI AGENTS (MCP HOST)</text>
+
+  <!-- Agent Card 1: Google Antigravity -->
+  <rect x="96" y="162" width="260" height="82" rx="10" fill="#09090b" stroke="#3b82f6" stroke-width="1.5"/>
+  <circle cx="116" cy="186" r="5" fill="#22c55e"/>
+  <text x="130" y="190" fill="#f4f4f5" font-family="Inter, sans-serif" font-size="13" font-weight="700">Google Antigravity</text>
+  <text x="112" y="210" fill="#93c5fd" font-family="SF Mono, monospace" font-size="10.5">Gemini 4 Argon · Agent Brain</text>
+  <text x="112" y="228" fill="#71717a" font-family="Inter, sans-serif" font-size="10">Full autonomous DOM + Vision UX loop</text>
+
+  <!-- Agent Card 2: Claude Desktop & Code -->
+  <rect x="96" y="258" width="260" height="72" rx="10" fill="#09090b" stroke="#27272a" stroke-width="1.5"/>
+  <circle cx="116" cy="282" r="4.5" fill="#3b82f6"/>
+  <text x="130" y="286" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">Claude Desktop &amp; Claude Code</text>
+  <text x="112" y="308" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="10">stdio · npx -y synthux-mcp</text>
+
+  <!-- Agent Card 3: Cursor & Windsurf -->
+  <rect x="96" y="344" width="260" height="72" rx="10" fill="#09090b" stroke="#27272a" stroke-width="1.5"/>
+  <circle cx="116" cy="368" r="4.5" fill="#3b82f6"/>
+  <text x="130" y="372" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">Cursor &amp; Windsurf IDE</text>
+  <text x="112" y="394" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="10">Audit localhost staging &amp; auto-fix UI</text>
+
+  <!-- Agent Card 4: OpenAI Codex & Local Hosts -->
+  <rect x="96" y="430" width="260" height="72" rx="10" fill="#09090b" stroke="#27272a" stroke-width="1.5"/>
+  <circle cx="116" cy="454" r="4.5" fill="#22c55e"/>
+  <text x="130" y="458" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12.5" font-weight="700">OpenAI Codex &amp; Local LLM Hosts</text>
+  <text x="112" y="480" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="10">Streamable HTTP · /mcp endpoint</text>
+
+  <!-- Zero API Key Needed Pill -->
+  <rect x="96" y="518" width="260" height="52" rx="8" fill="#22c55e" fill-opacity="0.1" stroke="#22c55e" stroke-opacity="0.4"/>
+  <text x="112" y="540" fill="#4ade80" font-family="Inter, sans-serif" font-size="11" font-weight="700">AGENT-BRAIN MODE SUPPORTED</text>
+  <text x="112" y="557" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="10">Host LLM evaluates DOM + Vision directly</text>
+
+  <!-- Connector: Agent -> MCP Server -->
+  <path d="M376 310 L438 310" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <circle cx="407" cy="310" r="5" fill="#3b82f6"/>
+  <text x="383" y="296" fill="#60a5fa" font-family="SF Mono, monospace" font-size="9.5" font-weight="600">JSON-RPC</text>
+
+  <!-- Center Column: synthux-mcp Server -->
+  <rect x="438" y="134" width="256" height="420" rx="14" fill="url(#cardGrad)" stroke="#3b82f6" stroke-width="2"/>
+  <rect x="458" y="156" width="216" height="28" rx="6" fill="#3b82f6" fill-opacity="0.16"/>
+  <text x="480" y="175" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11" font-weight="700">SYNTHUX-MCP SERVER</text>
+
+  <rect x="458" y="200" width="216" height="66" rx="8" fill="#09090b" stroke="#27272a"/>
+  <text x="472" y="222" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11.5" font-weight="700">14 MCP Tools &amp; 4 Resources</text>
+  <text x="472" y="240" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="9.5">open_and_audit_url · run_wcag</text>
+  <text x="472" y="255" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="9.5">prepare_external_audit · flow</text>
+
+  <rect x="458" y="280" width="216" height="66" rx="8" fill="#09090b" stroke="#27272a"/>
+  <text x="472" y="302" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11.5" font-weight="700">Dual Transport Engine</text>
+  <text x="472" y="320" fill="#4ade80" font-family="SF Mono, monospace" font-size="9.5">● Stdio (stdin/stdout)</text>
+  <text x="472" y="335" fill="#60a5fa" font-family="SF Mono, monospace" font-size="9.5">● HTTP 127.0.0.1:17483/mcp</text>
+
+  <rect x="458" y="360" width="216" height="84" rx="8" fill="#09090b" stroke="#22c55e" stroke-opacity="0.5"/>
+  <text x="472" y="382" fill="#4ade80" font-family="Inter, sans-serif" font-size="11" font-weight="700">Hardened Security Guards</text>
+  <text x="472" y="400" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="10">✓ Origin CSRF Firewall</text>
+  <text x="472" y="416" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="10">✓ Optional Pairing Token</text>
+  <text x="472" y="432" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="10">✓ Zero API Key Exposure</text>
+
+  <rect x="458" y="460" width="216" height="72" rx="8" fill="#111827" stroke="#27272a"/>
+  <text x="472" y="482" fill="#f4f4f5" font-family="SF Mono, monospace" font-size="10" font-weight="700">$ npx synthux-mcp</text>
+  <text x="472" y="500" fill="#9ca3af" font-family="SF Mono, monospace" font-size="9.5">ws://127.0.0.1:17483/ws</text>
+  <text x="472" y="516" fill="#22c55e" font-family="SF Mono, monospace" font-size="9.5">0 external dependencies</text>
+
+  <!-- Connector: MCP Server -> Chrome Extension -->
+  <path d="M694 310 L756 310" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <circle cx="725" cy="310" r="5" fill="#22c55e"/>
+  <text x="701" y="296" fill="#4ade80" font-family="SF Mono, monospace" font-size="9.5" font-weight="600">WebSocket</text>
+
+  <!-- Right Column: synthux Chrome Extension & Live Browser -->
+  <rect x="756" y="96" width="368" height="496" rx="14" fill="url(#cardGrad)" stroke="#27272a" stroke-width="1.5"/>
+  <!-- Browser Topbar -->
+  <rect x="756" y="96" width="368" height="38" rx="14" fill="#141418"/>
+  <circle cx="778" cy="115" r="4.5" fill="#ef4444"/>
+  <circle cx="794" cy="115" r="4.5" fill="#f59e0b"/>
+  <circle cx="810" cy="115" r="4.5" fill="#22c55e"/>
+  <rect x="832" y="106" width="188" height="18" rx="5" fill="#09090b" stroke="#27272a"/>
+  <text x="844" y="119" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="9.5">chrome-extension://synthux</text>
+  <rect x="1030" y="106" width="78" height="18" rx="4" fill="#3b82f6" fill-opacity="0.16" stroke="#3b82f6" stroke-opacity="0.5"/>
+  <text x="1042" y="118" fill="#60a5fa" font-family="Inter, sans-serif" font-size="9.5" font-weight="700">MCP LIVE</text>
+
+  <!-- Live DOM + Visual Overlay Preview -->
+  <rect x="778" y="152" width="324" height="154" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="794" y="174" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11.5" font-weight="700">Live Browser Tab + Visual Overlays</text>
+  <!-- Heatmap & Highlighted Element -->
+  <rect x="794" y="188" width="142" height="52" rx="6" fill="#ef4444" fill-opacity="0.14" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="806" y="208" fill="#f87171" font-family="SF Mono, monospace" font-size="9.5" font-weight="700">#checkout-btn</text>
+  <text x="806" y="224" fill="#fca5a5" font-family="Inter, sans-serif" font-size="9">Contrast 2.4:1 · Critical</text>
+  <circle cx="932" cy="192" r="10" fill="#ef4444"/>
+  <text x="929" y="196" fill="#ffffff" font-family="Inter, sans-serif" font-size="10" font-weight="800">1</text>
+
+  <rect x="948" y="188" width="138" height="52" rx="6" fill="#f59e0b" fill-opacity="0.12" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="960" y="208" fill="#fbbf24" font-family="SF Mono, monospace" font-size="9.5" font-weight="700">Heatmap Overlay</text>
+  <text x="960" y="224" fill="#fde68a" font-family="Inter, sans-serif" font-size="9">Annotated Vision</text>
+
+  <rect x="794" y="252" width="292" height="38" rx="6" fill="#18181b" stroke="#27272a"/>
+  <text x="808" y="275" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="9.5">axe-core WCAG 2.2 AA · DOM Scanner · Flow Canvas</text>
+
+  <!-- Rule Packs & Personas Strip -->
+  <rect x="778" y="320" width="324" height="106" rx="10" fill="#09090b" stroke="#27272a"/>
+  <text x="794" y="342" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11.5" font-weight="700">Sectoral Rule Packs &amp; Personas</text>
+  <rect x="794" y="354" width="68" height="24" rx="5" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-opacity="0.4"/>
+  <text x="804" y="370" fill="#93c5fd" font-family="Inter, sans-serif" font-size="9.5" font-weight="600">Nielsen 10</text>
+  <rect x="870" y="354" width="72" height="24" rx="5" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-opacity="0.4"/>
+  <text x="880" y="370" fill="#86efac" font-family="Inter, sans-serif" font-size="9.5" font-weight="600">E-Commerce</text>
+  <rect x="950" y="354" width="54" height="24" rx="5" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-opacity="0.4"/>
+  <text x="964" y="370" fill="#d8b4fe" font-family="Inter, sans-serif" font-size="9.5" font-weight="600">SaaS</text>
+  <rect x="1012" y="354" width="74" height="24" rx="5" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-opacity="0.4"/>
+  <text x="1026" y="370" fill="#fcd34d" font-family="Inter, sans-serif" font-size="9.5" font-weight="600">Fintech</text>
+  <text x="794" y="406" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="10">Personas: First-Time · Power User · Accessibility · Custom</text>
+
+  <!-- v2.0 Report Output Card -->
+  <rect x="778" y="440" width="324" height="130" rx="10" fill="#09090b" stroke="#22c55e" stroke-opacity="0.5"/>
+  <text x="794" y="464" fill="#4ade80" font-family="Inter, sans-serif" font-size="11.5" font-weight="700">Enhanced v2.0 Audit Report &amp; Code Fixes</text>
+  <text x="794" y="486" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="10">• Executive KPI Scorecard &amp; 0–100 Heuristic Scores</text>
+  <text x="794" y="504" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="10">• 2×2 Impact × Effort Priority Matrix (Quick Wins)</text>
+  <text x="794" y="522" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="10">• Before/After Code Fixes synced to Side Panel &amp; Agent</text>
+  <rect x="794" y="534" width="292" height="24" rx="5" fill="#22c55e" fill-opacity="0.12"/>
+  <text x="808" y="550" fill="#4ade80" font-family="SF Mono, monospace" font-size="9.5" font-weight="600">Export: Markdown · Structured JSON · Vector PDF</text>
+</svg>

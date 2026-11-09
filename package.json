@@ -1,12 +1,17 @@
 {
   "name": "synthux",
-  "version": "2.0.0",
-  "description": "AI-powered UX audit in your browser. Open source.",
-  "private": true,
+  "version": "2.1.0",
+  "description": "AI-powered UX audit in your browser with Model Context Protocol (MCP) Agent Bridge. Open source.",
+  "private": false,
   "type": "module",
+  "bin": {
+    "synthux-mcp": "./mcp/server.js"
+  },
   "scripts": {
     "build": "node esbuild.config.js",
     "build:watch": "node esbuild.config.js --watch",
+    "mcp": "node mcp/server.js",
+    "test:mcp": "node mcp/test-suite.js",
     "lint": "eslint src/ extension/",
     "lint:ext": "npx web-ext lint --source-dir=extension/",
     "format": "prettier --write \"src/**/*.js\" \"extension/**/*.js\"",
@@ -18,9 +23,12 @@
     "heuristics",
     "nielsen",
     "chrome-extension",
+    "mcp",
+    "model-context-protocol",
     "ai",
     "ollama",
     "accessibility",
+    "wcag",
     "synthetic-users",
     "open-source"
   ],

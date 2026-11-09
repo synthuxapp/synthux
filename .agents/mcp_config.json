@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "synthux": {
+      "command": "node",
+      "args": [
+        "/Users/ufukaydin/Desktop/synthuxapp/mcp/server.js"
+      ]
+    }
+  }
+}

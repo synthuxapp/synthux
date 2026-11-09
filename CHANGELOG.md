@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-11-09
+
+### Added
+- **Model Context Protocol (MCP) Server & Chrome Extension Agent Bridge (`synthux-mcp`):**
+  - Zero-dependency Node.js MCP server (`mcp/server.js`, `mcp/package.json`) supporting both **Stdio** (`npx -y synthux-mcp`) and **Streamable HTTP (`http://127.0.0.1:17483/mcp`)** for desktop AI agents (Google Antigravity / Gemini 4 Argon, Claude Desktop, Claude Code, Cursor, OpenAI Codex, Windsurf) and local LLM MCP hosts.
+  - **MV3 Chrome Extension WebSocket Bridge (`extension/core/mcp-bridge.js`):** Real-time local WebSocket connection (`ws://127.0.0.1:17483/ws`) with automatic reconnection and heartbeat keep-alive inside `service-worker.js`.
+  - **14 MCP Tools for 100% Feature Parity:** `get_extension_status`, `list_browser_tabs`, `open_and_audit_url`, `scan_page_ux_context`, `run_wcag_audit`, `run_ux_audit`, `prepare_external_audit`, `submit_external_audit`, `start_flow_analysis`, `toggle_heatmap`, `highlight_issue`, `capture_annotated_screenshot`, `manage_rule_packs`, `manage_personas`, `configure_ai_provider`, and `get_report_history`.
+  - **Agent-Brain Mode (`prepare_external_audit` + `submit_external_audit`):** Enables host AI agents (such as Antigravity / Gemini 4 Argon) to perform full UX & Vision evaluations using their own LLM reasoning without requiring a separate API key in the Chrome extension, while still syncing the resulting v2.0 report to the Chrome Side Panel UI.
+- **In-App MCP Agent Bridge Controls (`synthux-settings.js` & `app.js`):**
+  - Dedicated **MCP Agent Bridge** card in Settings with enable/disable toggle, live connection status indicator, optional security pairing token input, and 1-click copyable `mcp_config.json` & Streamable HTTP setup guide.
+  - Header connection badge updated to display `Connected · MCP` or `MCP Agent Ready` when the MCP bridge is active.
+- **Security & Privacy Hardening (`SECURITY.md`, `PRIVACY.md`):**
+  - Strict `127.0.0.1` loopback-only binding in both `mcp/server.js` and `extension/core/mcp-bridge.js` (`isLoopbackWsUrl`).
+  - Strict `Origin` header CSRF/WebSocket firewall rejecting all `http://` and `https://` web page origins (`403 Forbidden`).
+  - Optional shared secret pairing token (`SYNTHUX_MCP_TOKEN` / `x-synthux-token`).
+  - Complete API key redaction over MCP (`CONFIGURE_AI` never returns stored keys).
+- **Automated E2E MCP Test Suite (`mcp/test-suite.js`):**
+  - 16 automated test suites (`npm run test:mcp`) covering JSON-RPC handshake, Streamable HTTP, Origin security guards, Sectoral Rule Packs, custom JSON rule packs, personas, WCAG audit, Agent-Brain evaluation with `<think>` sanitization, live WebSocket extension bridge roundtrips, and stdio child-process execution.
+- **Website (`synthux.app`) Updates:**
+  - Added 7th SEO solution page (`website/solutions/mcp-agentic-ux-audit.html`) and architecture SVG (`website/assets/solutions/mcp-agentic-ux.svg`) with 6-language i18n (`en`, `tr`, `de`, `zh`, `fr`, `it`).
+
+---
+
 ## [2.0.0] - 2026-11-01
 
 ### Added

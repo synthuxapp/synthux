@@ -4,7 +4,7 @@
     "description": "Extension display name"
   },
   "extensionDescription": {
-    "message": "AI-powered UX audit in your browser. Evaluate pages & flows with Nielsen's 10 heuristics, sectoral rule packs & local or cloud AI.",
+    "message": "AI-powered UX audit in your browser. Sectoral rule packs, WCAG 2.2 AA, Flow Builder, MCP Agent Bridge & local or cloud AI.",
     "description": "Extension description shown in Chrome Web Store and extensions page"
   },
   "tabScan": {

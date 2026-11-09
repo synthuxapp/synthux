@@ -29,6 +29,7 @@ Run locally with Ollama for free, or use your own API key with Gemini, OpenAI, o
 
 ## Features
 
+- **MCP Server & AI Agent Bridge (`synthux-mcp`)** — Let Google Antigravity (Gemini 4 Argon), Claude Desktop/Code, Cursor, OpenAI Codex, or Windsurf control 100% of synthux via Model Context Protocol (14 tools, Stdio + Streamable HTTP, Agent-Brain mode)
 - **Multi-Provider AI** — Ollama (local: Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1), Google Gemini, OpenAI, Anthropic Claude
 - **Sectoral Rule Packs & Plugin Ecosystem** — Built-in packs for General UX (Nielsen's 10), E-Commerce & Conversion, SaaS & Dashboards, and Fintech & Banking — plus custom `.json` rule pack plugin import
 - **Vision Analysis** — Full-page screenshot capture for visual layout evaluation
@@ -122,6 +123,51 @@ No local setup needed. Just enter your API key in Settings:
 4. Click **"Analyze Page"**
 5. View results, filter issues, export as PDF or Markdown
 
+## MCP Server & AI Coding Agents (`synthux-mcp`)
+
+Starting in **v2.1.0**, desktop AI coding agents (**Google Antigravity / Gemini 4 Argon**, **Claude Desktop**, **Claude Code**, **Cursor**, **OpenAI Codex**, **Windsurf**) and local LLM MCP hosts can control the `synthux` Chrome extension end-to-end via the **Model Context Protocol (MCP)**.
+
+### 1. Add to your Agent's `mcp_config.json` (Stdio)
+
+```json
+{
+  "mcpServers": {
+    "synthux": {
+      "command": "npx",
+      "args": ["-y", "synthux-mcp"]
+    }
+  }
+}
+```
+
+Or connect via **Streamable HTTP** (`http://127.0.0.1:17483/mcp`) after starting `npm run mcp:start`.
+
+### 2. Dual Evaluation Modes
+
+- **Agent-Brain Mode (Zero Extra API Keys Needed):** Your host agent calls `prepare_external_audit` to capture the live DOM, `axe-core` WCAG 2.2 AA results, full-page screenshot, and Sectoral Rule Pack prompt, evaluates the UX with its own model brain (e.g., Gemini 4 Argon, Claude, GPT), and calls `submit_external_audit` to generate the full v2.0 Markdown/JSON report and sync it directly to the Chrome Side Panel UI.
+- **Extension AI Engine Mode:** Your agent calls `run_ux_audit` or `open_and_audit_url` to trigger the extension's configured provider (Local Ollama or Cloud BYOK).
+
+### 3. Available MCP Tools (14 Tools)
+
+| Tool | Description |
+|:--|:--|
+| `get_extension_status` | Live WebSocket bridge status, active AI provider, rule packs, and security boundary |
+| `list_browser_tabs` | List open audit-eligible Chrome tabs (`http://` & `https://`) |
+| `open_and_audit_url` | Open a URL in Chrome, wait for load, and run an audit or prepare an Agent-Brain bundle |
+| `scan_page_ux_context` | Extract DOM structure, headings, forms, contrast, navigation, and optional screenshot |
+| `run_wcag_audit` | Run `axe-core` WCAG 2.2 AA accessibility compliance audit |
+| `run_ux_audit` | Execute full UX audit (`quick`, `deep`, `custom`) with Rule Packs & Synthetic Personas |
+| `prepare_external_audit` | Capture DOM + WCAG + Screenshot + Rule Pack prompt for host Agent-Brain evaluation |
+| `submit_external_audit` | Compile Agent-Brain findings into a v2.0 report and sync to the Chrome Side Panel |
+| `start_flow_analysis` | Run multi-page User Journey (Flow Builder) analysis across 2+ URLs |
+| `toggle_heatmap` | Render or hide the live severity heatmap overlay on the browser tab |
+| `highlight_issue` | Highlight & scroll to a specific CSS selector on the live page with a severity tooltip |
+| `capture_annotated_screenshot` | Capture a viewport PNG with numbered severity markers drawn on issue elements |
+| `manage_rule_packs` / `manage_personas` | List, inspect, or import custom `.json` Sectoral Rule Packs and Synthetic Personas |
+| `configure_ai_provider` / `get_report_history` | Switch active AI provider/model or retrieve past UX audit reports |
+
+See [`mcp/README.md`](mcp/README.md) for full protocol and security details.
+
 ## Vision Analysis
 
 When enabled, synthux captures a full-page screenshot and sends it alongside the DOM data to vision-capable AI models. This enables:
@@ -175,12 +221,13 @@ AI Provider:
 ```
 synthuxapp/
 ├── extension/                  # Chrome Extension (load this in Chrome)
-│   ├── manifest.json           # Manifest V3
-│   ├── background/             # Service Worker
+│   ├── manifest.json           # Manifest V3 (v2.1.0)
+│   ├── background/             # Service Worker + MCP Bridge integration
 │   ├── content/                # Page scanning content script
 │   ├── sidepanel/              # Side Panel UI (HTML + CSS + bundled JS)
 │   ├── core/                   # Business logic modules
 │   │   ├── analyzer.js         # Analysis orchestrator
+│   │   ├── mcp-bridge.js       # Local WebSocket bridge to synthux-mcp (127.0.0.1:17483)
 │   │   ├── ai-client.js        # AI provider abstraction
 │   │   ├── providers.js        # Ollama, OpenAI, Gemini, Claude adapters
 │   │   ├── heuristics.js       # Prompt builder + JSON parser
@@ -188,9 +235,14 @@ synthuxapp/
 │   │   ├── flow-manager.js     # Multi-page flow analysis orchestrator
 │   │   ├── cost-calculator.js  # Token cost estimation
 │   │   └── report-generator.js # Markdown + JSON report
-│   ├── rules/                  # Heuristic rule definitions (JSON)
+│   ├── rules/                  # Sectoral Heuristic Rule Packs (JSON)
 │   ├── assets/                 # Icons and logo
 │   └── _locales/               # i18n (en, tr)
+├── mcp/                        # Model Context Protocol (MCP) Server (synthux-mcp)
+│   ├── server.js               # Stdio + Streamable HTTP MCP server & WS bridge
+│   ├── test-suite.js           # Automated E2E & Agent-Brain test suite
+│   ├── package.json            # Publishable npm package (npx synthux-mcp)
+│   └── README.md               # MCP setup & security guide
 ├── src/                        # Source code (Lit components)
 │   └── sidepanel/
 │       ├── app.js              # Root component
@@ -276,11 +328,17 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 - [x] Chrome Web Store rating prompt
 - [x] Privacy policy update (Flow Analysis, BYOK transparency, developer info)
 
-### v2.0.0 (Current)
+### v2.0.0
 - [x] Sectoral Rule Packs & Plugin Ecosystem (`nielsen-10`, `ecommerce`, `saas`, `fintech` + custom JSON rule pack plugin import)
 - [x] Enhanced Reporting (richer PDF & Markdown templates with Executive KPI scorecard, 2×2 Impact × Effort priority matrix, annotated viewport issue maps, visual score bars, and collapsible before/after code fixes)
 - [x] 2026 Local LLM Updates (`gemma4`, `gemma4:e4b`, `qwen3.8`, `llama4:scout`, `deepseek-r1` with `<think>` block sanitization)
 - [x] Right-click Context Menu integration ("Analyze in synthux Flow")
+
+### v2.1.0 (Current)
+- [x] **Model Context Protocol (MCP) Server & Chrome Extension Agent Bridge (`synthux-mcp`)** — 14 MCP tools over Stdio & Streamable HTTP (`127.0.0.1:17483`) for Google Antigravity (Gemini 4 Argon), Claude Desktop/Code, Cursor, OpenAI Codex, and Windsurf
+- [x] **Agent-Brain Evaluation Mode** — Host AI agents can evaluate live DOM + WCAG + Screenshots using their own LLM reasoning (`prepare_external_audit` + `submit_external_audit`) and sync reports to the Chrome Side Panel
+- [x] **Hardened Loopback Security** — Strict `127.0.0.1` binding, `Origin` CSRF firewall blocking web pages, optional `SYNTHUX_MCP_TOKEN` pairing, and zero API key exposure
+- [x] **Automated E2E MCP Test Suite (`npm run test:mcp`)** — 16 automated test suites verifying full protocol & extension bridge parity
 
 ### Future
 - [ ] **synthux insights** — Auto-fetched research library from NNGroup and Baymard Institute; AI uses latest UX research findings during analysis for evidence-based recommendations

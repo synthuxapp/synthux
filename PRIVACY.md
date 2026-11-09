@@ -90,10 +90,20 @@ synthux requires the following Chrome permissions:
 | Host | Purpose |
 | :--- | :------ |
 | `http://localhost:11434/*` | Communicate with local Ollama AI server |
+| `http://127.0.0.1:17483/*` | Communicate with local `synthux-mcp` Model Context Protocol bridge (loopback only) |
 | `https://generativelanguage.googleapis.com/*` | Google Gemini API (BYOK mode only) |
 | `https://api.openai.com/*` | OpenAI API (BYOK mode only) |
 | `https://api.anthropic.com/*` | Anthropic Claude API (BYOK mode only) |
 | `<all_urls>` | Enable analysis on any website the user visits |
+
+### Model Context Protocol (MCP) Local Agent Bridge
+
+When the local **MCP Agent Bridge** (`synthux-mcp`) is enabled in Settings, desktop AI coding assistants (such as Google Antigravity, Claude Code / Desktop, Cursor, OpenAI Codex, or local LLM MCP hosts) can trigger UX and WCAG 2.2 AA audits in your browser:
+
+- **100% Loopback-Only (`127.0.0.1`):** All MCP communication stays strictly on your local loopback interface (`127.0.0.1:17483`). No external or LAN connections are accepted.
+- **Origin-Verified:** Requests originating from regular web pages (`http://` or `https://` `Origin` headers) are blocked (`403 Forbidden`) to prevent cross-site request forgery or WebSocket hijacking.
+- **API Key Isolation:** Stored BYOK API keys are never transmitted or exposed over the MCP bridge.
+- **User Control:** You can toggle the MCP Agent Bridge on or off at any time in the extension's Settings tab and optionally require a secret pairing token (`SYNTHUX_MCP_TOKEN`).
 
 > **Why `<all_urls>`?** synthux needs to inject a content script to read page structure on any website the user chooses to analyze. This permission is only exercised when the user actively initiates an analysis. The extension does not run background scripts on pages or monitor browsing activity.
 

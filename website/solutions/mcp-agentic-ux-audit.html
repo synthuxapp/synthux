@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCP Server &amp; Agentic UX Audit for AI Coding Agents — synthux</title>
+  <meta name="description" content="Connect Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex, and Windsurf directly to the synthux Chrome extension via Model Context Protocol (synthux-mcp) for autonomous browser UX and WCAG 2.2 AA auditing.">
+  <meta name="keywords" content="synthux-mcp, model context protocol ux audit, mcp server chrome extension, google antigravity ux audit, claude code browser ux, cursor mcp accessibility, autonomous ai ux testing">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synthux.app/solutions/mcp-agentic-ux-audit">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../style.css?v=2.1.0">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://synthux.app/solutions/mcp-agentic-ux-audit">
+  <meta property="og:title" content="MCP Server &amp; Agentic UX Audit for AI Coding Agents — synthux">
+  <meta property="og:description" content="Let desktop AI agents (Antigravity, Claude, Cursor, Codex) control the synthux Chrome extension via MCP to run live DOM, Vision, WCAG 2.2 AA, and Sectoral UX audits.">
+  <meta property="og:image" content="https://synthux.app/assets/solutions/mcp-agentic-ux.svg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "name": "MCP Server & Agentic UX Audit for AI Coding Agents",
+        "url": "https://synthux.app/solutions/mcp-agentic-ux-audit",
+        "description": "Model Context Protocol (MCP) server and Chrome Extension bridge enabling desktop AI agents to orchestrate full-featured UX, heuristic, persona, and WCAG 2.2 AA audits."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Can my desktop AI agent run a synthux UX audit without configuring a separate API key inside the Chrome extension?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. With Agent-Brain Mode (prepare_external_audit + submit_external_audit), synthux captures the live DOM, axe-core WCAG 2.2 AA results, and full-page screenshot, builds the Sectoral Rule Pack prompt, and lets your host agent (Google Antigravity / Gemini 4 Argon, Claude Desktop, Cursor, or Codex) perform the reasoning and generate the v2.0 report."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is the synthux MCP bridge secured against malicious websites?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "synthux-mcp binds strictly to 127.0.0.1:17483 (loopback only), enforces strict Origin header validation that blocks all http:// and https:// web page origins from opening WebSocket or HTTP connections, never exposes browser-stored API keys over MCP, and supports an optional SYNTHUX_MCP_TOKEN pairing secret."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-brand">
+        <a href="../index.html" class="nav-logo" aria-label="synthux Home">
+          <img src="../assets/logo.svg" alt="synthux" height="22" class="logo-img">
+        </a>
+        <span class="nav-ver-pill">v2.1</span>
+      </div>
+
+      <ul class="nav-center">
+        <li class="nav-item"><a href="../index.html#features" class="nav-link" data-i18n="navFeatures">Features</a></li>
+        <li class="nav-item"><a href="../index.html#how-it-works" class="nav-link" data-i18n="navHow">How It Works</a></li>
+        <li class="nav-item" id="nav-solutions-item">
+          <button type="button" class="nav-link active" onclick="toggleSolutionsDropdown(event)" aria-expanded="false" aria-haspopup="true">
+            <span data-i18n="navSolutions">Solutions</span>
+            <svg class="nav-link-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav-dropdown" role="menu">
+            <div class="nav-dropdown-grid">
+              <a href="defense-air-gapped-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+                  <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+                </div>
+              </a>
+              <a href="fintech-banking-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+                  <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+                </div>
+              </a>
+              <a href="ecommerce-ux-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+                  <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+                </div>
+              </a>
+              <a href="saas-dashboard-ux.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+                  <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+                </div>
+              </a>
+              <a href="accessibility-wcag-audit.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+                  <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+                </div>
+              </a>
+              <a href="user-flow-personas.html" class="nav-dropdown-card">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+                  <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+                </div>
+              </a>
+              <a href="mcp-agentic-ux-audit.html" class="nav-dropdown-card active">
+                <div class="nav-dropdown-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m8 10 3 3-3 3"/><line x1="13" y1="16" x2="17" y2="16"/></svg>
+                </div>
+                <div class="nav-dropdown-text">
+                  <strong data-i18n="sol7Title">MCP Server &amp; AI Coding Agents</strong>
+                  <span data-i18n="sol7Tag">MCP Bridge · 14 Tools</span>
+                </div>
+              </a>
+            </div>
+            <div class="nav-dropdown-footer">
+              <span data-i18n="solutionsEyebrow">Solutions &amp; Target Personas</span>
+              <a href="../index.html#solutions"><span data-i18n="solExploreLink">Explore solution</span> &rarr;</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item"><a href="../index.html#privacy" class="nav-link" data-i18n="navPrivacy">Privacy</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-btn" onclick="cycleTheme()" id="theme-toggle" title="Toggle theme">Auto</button>
+        <div class="lang-picker" id="lang-picker-nav">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-nav')" aria-label="Select language">
+            <span class="lang-picker__label">EN</span>
+            <svg class="lang-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+        <a href="https://github.com/synthuxapp/synthux" class="nav-gh-btn" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="nav-cta" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <button type="button" class="nav-mobile-toggle" id="nav-mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" aria-expanded="false">
+          <svg class="icon-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          <svg class="icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="nav-mobile-drawer">
+      <div>
+        <ul class="nav-mobile-links">
+          <li><a href="../index.html"><span data-i18n="solBackHome">Home</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#features"><span data-i18n="navFeatures">Features</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#how-it-works"><span data-i18n="navHow">How It Works</span> <span>&rarr;</span></a></li>
+          <li><a href="../index.html#privacy"><span data-i18n="navPrivacy">Privacy</span> <span>&rarr;</span></a></li>
+        </ul>
+        <div class="nav-mobile-section-label" data-i18n="navSolutions">Solutions</div>
+        <div class="nav-mobile-solutions-grid">
+          <a href="defense-air-gapped-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</strong>
+              <span data-i18n="sol1Tag">Air-Gapped · Local AI</span>
+            </div>
+          </a>
+          <a href="fintech-banking-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</strong>
+              <span data-i18n="sol2Tag">Fintech Rule Pack</span>
+            </div>
+          </a>
+          <a href="ecommerce-ux-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</strong>
+              <span data-i18n="sol3Tag">E-Commerce Rule Pack</span>
+            </div>
+          </a>
+          <a href="saas-dashboard-ux.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</strong>
+              <span data-i18n="sol4Tag">SaaS Rule Pack</span>
+            </div>
+          </a>
+          <a href="accessibility-wcag-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</strong>
+              <span data-i18n="sol5Tag">WCAG 2.2 AA + AI</span>
+            </div>
+          </a>
+          <a href="user-flow-personas.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol6Title">Multi-Page User Flows &amp; Personas</strong>
+              <span data-i18n="sol6Tag">Flow Builder · Personas</span>
+            </div>
+          </a>
+          <a href="mcp-agentic-ux-audit.html" class="nav-mobile-sol-link">
+            <div class="nav-dropdown-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m8 10 3 3-3 3"/><line x1="13" y1="16" x2="17" y2="16"/></svg>
+            </div>
+            <div>
+              <strong data-i18n="sol7Title">MCP Server &amp; AI Coding Agents</strong>
+              <span data-i18n="sol7Tag">MCP Bridge · 14 Tools</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" rel="noopener">
+          <span data-i18n="heroCtaInstall">Add to Chrome</span>
+        </a>
+        <a href="https://github.com/synthuxapp/synthux" class="btn-secondary" target="_blank" rel="noopener">
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Solution Hero -->
+  <header class="solution-page-hero">
+    <div class="container">
+      <div class="solution-breadcrumb fade-in">
+        <a href="../index.html" data-i18n="solBackHome">Home</a>
+        <span>/</span>
+        <a href="../index.html#solutions" data-i18n="navSolutions">Solutions</a>
+        <span>/</span>
+        <span data-i18n="pageBreadcrumb">MCP Server &amp; AI Coding Agents</span>
+      </div>
+
+      <div class="solution-hero-grid">
+        <div class="solution-hero-content fade-in">
+          <div class="solution-hero-badges">
+            <span class="badge"><span class="dot"></span> <span data-i18n="heroBadge1">Model Context Protocol (MCP)</span></span>
+            <span class="badge badge-new" data-i18n="heroBadge2">v2.1.0 · 14 Agent Tools</span>
+          </div>
+          <h1 data-i18n="pageH1">Autonomous Browser UX &amp; Accessibility Auditing for AI Coding Agents</h1>
+          <p class="solution-hero-lead" data-i18n="pageLead">
+            Instead of manually clicking through browser tabs, let Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex, or Windsurf connect directly to the synthux Chrome extension via MCP. Your agent opens the page, runs Sectoral Rule Packs and axe-core WCAG 2.2 AA checks, renders live heatmaps, and applies the code fixes automatically.
+          </p>
+          <div class="solution-hero-actions">
+            <a href="https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm" class="btn-primary" target="_blank" data-i18n="solInstallCta">Add to Chrome — Free</a>
+            <a href="https://github.com/synthuxapp/synthux/tree/main/mcp" class="btn-secondary" target="_blank" data-i18n="solGithubCta">Inspect Source on GitHub</a>
+          </div>
+        </div>
+
+        <div class="solution-visual-frame fade-in">
+          <img src="../assets/solutions/mcp-agentic-ux.svg" alt="synthux-mcp Model Context Protocol architecture connecting desktop AI agents to the synthux Chrome extension" width="1200" height="675" fetchpriority="high">
+          <div class="solution-visual-caption">
+            <span data-i18n="visualCaptionLeft">Architecture: 127.0.0.1:17483 Loopback MCP Bridge</span>
+            <span data-i18n="visualCaptionRight">Stdio + Streamable HTTP · Zero API Key Exposure</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-metrics-strip fade-in">
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m1Val">14 Tools</div>
+          <div class="solution-metric-label" data-i18n="m1Label">Full control of DOM, WCAG, Rule Packs, Flows &amp; Overlays</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m2Val">Agent-Brain</div>
+          <div class="solution-metric-label" data-i18n="m2Label">Use your host IDE/agent LLM with zero extra API keys</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m3Val">127.0.0.1</div>
+          <div class="solution-metric-label" data-i18n="m3Label">Strict loopback binding with Origin CSRF protection</div>
+        </div>
+        <div class="solution-metric-card">
+          <div class="solution-metric-val" data-i18n="m4Val">0 Deps</div>
+          <div class="solution-metric-label" data-i18n="m4Label">Pure Node.js MCP server (Stdio + Streamable HTTP)</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Core Pillars -->
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec1Eyebrow">How the MCP Bridge Works</span>
+        <h2 data-i18n="sec1Title">100% of synthux Features, Orchestrated by Your AI Agent</h2>
+        <p data-i18n="sec1Subtitle">synthux-mcp bridges desktop MCP hosts with the Chrome extension's MV3 Service Worker over a hardened local WebSocket channel.</p>
+      </div>
+
+      <div class="solution-pillars-grid">
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p1Num">01 · End-to-End Browser Control</div>
+          <h3 data-i18n="p1Title">Open Tabs, Scan DOM &amp; Render Live Overlays</h3>
+          <p data-i18n="p1Desc">Agents call open_and_audit_url, scan_page_ux_context, run_wcag_audit, toggle_heatmap, and capture_annotated_screenshot to inspect real authenticated browser sessions and localhost dev servers.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p2Num">02 · Dual Evaluation Modes</div>
+          <h3 data-i18n="p2Title">Agent-Brain Mode or Extension AI Engine</h3>
+          <p data-i18n="p2Desc">Run audits using the extension's configured provider (Ollama / BYOK) via run_ux_audit, or use prepare_external_audit + submit_external_audit so your host agent (Gemini 4 Argon, Claude, Cursor) evaluates the page directly.</p>
+        </div>
+        <div class="solution-pillar-card fade-in">
+          <div class="solution-pillar-num" data-i18n="p3Num">03 · Hardened Loopback Security</div>
+          <h3 data-i18n="p3Title">Origin Firewall, Token Pairing &amp; Key Redaction</h3>
+          <p data-i18n="p3Desc">Bound strictly to 127.0.0.1:17483. Blocks all http:// and https:// web origins from cross-site WebSocket hijacking, supports SYNTHUX_MCP_TOKEN pairing, and never exposes stored API keys.</p>
+        </div>
+      </div>
+
+      <!-- Quick Config Snippet -->
+      <div class="fade-in" style="margin-top: 32px; background: rgba(15,15,18,0.9); border: 1px solid rgba(59,130,246,0.3); border-radius: 14px; padding: 24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+          <strong style="font-size:14px; color:#f4f4f5;" data-i18n="configBoxTitle">Quick Setup — Add to mcp_config.json (Antigravity, Claude Desktop, Cursor, Windsurf, Codex)</strong>
+          <span style="font-family:monospace; font-size:12px; color:#60a5fa;">npx -y synthux-mcp</span>
+        </div>
+        <pre style="margin:0; padding:16px; background:#09090b; border:1px solid #27272a; border-radius:8px; overflow-x:auto; font-family:'SF Mono',monospace; font-size:12.5px; line-height:1.6; color:#e4e4e7;"><code>{
+  "mcpServers": {
+    "synthux": {
+      "command": "npx",
+      "args": ["-y", "synthux-mcp"]
+    }
+  }
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Target Audiences & Personas -->
+  <section class="solution-section solution-section-alt">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="sec2Eyebrow">Target Workflows &amp; AI Agents</span>
+        <h2 data-i18n="sec2Title">Built for Agentic IDEs, Autonomous QA &amp; Design Systems</h2>
+        <p data-i18n="sec2Subtitle">Close the loop between frontend code generation and live usability verification.</p>
+      </div>
+
+      <div class="solution-personas-grid">
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role1Badge">AI Agent Host · Google Antigravity</span>
+          <h3 data-i18n="role1Title">Google Antigravity (Gemini 4 Argon) Workflows</h3>
+          <p data-i18n="role1Desc">Pair Antigravity with synthux-mcp to automatically audit localhost builds, evaluate Sectoral Rule Packs with multimodal vision, and patch CSS/ARIA violations in one turn.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role1Check1">Zero extra API keys needed via Agent-Brain prepare/submit pipeline</li>
+            <li data-i18n="role1Check2">Syncs completed v2.0 reports directly to the Chrome Side Panel UI</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role2Badge">AI Agent Host · Claude Code, Cursor &amp; Codex</span>
+          <h3 data-i18n="role2Title">Autonomous Frontend &amp; Design-System Engineers</h3>
+          <p data-i18n="role2Desc">Give Claude Desktop, Claude Code, Cursor, Windsurf, or OpenAI Codex live eyes on the rendered DOM, computed contrast, and interactive overlays.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role2Check1">Run Nielsen 10, E-Commerce, SaaS, Fintech, or custom JSON rule packs</li>
+            <li data-i18n="role2Check2">Highlight broken selectors on the live page and capture annotated PNGs</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role3Badge">Synthetic AI Persona · Multi-Persona Simulation</span>
+          <h3 data-i18n="role3Title">Automated Persona &amp; Multi-Page Flow Testing</h3>
+          <p data-i18n="role3Desc">Instruct your agent to create custom domain personas via manage_personas and run multi-page journey evaluations via start_flow_analysis.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role3Check1">Test onboarding → pricing → checkout flows across multiple URLs</li>
+            <li data-i18n="role3Check2">Evaluate First-Time Visitor, Power User, and Accessibility User friction</li>
+          </ul>
+        </div>
+
+        <div class="solution-persona-card fade-in">
+          <span class="solution-persona-role" data-i18n="role4Badge">Security &amp; Privacy · Enterprise Ready</span>
+          <h3 data-i18n="role4Title">Zero-Egress Localhost &amp; Authenticated Session Auditing</h3>
+          <p data-i18n="role4Desc">Because synthux runs inside your real Chrome profile, your agent can audit authenticated dashboards behind SSO/VPN without sharing credentials.</p>
+          <ul class="solution-persona-checks">
+            <li data-i18n="role4Check1">Loopback-only WebSocket (127.0.0.1:17483) with optional pairing token</li>
+            <li data-i18n="role4Check2">Blocks chrome://, file://, and extension pages automatically</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="solution-section">
+    <div class="container">
+      <div class="solution-section-head fade-in">
+        <span class="solutions-eyebrow" data-i18n="faqEyebrow">MCP Architecture &amp; Security FAQ</span>
+        <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+      </div>
+      <div class="solution-faq-grid">
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq1Q">Do I need a separate API key in the Chrome extension if I already use Antigravity, Claude, or Cursor?</h3>
+          <p data-i18n="faq1A">No. Using the prepare_external_audit and submit_external_audit MCP tools, synthux extracts the live DOM, WCAG violations, and screenshot, and lets your host AI agent perform the evaluation using its own model brain.</p>
+        </div>
+        <div class="solution-faq-item fade-in">
+          <h3 data-i18n="faq2Q">Can a random website I visit connect to the local synthux-mcp server?</h3>
+          <p data-i18n="faq2A">No. synthux-mcp enforces a strict Origin firewall that rejects any HTTP or WebSocket request carrying an http:// or https:// web origin, binds exclusively to 127.0.0.1, and supports an optional SYNTHUX_MCP_TOKEN shared secret.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Minimal Solutions Cross-Navigation -->
+  <section id="other-solutions" class="solutions-minimal">
+    <div class="container">
+      <div class="solutions-minimal-head fade-in">
+        <div>
+          <span class="solutions-eyebrow" data-i18n="solutionsEyebrow">Solutions &amp; Target Audiences</span>
+          <h2 data-i18n="solOtherSolutions">Other Solutions &amp; Use Cases</h2>
+        </div>
+      </div>
+      <div class="solutions-minimal-grid">
+        <a href="defense-air-gapped-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol1Tag">Air-Gapped · Local AI</span></div>
+            <h3 data-i18n="sol1Title">Defense, Military &amp; Banking Intranets</h3>
+            <p data-i18n="sol1Desc">100% offline, on-device UX and cognitive-load auditing via Ollama for classified C4ISR systems, defense software, and core banking intranets.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="fintech-banking-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol2Tag">Fintech Rule Pack</span></div>
+            <h3 data-i18n="sol2Title">Fintech, Digital Banking &amp; Payments</h3>
+            <p data-i18n="sol2Desc">Audit fee and exchange-rate transparency, irreversible transaction guardrails, numeric input formatting, and session security indicators.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="ecommerce-ux-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol3Tag">E-Commerce Rule Pack</span></div>
+            <h3 data-i18n="sol3Title">E-Commerce &amp; Checkout Conversion</h3>
+            <p data-i18n="sol3Desc">Detect cart abandonment triggers, forced account creation friction, hidden shipping costs, and product filtering gaps before release.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="saas-dashboard-ux.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol4Tag">SaaS Rule Pack</span></div>
+            <h3 data-i18n="sol4Title">SaaS, B2B Dashboards &amp; Web Apps</h3>
+            <p data-i18n="sol4Desc">Evaluate high-density data tables, empty-state onboarding, bulk action ergonomics, keyboard shortcuts, and destructive action guardrails.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="accessibility-wcag-audit.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol5Tag">WCAG 2.2 AA + AI</span></div>
+            <h3 data-i18n="sol5Title">WCAG 2.2 Accessibility &amp; Compliance</h3>
+            <p data-i18n="sol5Desc">Combine deterministic axe-core WCAG 2.2 AA checks with AI screen-reader and keyboard-only persona evaluation and code fixes.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+        <a href="user-flow-personas.html" class="solution-mini-card fade-in">
+          <div>
+            <div class="solution-mini-top"><span class="solution-mini-tag" data-i18n="sol6Tag">Flow Builder · Personas</span></div>
+            <h3 data-i18n="sol6Title">Multi-Page Flows &amp; Synthetic Personas</h3>
+            <p data-i18n="sol6Desc">Simulate end-to-end user journeys across connected pages through First-Time, Power User, Accessibility, and custom domain personas.</p>
+          </div>
+          <span class="solution-mini-link"><span data-i18n="solExploreLink">Explore solution</span> →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p data-i18n="footerCopyright">© 2026 synthux. Open source under MIT License.</p>
+        <div class="lang-picker lang-picker--up" id="lang-picker-footer">
+          <button class="lang-picker__trigger" onclick="toggleLangPicker('lang-picker-footer')">
+            <span class="lang-picker__label">EN</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-picker__menu">
+            <button onclick="pickLang('en')">English</button>
+            <button onclick="pickLang('tr')">Türkçe</button>
+            <button onclick="pickLang('de')">Deutsch</button>
+            <button onclick="pickLang('zh')">中文</button>
+            <button onclick="pickLang('fr')">Français</button>
+            <button onclick="pickLang('it')">Italiano</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.SOLUTIONS_PAGE_I18N = {
+      en: {
+        pageTitle: 'MCP Server & Agentic UX Audit for AI Coding Agents — synthux',
+        pageBreadcrumb: 'MCP Server & AI Coding Agents',
+        heroBadge1: 'Model Context Protocol (MCP)',
+        heroBadge2: 'v2.1.0 · 14 Agent Tools',
+        pageH1: 'Autonomous Browser UX & Accessibility Auditing for AI Coding Agents',
+        pageLead: 'Instead of manually clicking through browser tabs, let Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex, or Windsurf connect directly to the synthux Chrome extension via MCP. Your agent opens the page, runs Sectoral Rule Packs and axe-core WCAG 2.2 AA checks, renders live heatmaps, and applies the code fixes automatically.',
+        visualCaptionLeft: 'Architecture: 127.0.0.1:17483 Loopback MCP Bridge',
+        visualCaptionRight: 'Stdio + Streamable HTTP · Zero API Key Exposure',
+        m1Val: '14 Tools',
+        m1Label: 'Full control of DOM, WCAG, Rule Packs, Flows & Overlays',
+        m2Val: 'Agent-Brain',
+        m2Label: 'Use your host IDE/agent LLM with zero extra API keys',
+        m3Val: '127.0.0.1',
+        m3Label: 'Strict loopback binding with Origin CSRF protection',
+        m4Val: '0 Deps',
+        m4Label: 'Pure Node.js MCP server (Stdio + Streamable HTTP)',
+        sec1Eyebrow: 'How the MCP Bridge Works',
+        sec1Title: '100% of synthux Features, Orchestrated by Your AI Agent',
+        sec1Subtitle: 'synthux-mcp bridges desktop MCP hosts with the Chrome extension\'s MV3 Service Worker over a hardened local WebSocket channel.',
+        p1Num: '01 · End-to-End Browser Control',
+        p1Title: 'Open Tabs, Scan DOM & Render Live Overlays',
+        p1Desc: 'Agents call open_and_audit_url, scan_page_ux_context, run_wcag_audit, toggle_heatmap, and capture_annotated_screenshot to inspect real authenticated browser sessions and localhost dev servers.',
+        p2Num: '02 · Dual Evaluation Modes',
+        p2Title: 'Agent-Brain Mode or Extension AI Engine',
+        p2Desc: 'Run audits using the extension\'s configured provider (Ollama / BYOK) via run_ux_audit, or use prepare_external_audit + submit_external_audit so your host agent (Gemini 4 Argon, Claude, Cursor) evaluates the page directly.',
+        p3Num: '03 · Hardened Loopback Security',
+        p3Title: 'Origin Firewall, Token Pairing & Key Redaction',
+        p3Desc: 'Bound strictly to 127.0.0.1:17483. Blocks all http:// and https:// web origins from cross-site WebSocket hijacking, supports SYNTHUX_MCP_TOKEN pairing, and never exposes stored API keys.',
+        configBoxTitle: 'Quick Setup — Add to mcp_config.json (Antigravity, Claude Desktop, Cursor, Windsurf, Codex)',
+        sec2Eyebrow: 'Target Workflows & AI Agents',
+        sec2Title: 'Built for Agentic IDEs, Autonomous QA & Design Systems',
+        sec2Subtitle: 'Close the loop between frontend code generation and live usability verification.',
+        role1Badge: 'AI Agent Host · Google Antigravity',
+        role1Title: 'Google Antigravity (Gemini 4 Argon) Workflows',
+        role1Desc: 'Pair Antigravity with synthux-mcp to automatically audit localhost builds, evaluate Sectoral Rule Packs with multimodal vision, and patch CSS/ARIA violations in one turn.',
+        role1Check1: 'Zero extra API keys needed via Agent-Brain prepare/submit pipeline',
+        role1Check2: 'Syncs completed v2.0 reports directly to the Chrome Side Panel UI',
+        role2Badge: 'AI Agent Host · Claude Code, Cursor & Codex',
+        role2Title: 'Autonomous Frontend & Design-System Engineers',
+        role2Desc: 'Give Claude Desktop, Claude Code, Cursor, Windsurf, or OpenAI Codex live eyes on the rendered DOM, computed contrast, and interactive overlays.',
+        role2Check1: 'Run Nielsen 10, E-Commerce, SaaS, Fintech, or custom JSON rule packs',
+        role2Check2: 'Highlight broken selectors on the live page and capture annotated PNGs',
+        role3Badge: 'Synthetic AI Persona · Multi-Persona Simulation',
+        role3Title: 'Automated Persona & Multi-Page Flow Testing',
+        role3Desc: 'Instruct your agent to create custom domain personas via manage_personas and run multi-page journey evaluations via start_flow_analysis.',
+        role3Check1: 'Test onboarding → pricing → checkout flows across multiple URLs',
+        role3Check2: 'Evaluate First-Time Visitor, Power User, and Accessibility User friction',
+        role4Badge: 'Security & Privacy · Enterprise Ready',
+        role4Title: 'Zero-Egress Localhost & Authenticated Session Auditing',
+        role4Desc: 'Because synthux runs inside your real Chrome profile, your agent can audit authenticated dashboards behind SSO/VPN without sharing credentials.',
+        role4Check1: 'Loopback-only WebSocket (127.0.0.1:17483) with optional pairing token',
+        role4Check2: 'Blocks chrome://, file://, and extension pages automatically',
+        faqEyebrow: 'MCP Architecture & Security FAQ',
+        faqTitle: 'Frequently Asked Questions',
+        faq1Q: 'Do I need a separate API key in the Chrome extension if I already use Antigravity, Claude, or Cursor?',
+        faq1A: 'No. Using the prepare_external_audit and submit_external_audit MCP tools, synthux extracts the live DOM, WCAG violations, and screenshot, and lets your host AI agent perform the evaluation using its own model brain.',
+        faq2Q: 'Can a random website I visit connect to the local synthux-mcp server?',
+        faq2A: 'No. synthux-mcp enforces a strict Origin firewall that rejects any HTTP or WebSocket request carrying an http:// or https:// web origin, binds exclusively to 127.0.0.1, and supports an optional SYNTHUX_MCP_TOKEN shared secret.'
+      },
+      tr: {
+        pageTitle: 'AI Kodlama Ajanları İçin MCP Sunucusu ve Otonom UX Denetimi — synthux',
+        pageBreadcrumb: 'MCP Sunucusu ve AI Ajan Köprüsü',
+        heroBadge1: 'Model Context Protocol (MCP)',
+        heroBadge2: 'v2.1.0 · 14 Ajan Aracı',
+        pageH1: 'AI Kodlama Ajanları İçin Otonom Tarayıcı UX ve Erişilebilirlik Denetimi',
+        pageLead: 'Tarayıcı sekmelerinde manuel test yapmak yerine Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex veya Windsurf ajanınızı MCP üzerinden doğrudan synthux Chrome eklentisine bağlayın. Ajanınız sayfayı açar, Sektörel Kural Paketlerini ve axe-core WCAG 2.2 AA denetimini çalıştırır, canlı ısı haritasını çizer ve kod düzeltmelerini otomatik uygular.',
+        visualCaptionLeft: 'Mimari: 127.0.0.1:17483 Loopback MCP Köprüsü',
+        visualCaptionRight: 'Stdio + Streamable HTTP · Sıfır API Anahtarı İfşası',
+        m1Val: '14 Araç',
+        m1Label: 'DOM, WCAG, Kural Paketleri, Akışlar ve Görsel Katmanlarda tam kontrol',
+        m2Val: 'Agent-Brain',
+        m2Label: 'Ekstra API anahtarı olmadan IDE/ajan LLM beynini kullanın',
+        m3Val: '127.0.0.1',
+        m3Label: 'Origin CSRF korumalı sıkı yerel loopback bağlantısı',
+        m4Val: '0 Bağımlılık',
+        m4Label: 'Saf Node.js MCP sunucusu (Stdio + Streamable HTTP)',
+        sec1Eyebrow: 'MCP Köprüsü Nasıl Çalışır?',
+        sec1Title: 'Tüm synthux Özellikleri, AI Ajanınızın Yönetiminde',
+        sec1Subtitle: 'synthux-mcp, masaüstü MCP istemcilerini güvenli bir yerel WebSocket kanalı üzerinden Chrome eklentisinin MV3 Service Worker katmanına bağlar.',
+        p1Num: '01 · Uçtan Uca Tarayıcı Kontrolü',
+        p1Title: 'Sekme Açın, DOM Tarayın ve Canlı Isı Haritası Çizin',
+        p1Desc: 'Ajanlar open_and_audit_url, scan_page_ux_context, run_wcag_audit, toggle_heatmap ve capture_annotated_screenshot araçlarıyla oturum açılmış gerçek sekmeleri ve localhost ortamlarını denetler.',
+        p2Num: '02 · Çift Değerlendirme Modu',
+        p2Title: 'Agent-Brain Modu veya Eklenti İçi AI Motoru',
+        p2Desc: 'İster run_ux_audit ile eklentide tanımlı sağlayıcıyı (Ollama / BYOK) kullanın, ister prepare_external_audit + submit_external_audit ile değerlendirmeyi doğrudan bağlı olduğunuz ajana (Gemini 4 Argon, Claude, Cursor) yaptırın.',
+        p3Num: '03 · Sıkılaştırılmış Loopback Güvenliği',
+        p3Title: 'Origin Güvenlik Duvarı, Eşleştirme Tokenı ve Anahtar Maskeleme',
+        p3Desc: 'Yalnızca 127.0.0.1:17483 adresini dinler. Web sitelerinden (http:// ve https://) gelen sahte WebSocket isteklerini reddeder, SYNTHUX_MCP_TOKEN eşleştirmesini destekler ve API anahtarlarını asla dışarı sızdırmaz.',
+        configBoxTitle: 'Hızlı Kurulum — mcp_config.json Dosyasına Ekleyin (Antigravity, Claude Desktop, Cursor, Windsurf, Codex)',
+        sec2Eyebrow: 'Hedef İş Akışları ve AI Ajanları',
+        sec2Title: 'Ajan Tabanlı IDE\'ler, Otonom QA ve Tasarım Sistemleri İçin Geliştirildi',
+        sec2Subtitle: 'Frontend kod üretimi ile canlı kullanılabilirlik doğrulaması arasındaki döngüyü kapatın.',
+        role1Badge: 'AI Ajan İstemcisi · Google Antigravity',
+        role1Title: 'Google Antigravity (Gemini 4 Argon) İş Akışları',
+        role1Desc: 'Antigravity\'yi synthux-mcp ile eşleştirerek localhost derlemelerini otomatik denetleyin, çok modlu görsel analizle Sektörel Kural Paketlerini çalıştırın ve CSS/ARIA sorunlarını tek adımda düzeltin.',
+        role1Check1: 'Agent-Brain prepare/submit hattı ile ekstra API anahtarı gerekmez',
+        role1Check2: 'Tamamlanan v2.0 raporlarını doğrudan Chrome Yan Panel arayüzüne senkronize eder',
+        role2Badge: 'AI Ajan İstemcisi · Claude Code, Cursor & Codex',
+        role2Title: 'Otonom Frontend ve Tasarım Sistemi Mühendisleri',
+        role2Desc: 'Claude Desktop, Claude Code, Cursor, Windsurf veya OpenAI Codex\'e canlı DOM ağacını, kontrast hesaplamalarını ve etkileşimli katmanları gösterin.',
+        role2Check1: 'Nielsen 10, E-Ticaret, SaaS, Fintech veya özel JSON kural paketlerini çalıştırın',
+        role2Check2: 'Hatalı seçicileri canlı sayfada vurgulayın ve numaralı ekran görüntüleri yakalayın',
+        role3Badge: 'Sentetik AI Personası · Çoklu Persona Simülasyonu',
+        role3Title: 'Otomatik Persona ve Çok Sayfalı Akış (Flow) Testi',
+        role3Desc: 'Ajanınıza manage_personas ile özel sektör personaları oluşturma ve start_flow_analysis ile çok sayfalı yolculuk analizi yapma talimatı verin.',
+        role3Check1: 'Kayıt → fiyatlandırma → ödeme akışlarını birden fazla URL üzerinde test edin',
+        role3Check2: 'İlk Kez Gelen, Uzman Kullanıcı ve Erişilebilirlik profillerindeki sürtünmeleri ölçün',
+        role4Badge: 'Güvenlik ve Gizlilik · Kurumsal Mimari',
+        role4Title: 'Sıfır Veri Çıkışlı Localhost ve Oturum Açılmış Sekme Denetimi',
+        role4Desc: 'synthux gerçek Chrome profilinizde çalıştığı için, ajanınız SSO/VPN arkasındaki panelleri şifre paylaşımına gerek kalmadan denetleyebilir.',
+        role4Check1: 'Opsiyonel eşleştirme tokenına sahip yalnızca-loopback WebSocket (127.0.0.1:17483)',
+        role4Check2: 'chrome://, file:// ve mağaza sayfalarını otomatik olarak engeller',
+        faqEyebrow: 'MCP Mimarisi ve Güvenlik SSS',
+        faqTitle: 'Sıkça Sorulan Sorular',
+        faq1Q: 'Antigravity, Claude veya Cursor kullanıyorsam Chrome eklentisine ayrıca API anahtarı girmem gerekir mi?',
+        faq1A: 'Hayır. prepare_external_audit ve submit_external_audit MCP araçları sayesinde synthux canlı DOM verisini, WCAG ihlallerini ve ekran görüntüsünü toplar; değerlendirmeyi doğrudan kullandığınız AI ajanının kendi modeli yapar.',
+        faq2Q: 'Tarayıcıda ziyaret ettiğim herhangi bir web sitesi yerel synthux-mcp sunucusuna bağlanabilir mi?',
+        faq2A: 'Hayır. synthux-mcp sıkı bir Origin güvenlik duvarı uygular; http:// veya https:// web kaynaklı tüm HTTP/WebSocket isteklerini anında reddeder, yalnızca 127.0.0.1 adresini dinler ve opsiyonel SYNTHUX_MCP_TOKEN doğrulamasını destekler.'
+      },
+      de: {
+        pageTitle: 'MCP-Server & Agentic UX-Audit für KI-Coding-Agenten — synthux',
+        pageBreadcrumb: 'MCP-Server & KI-Coding-Agenten',
+        heroBadge1: 'Model Context Protocol (MCP)',
+        heroBadge2: 'v2.1.0 · 14 Agenten-Tools',
+        pageH1: 'Autonomes Browser-UX- & Barrierefreiheits-Auditing für KI-Coding-Agenten',
+        pageLead: 'Verbinden Sie Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex oder Windsurf über MCP direkt mit der synthux Chrome-Erweiterung. Ihr Agent öffnet die Seite, führt Branchen-Regelpakete und axe-core WCAG 2.2 AA-Prüfungen aus, rendert Live-Heatmaps und wendet Code-Fixes automatisch an.',
+        visualCaptionLeft: 'Architektur: 127.0.0.1:17483 Loopback MCP-Bridge',
+        visualCaptionRight: 'Stdio + Streamable HTTP · Kein API-Key-Leck'
+      },
+      zh: {
+        pageTitle: '面向 AI 编程代理的 MCP 服务器与自主 UX 审计 — synthux',
+        pageBreadcrumb: 'MCP 服务器与 AI 编程代理',
+        heroBadge1: '模型上下文协议 (MCP)',
+        heroBadge2: 'v2.1.0 · 14 个代理工具',
+        pageH1: '面向 AI 编程代理的自主浏览器 UX 与无障碍审计',
+        pageLead: '无需手动点击浏览器标签页，通过 MCP 将 Google Antigravity (Gemini 4 Argon)、Claude Code、Cursor、OpenAI Codex 或 Windsurf 直接连接到 synthux Chrome 扩展。您的代理可自动打开页面、运行行业规则包与 axe-core WCAG 2.2 AA 检测、渲染实时热力图并自动应用代码修复。',
+        visualCaptionLeft: '架构：127.0.0.1:17483 本地环回 MCP 桥接',
+        visualCaptionRight: 'Stdio + Streamable HTTP · 零 API 密钥暴露'
+      },
+      fr: {
+        pageTitle: 'Serveur MCP & Audit UX Agentique pour Agents IA — synthux',
+        pageBreadcrumb: 'Serveur MCP & Agents IA',
+        heroBadge1: 'Model Context Protocol (MCP)',
+        heroBadge2: 'v2.1.0 · 14 Outils Agent',
+        pageH1: 'Audit UX & Accessibilité Autonome dans le Navigateur pour Agents IA',
+        pageLead: 'Connectez Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex ou Windsurf directement à l\'extension Chrome synthux via MCP. Votre agent ouvre la page, exécute les packs de règles sectoriels et l\'audit WCAG 2.2 AA, affiche la carte thermique et applique les correctifs.',
+        visualCaptionLeft: 'Architecture : Pont MCP Loopback 127.0.0.1:17483',
+        visualCaptionRight: 'Stdio + Streamable HTTP · Zéro Exposition de Clé API'
+      },
+      it: {
+        pageTitle: 'Server MCP & Audit UX Agentico per Agenti IA — synthux',
+        pageBreadcrumb: 'Server MCP & Agenti IA',
+        heroBadge1: 'Model Context Protocol (MCP)',
+        heroBadge2: 'v2.1.0 · 14 Strumenti Agent',
+        pageH1: 'Audit UX e Accessibilità Autonomo nel Browser per Agenti IA',
+        pageLead: 'Collega Google Antigravity (Gemini 4 Argon), Claude Code, Cursor, OpenAI Codex o Windsurf direttamente all\'estensione Chrome synthux tramite MCP. Il tuo agente apre la pagina, esegue i pacchetti di regole settoriali e i test WCAG 2.2 AA, mostra la mappa di calore e applica i fix di codice.',
+        visualCaptionLeft: 'Architettura: Bridge MCP Loopback 127.0.0.1:17483',
+        visualCaptionRight: 'Stdio + Streamable HTTP · Zero Esposizione Chiavi API'
+      }
+    };
+  </script>
+  <script src="../i18n.js?v=2.1.0"></script>
+  <script src="../script.js?v=2.1.0"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@
 
 | Version | Supported          |
 | :------ | :----------------- |
+| 2.x     | :white_check_mark: |
 | 1.x     | :white_check_mark: |
 
 ## Reporting a Vulnerability
@@ -60,6 +61,12 @@ synthux implements the following security measures:
 
 - **Content Security Policy:** `script-src 'self'; object-src 'self'` — no inline scripts, no remote code execution
 - **Local-only processing:** All AI analysis runs on the user's machine via Ollama. No data is sent to external servers
+- **MCP Bridge Security (`synthux-mcp`):**
+  - Strictly bound to `127.0.0.1` loopback interface (never `0.0.0.0`)
+  - Extension WebSocket client enforces `isLoopbackWsUrl()` guard to prevent connection to remote servers
+  - Strict `Origin` header validation blocks all `http://` and `https://` website origins (`403 Forbidden`) on `/ws` and `/mcp`
+  - Optional `SYNTHUX_MCP_TOKEN` shared-secret pairing authentication
+  - Automatic redaction of stored BYOK API keys across all MCP responses
 - **Minimal permissions:** Extension requests only the permissions necessary for page analysis
 - **Dependency monitoring:** Automated security scanning via Dependabot, CodeQL, and npm audit
 - **No telemetry:** synthux does not collect usage data, analytics, or telemetry

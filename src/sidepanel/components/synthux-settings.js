@@ -21,6 +21,9 @@ export class SynthuxSettings extends LitElement {
     providerId: { type: String },
     apiKey: { type: String },
     enableVision: { type: Boolean },
+    mcpStatus: { type: Object },
+    showMcpGuide: { type: Boolean },
+    mcpToken: { type: String },
     _saved: { type: Boolean, state: true }
   };
 
@@ -442,9 +445,46 @@ export class SynthuxSettings extends LitElement {
     this.providerId = 'ollama';
     this.apiKey = '';
     this.enableVision = true;
+    this.mcpStatus = { enabled: true, connected: false, wsUrl: 'ws://127.0.0.1:17483/ws' };
+    this.showMcpGuide = false;
+    this.mcpToken = '';
     this._saved = false;
     this._copiedCmd = '';
     this._loadSettings();
+    this._loadMcpStatus();
+  }
+
+  async _loadMcpStatus() {
+    try {
+      const status = await chrome.runtime.sendMessage({ type: 'GET_MCP_STATUS' });
+      if (status) this.mcpStatus = status;
+      const stored = await chrome.storage.local.get({ mcpToken: '' });
+      this.mcpToken = stored.mcpToken || '';
+    } catch {}
+  }
+
+  async _toggleMcpBridge(e) {
+    const enabled = e.target.checked;
+    try {
+      const res = await chrome.runtime.sendMessage({
+        type: 'CONFIGURE_MCP',
+        payload: { enabled, mcpToken: this.mcpToken }
+      });
+      if (res?.status) this.mcpStatus = res.status;
+    } catch {}
+  }
+
+  async _onMcpTokenBlur() {
+    try {
+      const res = await chrome.runtime.sendMessage({
+        type: 'CONFIGURE_MCP',
+        payload: { mcpToken: this.mcpToken }
+      });
+      if (res?.status) this.mcpStatus = res.status;
+      this._saved = true;
+      clearTimeout(this._savedTimer);
+      this._savedTimer = setTimeout(() => { this._saved = false; }, 2000);
+    } catch {}
   }
 
   updated(changedProperties) {
@@ -843,6 +883,61 @@ export class SynthuxSettings extends LitElement {
         </div>
       </div>
 
+      <div class="section">
+        <div class="section-header">MCP Agent Bridge (Antigravity · Claude · Cursor · Codex)</div>
+        <div class="settings-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div>
+              <div style="font-size: 13px; font-weight: 500; color: var(--sx-text-primary, #ededf0); display: flex; align-items: center; gap: 6px;">
+                Local MCP Bridge
+                <span class="provider-badge" style="background: ${this.mcpStatus?.connected ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.06)'}; color: ${this.mcpStatus?.connected ? '#22c55e' : '#8a8a96'};">
+                  ${this.mcpStatus?.connected ? 'Connected' : (this.mcpStatus?.enabled !== false ? 'Standby (127.0.0.1)' : 'Disabled')}
+                </span>
+              </div>
+              <div style="font-size: 11px; color: var(--sx-text-tertiary, #8a8a96); margin-top: 2px;">
+                Allow desktop AI agents to control synthux over local loopback (127.0.0.1:17483)
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" .checked="${this.mcpStatus?.enabled !== false}" @change="${this._toggleMcpBridge}" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="field" style="margin-top: 10px;">
+            <label class="field-label">Optional Pairing Token (High-Security Mode)</label>
+            <input class="field-input api-key" type="password" .value="${this.mcpToken}" @input="${(e) => this.mcpToken = e.target.value}" @blur="${this._onMcpTokenBlur}" placeholder="Leave empty or match SYNTHUX_MCP_TOKEN..." />
+            <div class="api-key-hint">Loopback-only (127.0.0.1) · Origin-verified · API keys are never exposed over MCP.</div>
+          </div>
+
+          <button class="setup-toggle" style="margin-top: 10px;" @click="${() => this.showMcpGuide = !this.showMcpGuide}">
+            MCP Agent Setup Guide (mcp_config.json)
+            <span class="setup-chevron ${this.showMcpGuide ? 'open' : ''}">▶</span>
+          </button>
+
+          ${this.showMcpGuide ? html`
+            <div class="setup-content" style="margin-top: 8px;">
+              <div class="setup-step">
+                <div class="step-title"><span class="step-number">1</span> Add to Antigravity / Claude / Cursor MCP Config</div>
+                <div class="step-desc">Paste into <code>~/.gemini/config/mcp_config.json</code> or your IDE's MCP configuration:</div>
+                <div class="code-block">
+                  <button class="copy-btn ${this._copiedCmd === 'mcp-json' ? 'copied' : ''}" @click="${() => this._copyCommand('{\n  "mcpServers": {\n    "synthux": {\n      "command": "npx",\n      "args": ["-y", "synthux-mcp"]\n    }\n  }\n}', 'mcp-json')}">${this._copiedCmd === 'mcp-json' ? 'Copied' : 'Copy'}</button>
+                  <code>{\n  "mcpServers": {\n    "synthux": {\n      "command": "npx",\n      "args": ["-y", "synthux-mcp"]\n    }\n  }\n}</code>
+                </div>
+              </div>
+              <div class="setup-step">
+                <div class="step-title"><span class="step-number">2</span> Streamable HTTP Endpoint (Optional)</div>
+                <div class="step-desc">When <code>synthux-mcp</code> is running, agents can also connect via Streamable HTTP:</div>
+                <div class="code-block">
+                  <button class="copy-btn ${this._copiedCmd === 'mcp-http' ? 'copied' : ''}" @click="${() => this._copyCommand('http://127.0.0.1:17483/mcp', 'mcp-http')}">${this._copiedCmd === 'mcp-http' ? 'Copied' : 'Copy'}</button>
+                  <code>http://127.0.0.1:17483/mcp</code>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
       <div class="save-indicator ${this._saved ? 'visible' : ''}" style="text-align: center; padding: 8px; font-size: 11px; color: var(--sx-success, #22c55e); opacity: ${this._saved ? '1' : '0'}; transition: opacity 300ms ease;">✓ Auto-saved</div>
 
 
@@ -850,7 +945,7 @@ export class SynthuxSettings extends LitElement {
         <div class="section-header">About</div>
         <div class="settings-card about-card">
           <div class="about-name">synthux</div>
-          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '1.9.0'}</div>
+          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '2.1.0'}</div>
           <div class="about-desc">AI-powered UX audit. Open source. Privacy first.</div>
           <div class="about-links">
             <a class="about-link" href="https://synthux.app" target="_blank">Website</a>

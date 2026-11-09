@@ -1,0 +1,40 @@
+{
+  "name": "synthux-mcp",
+  "version": "2.1.0",
+  "description": "Official Model Context Protocol (MCP) server & Chrome extension bridge for synthux — AI-powered UX & WCAG 2.2 AA auditing.",
+  "type": "module",
+  "bin": {
+    "synthux-mcp": "./server.js"
+  },
+  "main": "./server.js",
+  "scripts": {
+    "start": "node ./server.js",
+    "test": "node ./test-suite.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "synthux",
+    "ux-audit",
+    "wcag",
+    "accessibility",
+    "nielsen-heuristics",
+    "chrome-extension",
+    "antigravity",
+    "claude",
+    "cursor",
+    "codex",
+    "ollama"
+  ],
+  "author": "synthuxapp",
+  "license": "MIT",
+  "homepage": "https://synthux.app/solutions/mcp-agentic-ux-audit.html",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synthuxapp/synthux.git",
+    "directory": "mcp"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
