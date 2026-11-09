@@ -1168,14 +1168,20 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+  gap: 28px;
   flex-wrap: wrap;
 }
 
 .provider-logo {
+  display: inline-flex;
+  align-items: center;
   color: var(--sx-text-tertiary);
   opacity: 0.5;
   transition: opacity 0.25s, color 0.25s;
+}
+
+.provider-logo svg {
+  overflow: visible;
 }
 
 .provider-logo:hover {
