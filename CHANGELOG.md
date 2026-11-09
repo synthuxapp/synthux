@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-11-09
+
+### Added
+- ** Apple Intelligence (macOS 26/27 `FoundationModels.framework`) Provider & Native Swift Bridge:**
+  - Added `mcp/apple-fm-bridge.swift` and integrated automatic compilation/caching in `mcp/server.js` (`http://127.0.0.1:17483`) to run UX evaluations directly on Apple Silicon Neural Engine via `SystemLanguageModel.default` (`apple-on-device`, `apple-content-tagging`) and `PrivateCloudComputeLanguageModel` (`apple-pcc` on macOS 27.0+).
+  - Added `/apple-fm/status` and `/apple-fm/generate` endpoints, plus backward-compatible Ollama (`/api/tags`, `/api/show`, `/api/generate`) and OpenAI (`/v1/models`, `/v1/chat/completions`) endpoints on `127.0.0.1:17483`.
+- **🌐 Chrome Built-in AI (`window.LanguageModel` / Gemini Nano Prompt API) Provider:**
+  - Added `chromeai` provider in `extension/core/providers.js` and direct in-browser execution in `extension/core/ai-client.js` for zero-server, zero-key on-device UX auditing inside Chrome 138+.
+- **Settings UI & Cost Calculator:**
+  - Added first-class `apple` and `chromeai` provider cards, 1-click connection diagnostics, and collapsible setup guides in `src/sidepanel/components/synthux-settings.js`.
+
+---
+
 ## [2.1.0] - 2026-11-09
 
 ### Added

@@ -302,7 +302,7 @@ function handleMockExtensionCommand(msg, send) {
 
 async function main() {
   console.log('\n================================================================');
-  console.log(' 🧪 synthux v2.1.0 — MCP Server, Security & E2E Test Suite');
+  console.log(' 🧪 synthux v2.1.1 — MCP Server, Security & E2E Test Suite');
   console.log('================================================================\n');
 
   const server = startBridgeServer();
@@ -318,7 +318,7 @@ async function main() {
       params: { protocolVersion: '2024-11-05' }
     });
     assert.equal(res.result.serverInfo.name, 'synthux-mcp');
-    assert.equal(res.result.serverInfo.version, '2.1.0');
+    assert.equal(res.result.serverInfo.version, '2.1.1');
     assert.ok(res.result.capabilities.tools);
   });
 
@@ -611,6 +611,33 @@ async function main() {
     assert.equal(flow.isError, false);
     assert.equal(flow.data.flowReport.flowScore, 86);
     assert.equal(flow.data.flowReport.pages.length, 2);
+  });
+
+  await runTest('Apple Intelligence (macOS 26/27 FoundationModels) & Chrome Built-in AI providers and HTTP bridge endpoints', async () => {
+    const { PROVIDERS, checkVisionSupport } = await import('../extension/core/providers.js');
+    assert.ok(PROVIDERS.apple, 'apple provider registered');
+    assert.ok(PROVIDERS.chromeai, 'chromeai provider registered');
+    assert.equal(await checkVisionSupport('apple', 'apple-on-device'), false);
+    assert.equal(await checkVisionSupport('chromeai', 'gemini-nano'), false);
+
+    const fmStatus = await simulateHttpRequest({
+      method: 'GET',
+      url: '/apple-fm/status',
+      headers: { origin: 'chrome-extension://abcdefghijklmnop' }
+    });
+    assert.equal(fmStatus.status, 200);
+    const fmJson = fmStatus.json();
+    assert.ok(Array.isArray(fmJson.models));
+    assert.ok(fmJson.models.some(m => m.id === 'apple-on-device'));
+
+    const ollamaCompatTags = await simulateHttpRequest({
+      method: 'GET',
+      url: '/api/tags',
+      headers: { origin: 'chrome-extension://abcdefghijklmnop' }
+    });
+    assert.equal(ollamaCompatTags.status, 200);
+    const tagsJson = ollamaCompatTags.json();
+    assert.ok(tagsJson.models.some(m => m.name === 'apple-on-device'));
   });
 
   mockExt.close();

@@ -97,5 +97,8 @@ if (isWatch) {
     }
   }
   fs.chmodSync('mcp/dist/cli.js', 0o755);
+  if (fs.existsSync('mcp/apple-fm-bridge.swift')) {
+    fs.copyFileSync('mcp/apple-fm-bridge.swift', 'mcp/dist/apple-fm-bridge.swift');
+  }
   console.log('✅ Build complete!');
 }

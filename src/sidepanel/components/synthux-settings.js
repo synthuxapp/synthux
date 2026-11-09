@@ -502,7 +502,11 @@ export class SynthuxSettings extends LitElement {
   }
 
   get _isCloudProvider() {
-    return this.providerId !== 'ollama';
+    return this.providerId === 'openai' || this.providerId === 'gemini' || this.providerId === 'claude';
+  }
+
+  get _isBrowserBuiltInProvider() {
+    return this.providerId === 'chromeai';
   }
 
   async _loadSettings() {
@@ -539,11 +543,11 @@ export class SynthuxSettings extends LitElement {
     try {
       const pingResult = await provider.ping(this.endpoint, this.apiKey);
 
-      // Ollama returns status object, cloud providers return boolean
       const isConnected = typeof pingResult === 'object'
         ? pingResult.status === 'connected'
         : !!pingResult;
       const isCorsBlocked = typeof pingResult === 'object' && pingResult.status === 'cors-blocked';
+      const isChromeAiDisabled = typeof pingResult === 'object' && pingResult.status === 'chromeai-disabled';
 
       if (isConnected) {
         // Fetch models
@@ -562,6 +566,11 @@ export class SynthuxSettings extends LitElement {
         this.errorType = 'cors';
         this.showSetupGuide = true;
         this.dispatchEvent(new CustomEvent('status-changed', { detail: { connected: false, corsBlocked: true, models: [] } }));
+      } else if (isChromeAiDisabled) {
+        this.connectionState = 'failed';
+        this.errorType = 'chromeai-disabled';
+        this.showSetupGuide = true;
+        this.dispatchEvent(new CustomEvent('status-changed', { detail: { connected: false, models: [] } }));
       } else {
         this.connectionState = 'failed';
         this.errorType = this._isCloudProvider ? 'auth' : 'offline';
@@ -616,8 +625,8 @@ export class SynthuxSettings extends LitElement {
     }
     this._updateModelsForProvider();
     this._autoSave();
-    // Auto-test if key exists
-    if (this.apiKey && this.providerId !== 'ollama') {
+    // Auto-test if key exists or if on-device provider is selected
+    if ((this.apiKey && this._isCloudProvider) || this.providerId === 'apple' || this.providerId === 'chromeai') {
       this._testConnection();
     }
   }
@@ -693,6 +702,7 @@ export class SynthuxSettings extends LitElement {
       case 'connected': return 'Connected';
       case 'failed': 
         if (this.errorType === 'cors') return 'Blocked (CORS)';
+        if (this.errorType === 'chromeai-disabled') return 'Flags Not Enabled';
         if (this.errorType === 'timeout') return 'Timed out';
         if (this.errorType === 'offline') return 'Not reachable';
         if (this.errorType === 'auth') return 'Invalid API key';
@@ -762,10 +772,17 @@ export class SynthuxSettings extends LitElement {
               <input class="field-input api-key" type="password" .value="${this.apiKey}" @input="${(e) => this.apiKey = e.target.value}" @blur="${this._onApiKeyBlur}" placeholder="Enter API key..." />
               <div class="api-key-hint">${this._getApiKeyHint()}</div>
             </div>
+          ` : this._isBrowserBuiltInProvider ? html`
+            <div class="field">
+              <div class="api-key-hint" style="margin-top: 0;">
+                Runs 100% inside Chrome via the built-in <code>window.LanguageModel</code> Prompt API — no API key or external server required.
+              </div>
+            </div>
           ` : html`
             <div class="field">
-              <label class="field-label">Endpoint</label>
-              <input class="field-input" type="url" .value="${this.endpoint}" @input="${(e) => this.endpoint = e.target.value}" @blur="${this._onEndpointBlur}" placeholder="http://localhost:11434" />
+              <label class="field-label">${this.providerId === 'apple' ? 'Local Bridge Endpoint' : 'Endpoint'}</label>
+              <input class="field-input" type="url" .value="${this.endpoint}" @input="${(e) => this.endpoint = e.target.value}" @blur="${this._onEndpointBlur}" placeholder="${this.providerId === 'apple' ? 'http://127.0.0.1:17483' : 'http://localhost:11434'}" />
+              ${this.providerId === 'apple' ? html`<div class="api-key-hint">Powered by macOS 26/27 <code>FoundationModels</code> (<code>SystemLanguageModel.default</code>) via <code>synthux-mcp</code>.</div>` : ''}
             </div>
           `}
 
@@ -800,7 +817,25 @@ export class SynthuxSettings extends LitElement {
           </div>
         ` : ''}
 
-        ${(this.errorType === 'offline' || this.errorType === 'timeout') && !this._isCloudProvider ? html`
+        ${this.errorType === 'chromeai-disabled' ? html`
+          <div class="error-hint">
+            <span class="error-hint-dot"></span>
+            <div>
+              <strong>Chrome Built-in AI not enabled.</strong> Enable the Prompt API flags in <code>chrome://flags</code> below and relaunch Chrome.
+            </div>
+          </div>
+        ` : ''}
+
+        ${(this.errorType === 'offline' || this.errorType === 'timeout') && this.providerId === 'apple' ? html`
+          <div class="error-hint">
+            <span class="error-hint-dot"></span>
+            <div>
+              <strong>Apple Foundation Model bridge not running.</strong> Run <code>npx -y synthux-mcp</code> in Terminal on macOS 26/27 to start the local Apple Intelligence bridge.
+            </div>
+          </div>
+        ` : ''}
+
+        ${(this.errorType === 'offline' || this.errorType === 'timeout') && this.providerId === 'ollama' ? html`
           <div class="error-hint">
             <span class="error-hint-dot"></span>
             <div>
@@ -810,7 +845,70 @@ export class SynthuxSettings extends LitElement {
         ` : ''}
       </div>
 
-      ${!this._isCloudProvider ? html`
+      ${this.providerId === 'apple' ? html`
+      <div class="setup-guide">
+        <button class="setup-toggle" @click="${() => this.showSetupGuide = !this.showSetupGuide}">
+          Apple Intelligence (macOS 26/27) Setup Guide
+          <span class="setup-chevron ${this.showSetupGuide ? 'open' : ''}">▶</span>
+        </button>
+
+        ${this.showSetupGuide ? html`
+          <div class="setup-content">
+            <div class="setup-step">
+              <div class="step-title"><span class="step-number">1</span> Enable Apple Intelligence on macOS</div>
+              <div class="step-desc">Open <strong>System Settings → Apple Intelligence & Siri</strong> on macOS 26 Tahoe or macOS 27+ (Apple Silicon M1–M5). Zero model download or API key needed.</div>
+            </div>
+
+            <div class="setup-step">
+              <div class="step-title"><span class="step-number">2</span> Start the Local Apple Foundation Model Bridge</div>
+              <div class="step-desc">Run <code>synthux-mcp</code> in Terminal (or keep your MCP IDE agent open) to expose <code>SystemLanguageModel.default</code> on <code>127.0.0.1:17483</code>:</div>
+              <div class="code-block">
+                <button class="copy-btn ${this._copiedCmd === 'apple-bridge' ? 'copied' : ''}" @click="${() => this._copyCommand('npx -y synthux-mcp', 'apple-bridge')}">${this._copiedCmd === 'apple-bridge' ? 'Copied' : 'Copy'}</button>
+                <code>npx -y synthux-mcp</code>
+              </div>
+            </div>
+
+            <div class="setup-step">
+              <div class="step-title"><span class="step-number">3</span> Select Model & Test Connection</div>
+              <div class="step-desc">Choose <code>apple-on-device</code> (Apple Neural Engine) or <code>apple-pcc</code> (Private Cloud Compute on macOS 27) and click <strong>Test Connection</strong>.</div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+      ` : ''}
+
+      ${this.providerId === 'chromeai' ? html`
+      <div class="setup-guide">
+        <button class="setup-toggle" @click="${() => this.showSetupGuide = !this.showSetupGuide}">
+          Chrome Built-in AI (Gemini Nano) Setup Guide
+          <span class="setup-chevron ${this.showSetupGuide ? 'open' : ''}">▶</span>
+        </button>
+
+        ${this.showSetupGuide ? html`
+          <div class="setup-content">
+            <div class="setup-step">
+              <div class="step-title"><span class="step-number">1</span> Enable Optimization Guide On-Device Model</div>
+              <div class="step-desc">Copy and open in Chrome address bar, then set to <strong>Enabled BypassPerfRequirement</strong>:</div>
+              <div class="code-block">
+                <button class="copy-btn ${this._copiedCmd === 'cflag1' ? 'copied' : ''}" @click="${() => this._copyCommand('chrome://flags/#optimization-guide-on-device-model', 'cflag1')}">${this._copiedCmd === 'cflag1' ? 'Copied' : 'Copy'}</button>
+                <code>chrome://flags/#optimization-guide-on-device-model</code>
+              </div>
+            </div>
+
+            <div class="setup-step">
+              <div class="step-title"><span class="step-number">2</span> Enable Prompt API for Gemini Nano</div>
+              <div class="step-desc">Copy and open in Chrome address bar, set to <strong>Enabled</strong>, and relaunch Chrome:</div>
+              <div class="code-block">
+                <button class="copy-btn ${this._copiedCmd === 'cflag2' ? 'copied' : ''}" @click="${() => this._copyCommand('chrome://flags/#prompt-api-for-gemini-nano', 'cflag2')}">${this._copiedCmd === 'cflag2' ? 'Copied' : 'Copy'}</button>
+                <code>chrome://flags/#prompt-api-for-gemini-nano</code>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+      ` : ''}
+
+      ${this.providerId === 'ollama' ? html`
       <div class="setup-guide">
         <button class="setup-toggle" @click="${() => this.showSetupGuide = !this.showSetupGuide}">
           Ollama Setup Guide
@@ -945,7 +1043,7 @@ export class SynthuxSettings extends LitElement {
         <div class="section-header">About</div>
         <div class="settings-card about-card">
           <div class="about-name">synthux</div>
-          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '2.1.0'}</div>
+          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '2.1.1'}</div>
           <div class="about-desc">AI-powered UX audit. Open source. Privacy first.</div>
           <div class="about-links">
             <a class="about-link" href="https://synthux.app" target="_blank">Website</a>

@@ -1,6 +1,6 @@
 {
   "name": "synthux-mcp",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Official Model Context Protocol (MCP) server & Chrome extension bridge for synthux — AI-powered UX & WCAG 2.2 AA auditing.",
   "type": "module",
   "bin": {
@@ -11,6 +11,7 @@
     "dist/",
     "rules/",
     "server.js",
+    "apple-fm-bridge.swift",
     "README.md"
   ],
   "scripts": {

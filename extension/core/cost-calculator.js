@@ -94,11 +94,16 @@ async function loadPricing() {
  * @returns {Object} — { cost, formatted, isLocal, modelFound }
  */
 export async function calculateCost(modelId, inputTokens, outputTokens, providerId = 'ollama') {
-  // Local models are free
-  if (providerId === 'ollama') {
+  // Local / On-Device models are free
+  if (providerId === 'ollama' || providerId === 'apple' || providerId === 'chromeai') {
+    const label = providerId === 'apple'
+      ? 'Free — Apple Intelligence ✓'
+      : providerId === 'chromeai'
+        ? 'Free — Chrome Built-in AI ✓'
+        : 'Free — local AI ✓';
     return {
       cost: 0,
-      formatted: 'Free — local AI ✓',
+      formatted: label,
       isLocal: true,
       modelFound: true,
       inputTokens,

@@ -25,12 +25,12 @@
 
 synthux is an open-source Chrome extension that evaluates web pages using **synthetic user profiles** and **Nielsen's 10 Usability Heuristics** — powered by local or cloud AI.
 
-Run locally with Ollama for free, or use your own API key with Gemini, OpenAI, or Claude.
+Run locally for free with **Ollama**, ** Apple Intelligence** (macOS 26/27 built-in `FoundationModels`), or **Chrome Built-in AI** (Gemini Nano `window.LanguageModel`) — or use your own API key with Gemini, OpenAI, or Claude.
 
 ## Features
 
 - **MCP Server & AI Agent Bridge (`synthux-mcp`)** — Let Google Antigravity (Gemini 4 Argon), Claude Desktop/Code, Cursor, OpenAI Codex, or Windsurf control 100% of synthux via Model Context Protocol (14 tools, Stdio + Streamable HTTP, Agent-Brain mode)
-- **Multi-Provider AI** — Ollama (local: Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1), Google Gemini, OpenAI, Anthropic Claude
+- **Multi-Provider AI** — **Ollama** (local: Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1), ** Apple Intelligence** (macOS 26/27 built-in `FoundationModels` / Private Cloud Compute), **Chrome Built-in AI** (Gemini Nano Prompt API), **Google Gemini**, **OpenAI**, **Anthropic Claude**
 - **Sectoral Rule Packs & Plugin Ecosystem** — Built-in packs for General UX (Nielsen's 10), E-Commerce & Conversion, SaaS & Dashboards, and Fintech & Banking — plus custom `.json` rule pack plugin import
 - **Vision Analysis** — Full-page screenshot capture for visual layout evaluation
 - **Synthetic User Profiles** — 3 built-in + up to 5 custom personas (age, tech level, accessibility needs, goals)
@@ -90,6 +90,16 @@ export OLLAMA_ORIGINS="*" && ollama serve
 ```
 
 > **Ollama updates may reset this setting.** If you get a CORS error after updating, repeat and restart. synthux will detect this automatically and show a fix wizard.
+
+### Option A2 — Built-in OS & Browser AI (Free, Zero Model Download)
+
+- ** Apple Intelligence (macOS 26 / 27 `FoundationModels`):**
+  1. Ensure Apple Intelligence is enabled in **System Settings → Apple Intelligence & Siri** on an Apple Silicon Mac (M1+).
+  2. Start the local synthux bridge: `npx -y synthux-mcp` (or `npm run mcp`).
+  3. In synthux **Settings → AI Provider**, select ** Apple Intelligence (macOS)** (`apple-on-device`, `apple-pcc`, or `apple-content-tagging`).
+- **🌐 Chrome Built-in AI (Gemini Nano `window.LanguageModel`):**
+  1. In Chrome 138+, enable `chrome://flags/#optimization-guide-on-device-model` (**Enabled BypassPerfRequirement**) and `chrome://flags/#prompt-api-for-gemini-nano` (**Enabled**), then relaunch Chrome.
+  2. In synthux **Settings → AI Provider**, select **🌐 Chrome Built-in AI** (`gemini-nano`). Runs 100% inside the browser with no external process or API key.
 
 ### Option B — Cloud API (BYOK)
 

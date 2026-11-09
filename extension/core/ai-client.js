@@ -77,6 +77,25 @@ export class AIClient {
           await new Promise(r => setTimeout(r, 3000));
         }
 
+        // Direct in-browser execution for providers like Chrome Built-in AI (Prompt API)
+        if (typeof this.provider.evaluateDirect === 'function') {
+          const directResult = await this.provider.evaluateDirect(prompt, model, {
+            endpoint: this.endpoint,
+            apiKey: this.apiKey,
+            systemPrompt,
+            temperature,
+            format,
+            maxTokens,
+            images: images.filter(Boolean),
+            signal: this.abortController.signal,
+          });
+          if (!directResult.success && attempt < maxRetries) {
+            lastError = new Error(directResult.error || 'Direct evaluation failed');
+            continue;
+          }
+          return directResult;
+        }
+
         // Build provider-specific request
         const req = this.provider.buildRequest(prompt, model, {
           endpoint: this.endpoint,

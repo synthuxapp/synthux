@@ -4,8 +4,35 @@
  * Adapter pattern for multiple AI providers.
  * Each provider normalizes request/response to a common format.
  * 
- * Supported: Ollama (local), OpenAI, Google Gemini, Anthropic Claude
+ * Supported:
+ * - Ollama (Local)
+ * - Apple Intelligence (macOS 26/27 Built-in Foundation Models via local bridge)
+ * - Chrome Built-in AI (Gemini Nano via Chrome Prompt API)
+ * - OpenAI (BYOK)
+ * - Google Gemini (BYOK)
+ * - Anthropic Claude (BYOK)
  */
+
+function stripMarkdownJsonFences(rawText) {
+  let text = String(rawText || '').trim();
+  if (text.startsWith('```json')) {
+    text = text.slice(7);
+  } else if (text.startsWith('```')) {
+    text = text.slice(3);
+  }
+  if (text.endsWith('```')) {
+    text = text.slice(0, -3);
+  }
+  return text.trim();
+}
+
+function getChromeLanguageModelApi() {
+  if (typeof globalThis !== 'undefined') {
+    if (globalThis.LanguageModel) return { api: globalThis.LanguageModel, type: 'standard' };
+    if (globalThis.ai?.languageModel) return { api: globalThis.ai.languageModel, type: 'legacy' };
+  }
+  return null;
+}
 
 // ─── Provider Registry ──────────────────────────────────────────────────────
 
@@ -468,6 +495,238 @@ export const PROVIDERS = {
         return res.ok;
       } catch { return false; }
     }
+  },
+
+  apple: {
+    id: 'apple',
+    name: 'Apple Intelligence (macOS)',
+    icon: '',
+    authType: 'none',
+    defaultEndpoint: 'http://127.0.0.1:17483',
+    models: [
+      { id: 'apple-on-device', name: 'Apple Foundation Model (On-Device ANE)' },
+      { id: 'apple-pcc', name: 'Apple Private Cloud Compute (macOS 27)' },
+      { id: 'apple-content-tagging', name: 'Apple Foundation Model (Fast Tagging)' }
+    ],
+    modelsFetchable: true,
+
+    buildRequest(prompt, model, options = {}) {
+      const endpoint = (options.endpoint || this.defaultEndpoint).replace(/\/$/, '');
+      const selectedModel = model || 'apple-on-device';
+
+      // Trim prompt safely to fit Apple On-Device Foundation Model context window (~4K-8K tokens)
+      const maxChars = selectedModel === 'apple-pcc' ? 28000 : 12000;
+      const safePrompt = prompt.length > maxChars
+        ? `${prompt.slice(0, maxChars)}\n\n[DOM truncated for on-device context window. Respond ONLY with valid JSON.]`
+        : prompt;
+
+      return {
+        url: `${endpoint}/apple-fm/generate`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: {
+          model: selectedModel,
+          prompt: safePrompt,
+          system: options.systemPrompt || 'You are a UX evaluation expert. Respond only with valid JSON.',
+          temperature: options.temperature ?? 0.3,
+          maxTokens: options.maxTokens || 2048,
+          format: options.format || 'json'
+        }
+      };
+    },
+
+    parseResponse(data) {
+      if (data && data.success === false) {
+        throw new Error(data.error || 'Apple Foundation Model failed to generate a response.');
+      }
+
+      const rawText = stripMarkdownJsonFences(
+        data?.response ?? data?.choices?.[0]?.message?.content ?? ''
+      );
+
+      try {
+        const parsed = JSON.parse(rawText);
+        return {
+          success: true,
+          result: parsed,
+          meta: {
+            model: data?.model || 'apple-on-device',
+            totalDuration: data?.totalDuration || 0,
+            inputTokens: data?.inputTokens ?? data?.usage?.prompt_tokens ?? 0,
+            outputTokens: data?.outputTokens ?? data?.usage?.completion_tokens ?? 0
+          }
+        };
+      } catch {
+        return {
+          success: true,
+          result: { raw: rawText },
+          meta: {
+            model: data?.model || 'apple-on-device',
+            inputTokens: data?.inputTokens ?? 0,
+            outputTokens: data?.outputTokens ?? 0
+          }
+        };
+      }
+    },
+
+    async fetchModels(endpoint) {
+      const base = (endpoint || this.defaultEndpoint).replace(/\/$/, '');
+      try {
+        const res = await fetch(`${base}/apple-fm/status`, {
+          signal: AbortSignal.timeout(5000)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.models) && data.models.length > 0) {
+            return data.models.map(m => ({
+              id: m.id || m.name,
+              name: m.name || m.id
+            }));
+          }
+        }
+      } catch {}
+      return this.models;
+    },
+
+    async ping(endpoint) {
+      const base = (endpoint || this.defaultEndpoint).replace(/\/$/, '');
+      try {
+        const res = await fetch(`${base}/apple-fm/status`, {
+          signal: AbortSignal.timeout(5000)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.available) {
+            return {
+              status: 'connected',
+              version: data.variant || data.osVersion || 'Apple Intelligence'
+            };
+          }
+          // Bridge is reachable on macOS 26/27; report status + reason if Apple Intelligence needs enabling
+          return {
+            status: data.status === 'unsupported_os' ? 'unsupported-os' : 'connected',
+            version: data.variant || data.osVersion || 'macOS Bridge Ready',
+            warning: data.reason || null
+          };
+        }
+        return { status: 'error', code: res.status };
+      } catch {
+        return { status: 'offline' };
+      }
+    }
+  },
+
+  chromeai: {
+    id: 'chromeai',
+    name: 'Chrome Built-in AI',
+    icon: '🌐',
+    authType: 'none',
+    defaultEndpoint: 'chrome://on-device-internals',
+    models: [
+      { id: 'gemini-nano', name: 'Gemini Nano (Chrome Prompt API)' }
+    ],
+    modelsFetchable: false,
+
+    async evaluateDirect(prompt, model = 'gemini-nano', options = {}) {
+      const entry = getChromeLanguageModelApi();
+      if (!entry) {
+        return {
+          success: false,
+          error: 'Chrome Built-in AI (Prompt API) is not enabled in this browser. Enable chrome://flags/#prompt-api-for-gemini-nano and restart Chrome.'
+        };
+      }
+
+      const maxChars = 14000;
+      const safePrompt = prompt.length > maxChars
+        ? `${prompt.slice(0, maxChars)}\n\n[DOM truncated for Gemini Nano context window. Respond ONLY with valid JSON.]`
+        : prompt;
+
+      const systemPrompt = options.systemPrompt || 'You are a UX evaluation expert. Respond ONLY with a valid JSON object without markdown code fences.';
+      let session = null;
+
+      try {
+        if (entry.type === 'standard') {
+          session = await entry.api.create({
+            initialPrompts: [{ role: 'system', content: systemPrompt }],
+            temperature: options.temperature ?? 0.3,
+            topK: 3,
+            signal: options.signal
+          });
+        } else {
+          session = await entry.api.create({
+            systemPrompt,
+            temperature: options.temperature ?? 0.3,
+            topK: 3,
+            signal: options.signal
+          });
+        }
+
+        const rawResponse = await session.prompt(safePrompt, { signal: options.signal });
+        const cleaned = stripMarkdownJsonFences(rawResponse);
+        const inputTokens = Math.max(1, Math.round(safePrompt.length / 4));
+        const outputTokens = Math.max(1, Math.round(cleaned.length / 4));
+
+        try {
+          const parsed = JSON.parse(cleaned);
+          return {
+            success: true,
+            result: parsed,
+            meta: {
+              model: model || 'gemini-nano',
+              inputTokens,
+              outputTokens
+            }
+          };
+        } catch {
+          return {
+            success: true,
+            result: { raw: cleaned },
+            meta: {
+              model: model || 'gemini-nano',
+              inputTokens,
+              outputTokens
+            }
+          };
+        }
+      } catch (err) {
+        return {
+          success: false,
+          error: `Chrome Built-in AI error: ${err.message || String(err)}`
+        };
+      } finally {
+        try { session?.destroy?.(); } catch {}
+      }
+    },
+
+    async fetchModels() {
+      return this.models;
+    },
+
+    async ping() {
+      const entry = getChromeLanguageModelApi();
+      if (!entry) {
+        return { status: 'chromeai-disabled' };
+      }
+      try {
+        if (entry.type === 'standard' && typeof entry.api.availability === 'function') {
+          const avail = await entry.api.availability();
+          if (avail === 'unavailable' || avail === 'no') {
+            return { status: 'chromeai-disabled' };
+          }
+          return { status: 'connected', version: `Gemini Nano (${avail})` };
+        }
+        if (entry.type === 'legacy' && typeof entry.api.capabilities === 'function') {
+          const caps = await entry.api.capabilities();
+          if (caps?.available === 'no') {
+            return { status: 'chromeai-disabled' };
+          }
+          return { status: 'connected', version: `Gemini Nano (${caps?.available || 'ready'})` };
+        }
+        return { status: 'connected', version: 'Gemini Nano' };
+      } catch {
+        return { status: 'chromeai-disabled' };
+      }
+    }
   }
 };
 
@@ -514,18 +773,23 @@ const _visionCache = new Map();
  * - Cloud providers (OpenAI, Gemini, Claude): always returns true
  *   (all modern cloud models accept images; the API gracefully ignores
  *    images if the specific model doesn't support them).
+ * - Apple Intelligence & Chrome Built-in AI: returns false so prompts stay
+ *   within the fast on-device text/DOM context window.
  * - Ollama: queries /api/show for the model's `capabilities` array
  *   and returns true if it contains "vision".
  *
  * Results are cached in-memory so repeated calls for the same model
  * don't hit the network.
  *
- * @param {string} providerId  - e.g. 'ollama', 'openai', 'gemini', 'claude'
+ * @param {string} providerId  - e.g. 'ollama', 'apple', 'chromeai', 'openai', 'gemini', 'claude'
  * @param {string} model       - model name, e.g. 'gemma3:4b'
  * @param {string} [endpoint]  - Ollama endpoint (default http://localhost:11434)
  * @returns {Promise<boolean>}
  */
 export async function checkVisionSupport(providerId, model, endpoint) {
+  // On-device compact text/DOM models skip base64 screenshot payloads
+  if (providerId === 'apple' || providerId === 'chromeai') return false;
+
   // Cloud providers — always treat as vision-capable
   if (providerId !== 'ollama') return true;
 

@@ -22,7 +22,9 @@ import http from 'node:http';
 import crypto from 'node:crypto';
 import readline from 'node:readline';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { execFile, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -57,7 +59,7 @@ const PORT = Number(process.env.SYNTHUX_MCP_PORT || 17483);
 const REQUIRED_TOKEN = (process.env.SYNTHUX_MCP_TOKEN || '').trim();
 const SERVER_INFO = {
   name: 'synthux-mcp',
-  version: '2.1.0'
+  version: '2.1.1'
 };
 const PROTOCOL_VERSION = '2024-11-05';
 
@@ -111,6 +113,195 @@ function validateSafeHttpUrl(urlStr) {
   } catch {
     return false;
   }
+}
+
+// ─── Apple Foundation Models (macOS 26 / macOS 27+) Local Bridge ─────────────
+
+const APPLE_FM_SWIFT_PATH = [
+  path.join(__dirname, 'apple-fm-bridge.swift'),
+  path.join(__dirname, '..', 'apple-fm-bridge.swift'),
+  path.join(ROOT_DIR, 'mcp', 'apple-fm-bridge.swift')
+].find(p => fs.existsSync(p)) || path.join(__dirname, 'apple-fm-bridge.swift');
+
+const APPLE_FM_CACHE_DIR = path.join(os.tmpdir(), 'synthux-apple-fm-cache');
+const APPLE_FM_BIN_PATH = path.join(APPLE_FM_CACHE_DIR, 'synthux-apple-fm');
+let _appleFmCompiling = null;
+
+async function ensureAppleFmBinary() {
+  if (process.platform !== 'darwin') return null;
+  if (!fs.existsSync(APPLE_FM_SWIFT_PATH)) return null;
+
+  try {
+    fs.mkdirSync(APPLE_FM_CACHE_DIR, { recursive: true });
+    if (fs.existsSync(APPLE_FM_BIN_PATH)) {
+      const srcStat = fs.statSync(APPLE_FM_SWIFT_PATH);
+      const binStat = fs.statSync(APPLE_FM_BIN_PATH);
+      if (binStat.mtimeMs >= srcStat.mtimeMs) {
+        return APPLE_FM_BIN_PATH;
+      }
+    }
+  } catch {}
+
+  if (_appleFmCompiling) return _appleFmCompiling;
+
+  _appleFmCompiling = new Promise((resolve) => {
+    const moduleCache = path.join(APPLE_FM_CACHE_DIR, 'swift-module-cache');
+    try { fs.mkdirSync(moduleCache, { recursive: true }); } catch {}
+
+    execFile(
+      'swiftc',
+      ['-module-cache-path', moduleCache, '-O', APPLE_FM_SWIFT_PATH, '-o', APPLE_FM_BIN_PATH],
+      { timeout: 30000 },
+      (err) => {
+        _appleFmCompiling = null;
+        if (err) {
+          resolve(null);
+        } else {
+          try { fs.chmodSync(APPLE_FM_BIN_PATH, 0o755); } catch {}
+          resolve(APPLE_FM_BIN_PATH);
+        }
+      }
+    );
+  });
+
+  return _appleFmCompiling;
+}
+
+async function runAppleFmStatus() {
+  if (process.platform !== 'darwin') {
+    return {
+      available: false,
+      status: 'unsupported_os',
+      reason: 'Apple Foundation Models require macOS 26/27 on Apple Silicon.',
+      osVersion: `${process.platform} (${os.release()})`,
+      models: []
+    };
+  }
+
+  const bin = await ensureAppleFmBinary();
+  if (!bin) {
+    return {
+      available: false,
+      status: 'compiler_unavailable',
+      reason: 'Swift / Xcode Command Line Tools are required to bridge Apple FoundationModels on macOS.',
+      osVersion: `macOS (${os.release()})`,
+      models: [
+        { id: 'apple-on-device', name: 'Apple Foundation Model (On-Device ANE)', size: 0 },
+        { id: 'apple-pcc', name: 'Apple Private Cloud Compute (macOS 27)', size: 0 },
+        { id: 'apple-content-tagging', name: 'Apple Foundation Model (Fast Tagging)', size: 0 }
+      ]
+    };
+  }
+
+  return new Promise((resolve) => {
+    execFile(bin, ['status'], { timeout: 10000 }, (err, stdout) => {
+      if (err || !stdout) {
+        resolve({
+          available: false,
+          status: 'error',
+          reason: err?.message || 'Failed to query Apple Foundation Models status.',
+          osVersion: `macOS (${os.release()})`,
+          models: [
+            { id: 'apple-on-device', name: 'Apple Foundation Model (On-Device ANE)', size: 0 },
+            { id: 'apple-pcc', name: 'Apple Private Cloud Compute (macOS 27)', size: 0 },
+            { id: 'apple-content-tagging', name: 'Apple Foundation Model (Fast Tagging)', size: 0 }
+          ]
+        });
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout.trim()));
+      } catch {
+        resolve({
+          available: false,
+          status: 'parse_error',
+          raw: stdout.trim(),
+          models: []
+        });
+      }
+    });
+  });
+}
+
+async function runAppleFmGenerate(payload) {
+  if (process.platform !== 'darwin') {
+    return {
+      success: false,
+      error: 'Apple Foundation Models require macOS 26/27 on Apple Silicon.'
+    };
+  }
+
+  const bin = await ensureAppleFmBinary();
+  if (!bin) {
+    return {
+      success: false,
+      error: 'Unable to compile Apple FoundationModels Swift bridge. Ensure Xcode / Command Line Tools are installed.'
+    };
+  }
+
+  return new Promise((resolve) => {
+    const child = spawn(bin, ['generate'], {
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+    const timer = setTimeout(() => {
+      try { child.kill('SIGKILL'); } catch {}
+      resolve({
+        success: false,
+        error: 'Apple Foundation Model request timed out.'
+      });
+    }, 60000);
+
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString('utf8'); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString('utf8'); });
+
+    child.on('close', () => {
+      clearTimeout(timer);
+      try {
+        const parsed = JSON.parse(stdout.trim());
+        resolve(parsed);
+      } catch {
+        resolve({
+          success: false,
+          error: stderr.trim() || stdout.trim() || 'Apple Foundation Model returned an invalid response.'
+        });
+      }
+    });
+
+    child.on('error', (err) => {
+      clearTimeout(timer);
+      resolve({
+        success: false,
+        error: `Apple Foundation Model process error: ${err.message}`
+      });
+    });
+
+    child.stdin.write(JSON.stringify(payload));
+    child.stdin.end();
+  });
+}
+
+function readJsonBody(req, maxBytes = 10 * 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk.toString('utf8');
+      if (body.length > maxBytes) {
+        req.destroy?.();
+        reject(new Error('Payload too large'));
+      }
+    });
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (err) {
+        reject(err);
+      }
+    });
+    req.on('error', reject);
+  });
 }
 
 // ─── RFC 6455 Minimal WebSocket Server Implementation ────────────────────────
@@ -337,7 +528,7 @@ export const MCP_TOOLS = [
         },
         provider: {
           type: 'string',
-          enum: ['ollama', 'gemini', 'openai', 'claude'],
+          enum: ['ollama', 'apple', 'chromeai', 'gemini', 'openai', 'claude'],
           description: 'Optional AI provider override'
         },
         model: {
@@ -545,7 +736,7 @@ export const MCP_TOOLS = [
   },
   {
     name: 'synthux_configure_ai',
-    description: 'Read or update synthux AI provider configuration (Local Ollama gemma4/qwen3.8/deepseek-r1 or Cloud Gemini/OpenAI/Claude) and test provider connectivity.',
+    description: 'Read or update synthux AI provider configuration (Local Ollama, Apple Intelligence macOS 26/27 FoundationModels, Chrome Built-in AI Gemini Nano, or Cloud Gemini/OpenAI/Claude) and test provider connectivity.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -554,7 +745,7 @@ export const MCP_TOOLS = [
           enum: ['get', 'update', 'ping'],
           default: 'get'
         },
-        provider: { type: 'string', enum: ['ollama', 'gemini', 'openai', 'claude'] },
+        provider: { type: 'string', enum: ['ollama', 'apple', 'chromeai', 'gemini', 'openai', 'claude'] },
         model: { type: 'string' },
         endpoint: { type: 'string' },
         enableVision: { type: 'boolean' },
@@ -1225,10 +1416,24 @@ async function handleHttpRequest(req, res) {
     return;
   }
 
+  // Set CORS headers for allowed origins (chrome-extension://* and local CLI)
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': origin || '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-synthux-token',
+    'Content-Type': 'application/json'
+  };
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, corsHeaders);
+    res.end();
+    return;
+  }
+
   if (REQUIRED_TOKEN) {
     const headerToken = req.headers['x-synthux-token'] || (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
     if (headerToken !== REQUIRED_TOKEN) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.writeHead(401, corsHeaders);
       res.end(JSON.stringify({ error: 'Unauthorized: Invalid SYNTHUX_MCP_TOKEN.' }));
       return;
     }
@@ -1237,12 +1442,172 @@ async function handleHttpRequest(req, res) {
   const url = new URL(req.url || '/', `http://${LOOPBACK_HOST}:${PORT}`);
 
   if (req.method === 'GET' && url.pathname === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.writeHead(200, corsHeaders);
     res.end(JSON.stringify({
       status: 'ok',
       server: SERVER_INFO,
       extensionConnected: !!(activeExtensionClient && activeExtensionClient.authenticated)
     }));
+    return;
+  }
+
+  // ─── Apple Foundation Models (macOS 26 / macOS 27+) Local Endpoints ────────
+  if (req.method === 'GET' && url.pathname === '/apple-fm/status') {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify(status));
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/apple-fm/generate') {
+    try {
+      const payload = await readJsonBody(req);
+      if (!payload.prompt) {
+        res.writeHead(400, corsHeaders);
+        res.end(JSON.stringify({ success: false, error: 'prompt is required' }));
+        return;
+      }
+      const result = await runAppleFmGenerate(payload);
+      res.writeHead(result.success ? 200 : 500, corsHeaders);
+      res.end(JSON.stringify(result));
+    } catch (err) {
+      res.writeHead(400, corsHeaders);
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+
+  // ─── Backward-Compatible Ollama Endpoints on 127.0.0.1:17483 ──────────────
+  // Allows even the v2.1.0 Chrome Extension to use Apple Foundation Models
+  // simply by setting the Ollama Endpoint to http://127.0.0.1:17483.
+  if (req.method === 'GET' && url.pathname === '/api/tags') {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({
+      models: (status.models || []).map(m => ({
+        name: m.id,
+        model: m.id,
+        size: m.size || 0,
+        details: { family: 'apple-foundation-model', parameter_size: '3B-ANE' }
+      }))
+    }));
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/version') {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({ version: status.variant || status.osVersion || 'apple-fm-27.0' }));
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/show') {
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({
+      capabilities: ['completion'],
+      details: { family: 'apple-foundation-model' }
+    }));
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/generate') {
+    try {
+      const body = await readJsonBody(req);
+      if (!body.model) {
+        res.writeHead(400, corsHeaders);
+        res.end(JSON.stringify({ error: 'model is required' }));
+        return;
+      }
+      const result = await runAppleFmGenerate({
+        model: body.model,
+        prompt: body.prompt || '',
+        system: body.system || '',
+        temperature: body.options?.temperature ?? 0.3,
+        maxTokens: body.options?.num_predict ?? 2048
+      });
+      if (!result.success) {
+        res.writeHead(500, corsHeaders);
+        res.end(JSON.stringify({ error: result.error || 'Apple Foundation Model error' }));
+        return;
+      }
+      res.writeHead(200, corsHeaders);
+      res.end(JSON.stringify({
+        model: result.model || body.model,
+        response: result.response,
+        done: true,
+        total_duration: result.totalDuration || 0,
+        prompt_eval_count: result.inputTokens || 0,
+        eval_count: result.outputTokens || 0
+      }));
+    } catch (err) {
+      res.writeHead(400, corsHeaders);
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // ─── OpenAI-Compatible Endpoints on 127.0.0.1:17483 (/v1/*) ───────────────
+  if (req.method === 'GET' && url.pathname === '/v1/models') {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({
+      object: 'list',
+      data: (status.models || []).map(m => ({
+        id: m.id,
+        object: 'model',
+        owned_by: 'apple-foundation-models'
+      }))
+    }));
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/v1/chat/completions') {
+    try {
+      const body = await readJsonBody(req);
+      const messages = Array.isArray(body.messages) ? body.messages : [];
+      const sysMsg = messages.find(m => m.role === 'system');
+      const userMsg = [...messages].reverse().find(m => m.role === 'user');
+      const userText = Array.isArray(userMsg?.content)
+        ? userMsg.content.filter(p => p.type === 'text').map(p => p.text).join('\n')
+        : String(userMsg?.content || '');
+
+      const result = await runAppleFmGenerate({
+        model: body.model || 'apple-on-device',
+        prompt: userText,
+        system: sysMsg?.content || '',
+        temperature: body.temperature ?? 0.3,
+        maxTokens: body.max_tokens ?? 2048
+      });
+
+      if (!result.success) {
+        res.writeHead(500, corsHeaders);
+        res.end(JSON.stringify({ error: { message: result.error } }));
+        return;
+      }
+
+      res.writeHead(200, corsHeaders);
+      res.end(JSON.stringify({
+        id: `chatcmpl-${Date.now()}`,
+        object: 'chat.completion',
+        created: Math.floor(Date.now() / 1000),
+        model: result.model || body.model || 'apple-on-device',
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content: result.response },
+            finish_reason: 'stop'
+          }
+        ],
+        usage: {
+          prompt_tokens: result.inputTokens || 0,
+          completion_tokens: result.outputTokens || 0,
+          total_tokens: (result.inputTokens || 0) + (result.outputTokens || 0)
+        }
+      }));
+    } catch (err) {
+      res.writeHead(400, corsHeaders);
+      res.end(JSON.stringify({ error: { message: err.message } }));
+    }
     return;
   }
 
@@ -1259,20 +1624,20 @@ async function handleHttpRequest(req, res) {
           const parsed = JSON.parse(body);
           if (Array.isArray(parsed)) {
             const responses = (await Promise.all(parsed.map(m => handleJsonRpcMessage(m)))).filter(Boolean);
-            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.writeHead(200, corsHeaders);
             res.end(JSON.stringify(responses));
           } else {
             const response = await handleJsonRpcMessage(parsed);
             if (!response) {
-              res.writeHead(202);
+              res.writeHead(202, corsHeaders);
               res.end();
             } else {
-              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.writeHead(200, corsHeaders);
               res.end(JSON.stringify(response));
             }
           }
         } catch (err) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.writeHead(400, corsHeaders);
           res.end(JSON.stringify({
             jsonrpc: '2.0',
             id: null,
@@ -1284,7 +1649,7 @@ async function handleHttpRequest(req, res) {
     }
 
     if (req.method === 'GET') {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.writeHead(200, corsHeaders);
       res.end(JSON.stringify({
         name: SERVER_INFO.name,
         version: SERVER_INFO.version,
@@ -1296,7 +1661,7 @@ async function handleHttpRequest(req, res) {
     }
   }
 
-  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.writeHead(404, corsHeaders);
   res.end(JSON.stringify({ error: 'Not Found' }));
 }
 

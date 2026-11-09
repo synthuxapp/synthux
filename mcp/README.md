@@ -8,7 +8,13 @@ Connect desktop AI coding agents (**Google Antigravity**, **Claude Desktop / Cla
 - **Live Chrome Extension Bridge:** Connects to the synthux MV3 Chrome Extension over local WebSocket (`ws://127.0.0.1:17483/ws`).
 - **Two AI Evaluation Modes:**
   1. **Agent-Brain Mode (Passthrough):** Your connected MCP Agent (e.g., Antigravity Gemini 4 Argon, Claude, Codex) uses `synthux_prepare_external_audit` to scan the live DOM, run `axe-core` WCAG 2.2 AA checks, and get Sectoral Rule Pack prompts — evaluates them with its own intelligence — and calls `synthux_submit_external_audit` to render live page heatmaps, annotated screenshots, and Enhanced v2.0 Markdown/JSON reports.
-  2. **Extension AI Engine Mode:** Trigger `synthux_run_ux_audit` to run the audit using the extension's configured **Local LLM (Ollama: `gemma4`, `qwen3.8`, `deepseek-r1`)** or **Cloud BYOK API (`Gemini`, `OpenAI`, `Claude`)**.
+  2. **Extension AI Engine Mode:** Trigger `synthux_run_ux_audit` to run the audit using the extension's configured **Local LLM (Ollama: `gemma4`, `qwen3.8`, `deepseek-r1`)**, ** Apple Intelligence (macOS 26/27 `FoundationModels`)**, **Chrome Built-in AI (`window.LanguageModel`)**, or **Cloud BYOK API (`Gemini`, `OpenAI`, `Claude`)**.
+- **Native macOS 26/27 Apple Intelligence Bridge (`mcp/apple-fm-bridge.swift`):**
+  - Automatically compiles and caches a native Swift bridge to Apple's `FoundationModels.framework` (`SystemLanguageModel.default` & `PrivateCloudComputeLanguageModel` on macOS 27+).
+  - Exposes local HTTP endpoints on `http://127.0.0.1:17483`:
+    - `GET /apple-fm/status` & `POST /apple-fm/generate` (Native synthux Apple Intelligence provider)
+    - `GET /api/tags`, `POST /api/show`, `POST /api/generate` (Ollama-compatible endpoints)
+    - `GET /v1/models`, `POST /v1/chat/completions` (OpenAI-compatible endpoints)
 - **Privacy & Security Hardened:**
   - Strictly bound to `127.0.0.1` loopback (never exposed to LAN/`0.0.0.0`).
   - Strict Origin Verification blocks all `http://` and `https://` web page origins from accessing `/ws` or `/mcp` (CSRF / WebSocket hijacking protection).

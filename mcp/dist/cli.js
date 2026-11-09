@@ -5,7 +5,9 @@ import http from "node:http";
 import crypto from "node:crypto";
 import readline from "node:readline";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { execFile, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 // extension/core/profiles.js
@@ -1194,6 +1196,25 @@ function renderScoreBar(score, length = 10) {
 }
 
 // extension/core/providers.js
+function stripMarkdownJsonFences(rawText) {
+  let text = String(rawText || "").trim();
+  if (text.startsWith("```json")) {
+    text = text.slice(7);
+  } else if (text.startsWith("```")) {
+    text = text.slice(3);
+  }
+  if (text.endsWith("```")) {
+    text = text.slice(0, -3);
+  }
+  return text.trim();
+}
+function getChromeLanguageModelApi() {
+  if (typeof globalThis !== "undefined") {
+    if (globalThis.LanguageModel) return { api: globalThis.LanguageModel, type: "standard" };
+    if (globalThis.ai?.languageModel) return { api: globalThis.ai.languageModel, type: "legacy" };
+  }
+  return null;
+}
 var PROVIDERS = {
   ollama: {
     id: "ollama",
@@ -1620,6 +1641,222 @@ var PROVIDERS = {
         return false;
       }
     }
+  },
+  apple: {
+    id: "apple",
+    name: "Apple Intelligence (macOS)",
+    icon: "\uF8FF",
+    authType: "none",
+    defaultEndpoint: "http://127.0.0.1:17483",
+    models: [
+      { id: "apple-on-device", name: "Apple Foundation Model (On-Device ANE)" },
+      { id: "apple-pcc", name: "Apple Private Cloud Compute (macOS 27)" },
+      { id: "apple-content-tagging", name: "Apple Foundation Model (Fast Tagging)" }
+    ],
+    modelsFetchable: true,
+    buildRequest(prompt, model, options = {}) {
+      const endpoint = (options.endpoint || this.defaultEndpoint).replace(/\/$/, "");
+      const selectedModel = model || "apple-on-device";
+      const maxChars = selectedModel === "apple-pcc" ? 28e3 : 12e3;
+      const safePrompt = prompt.length > maxChars ? `${prompt.slice(0, maxChars)}
+
+[DOM truncated for on-device context window. Respond ONLY with valid JSON.]` : prompt;
+      return {
+        url: `${endpoint}/apple-fm/generate`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: {
+          model: selectedModel,
+          prompt: safePrompt,
+          system: options.systemPrompt || "You are a UX evaluation expert. Respond only with valid JSON.",
+          temperature: options.temperature ?? 0.3,
+          maxTokens: options.maxTokens || 2048,
+          format: options.format || "json"
+        }
+      };
+    },
+    parseResponse(data) {
+      if (data && data.success === false) {
+        throw new Error(data.error || "Apple Foundation Model failed to generate a response.");
+      }
+      const rawText = stripMarkdownJsonFences(
+        data?.response ?? data?.choices?.[0]?.message?.content ?? ""
+      );
+      try {
+        const parsed = JSON.parse(rawText);
+        return {
+          success: true,
+          result: parsed,
+          meta: {
+            model: data?.model || "apple-on-device",
+            totalDuration: data?.totalDuration || 0,
+            inputTokens: data?.inputTokens ?? data?.usage?.prompt_tokens ?? 0,
+            outputTokens: data?.outputTokens ?? data?.usage?.completion_tokens ?? 0
+          }
+        };
+      } catch {
+        return {
+          success: true,
+          result: { raw: rawText },
+          meta: {
+            model: data?.model || "apple-on-device",
+            inputTokens: data?.inputTokens ?? 0,
+            outputTokens: data?.outputTokens ?? 0
+          }
+        };
+      }
+    },
+    async fetchModels(endpoint) {
+      const base = (endpoint || this.defaultEndpoint).replace(/\/$/, "");
+      try {
+        const res = await fetch(`${base}/apple-fm/status`, {
+          signal: AbortSignal.timeout(5e3)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.models) && data.models.length > 0) {
+            return data.models.map((m) => ({
+              id: m.id || m.name,
+              name: m.name || m.id
+            }));
+          }
+        }
+      } catch {
+      }
+      return this.models;
+    },
+    async ping(endpoint) {
+      const base = (endpoint || this.defaultEndpoint).replace(/\/$/, "");
+      try {
+        const res = await fetch(`${base}/apple-fm/status`, {
+          signal: AbortSignal.timeout(5e3)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.available) {
+            return {
+              status: "connected",
+              version: data.variant || data.osVersion || "Apple Intelligence"
+            };
+          }
+          return {
+            status: data.status === "unsupported_os" ? "unsupported-os" : "connected",
+            version: data.variant || data.osVersion || "macOS Bridge Ready",
+            warning: data.reason || null
+          };
+        }
+        return { status: "error", code: res.status };
+      } catch {
+        return { status: "offline" };
+      }
+    }
+  },
+  chromeai: {
+    id: "chromeai",
+    name: "Chrome Built-in AI",
+    icon: "\u{1F310}",
+    authType: "none",
+    defaultEndpoint: "chrome://on-device-internals",
+    models: [
+      { id: "gemini-nano", name: "Gemini Nano (Chrome Prompt API)" }
+    ],
+    modelsFetchable: false,
+    async evaluateDirect(prompt, model = "gemini-nano", options = {}) {
+      const entry = getChromeLanguageModelApi();
+      if (!entry) {
+        return {
+          success: false,
+          error: "Chrome Built-in AI (Prompt API) is not enabled in this browser. Enable chrome://flags/#prompt-api-for-gemini-nano and restart Chrome."
+        };
+      }
+      const maxChars = 14e3;
+      const safePrompt = prompt.length > maxChars ? `${prompt.slice(0, maxChars)}
+
+[DOM truncated for Gemini Nano context window. Respond ONLY with valid JSON.]` : prompt;
+      const systemPrompt = options.systemPrompt || "You are a UX evaluation expert. Respond ONLY with a valid JSON object without markdown code fences.";
+      let session = null;
+      try {
+        if (entry.type === "standard") {
+          session = await entry.api.create({
+            initialPrompts: [{ role: "system", content: systemPrompt }],
+            temperature: options.temperature ?? 0.3,
+            topK: 3,
+            signal: options.signal
+          });
+        } else {
+          session = await entry.api.create({
+            systemPrompt,
+            temperature: options.temperature ?? 0.3,
+            topK: 3,
+            signal: options.signal
+          });
+        }
+        const rawResponse = await session.prompt(safePrompt, { signal: options.signal });
+        const cleaned = stripMarkdownJsonFences(rawResponse);
+        const inputTokens = Math.max(1, Math.round(safePrompt.length / 4));
+        const outputTokens = Math.max(1, Math.round(cleaned.length / 4));
+        try {
+          const parsed = JSON.parse(cleaned);
+          return {
+            success: true,
+            result: parsed,
+            meta: {
+              model: model || "gemini-nano",
+              inputTokens,
+              outputTokens
+            }
+          };
+        } catch {
+          return {
+            success: true,
+            result: { raw: cleaned },
+            meta: {
+              model: model || "gemini-nano",
+              inputTokens,
+              outputTokens
+            }
+          };
+        }
+      } catch (err) {
+        return {
+          success: false,
+          error: `Chrome Built-in AI error: ${err.message || String(err)}`
+        };
+      } finally {
+        try {
+          session?.destroy?.();
+        } catch {
+        }
+      }
+    },
+    async fetchModels() {
+      return this.models;
+    },
+    async ping() {
+      const entry = getChromeLanguageModelApi();
+      if (!entry) {
+        return { status: "chromeai-disabled" };
+      }
+      try {
+        if (entry.type === "standard" && typeof entry.api.availability === "function") {
+          const avail = await entry.api.availability();
+          if (avail === "unavailable" || avail === "no") {
+            return { status: "chromeai-disabled" };
+          }
+          return { status: "connected", version: `Gemini Nano (${avail})` };
+        }
+        if (entry.type === "legacy" && typeof entry.api.capabilities === "function") {
+          const caps = await entry.api.capabilities();
+          if (caps?.available === "no") {
+            return { status: "chromeai-disabled" };
+          }
+          return { status: "connected", version: `Gemini Nano (${caps?.available || "ready"})` };
+        }
+        return { status: "connected", version: "Gemini Nano" };
+      } catch {
+        return { status: "chromeai-disabled" };
+      }
+    }
   }
 };
 function getProvider(id) {
@@ -1681,6 +1918,23 @@ var AIClient = class {
         if (attempt > 0) {
           console.log(`[synthux] Retrying AI call (attempt ${attempt + 1})...`);
           await new Promise((r) => setTimeout(r, 3e3));
+        }
+        if (typeof this.provider.evaluateDirect === "function") {
+          const directResult = await this.provider.evaluateDirect(prompt, model, {
+            endpoint: this.endpoint,
+            apiKey: this.apiKey,
+            systemPrompt,
+            temperature,
+            format,
+            maxTokens,
+            images: images.filter(Boolean),
+            signal: this.abortController.signal
+          });
+          if (!directResult.success && attempt < maxRetries) {
+            lastError = new Error(directResult.error || "Direct evaluation failed");
+            continue;
+          }
+          return directResult;
         }
         const req = this.provider.buildRequest(prompt, model, {
           endpoint: this.endpoint,
@@ -1841,7 +2095,7 @@ var PORT = Number(process.env.SYNTHUX_MCP_PORT || 17483);
 var REQUIRED_TOKEN = (process.env.SYNTHUX_MCP_TOKEN || "").trim();
 var SERVER_INFO = {
   name: "synthux-mcp",
-  version: "2.1.0"
+  version: "2.1.1"
 };
 var PROTOCOL_VERSION = "2024-11-05";
 var localState = {
@@ -1886,6 +2140,187 @@ function validateSafeHttpUrl(urlStr) {
   } catch {
     return false;
   }
+}
+var APPLE_FM_SWIFT_PATH = [
+  path.join(__dirname, "apple-fm-bridge.swift"),
+  path.join(__dirname, "..", "apple-fm-bridge.swift"),
+  path.join(ROOT_DIR, "mcp", "apple-fm-bridge.swift")
+].find((p) => fs.existsSync(p)) || path.join(__dirname, "apple-fm-bridge.swift");
+var APPLE_FM_CACHE_DIR = path.join(os.tmpdir(), "synthux-apple-fm-cache");
+var APPLE_FM_BIN_PATH = path.join(APPLE_FM_CACHE_DIR, "synthux-apple-fm");
+var _appleFmCompiling = null;
+async function ensureAppleFmBinary() {
+  if (process.platform !== "darwin") return null;
+  if (!fs.existsSync(APPLE_FM_SWIFT_PATH)) return null;
+  try {
+    fs.mkdirSync(APPLE_FM_CACHE_DIR, { recursive: true });
+    if (fs.existsSync(APPLE_FM_BIN_PATH)) {
+      const srcStat = fs.statSync(APPLE_FM_SWIFT_PATH);
+      const binStat = fs.statSync(APPLE_FM_BIN_PATH);
+      if (binStat.mtimeMs >= srcStat.mtimeMs) {
+        return APPLE_FM_BIN_PATH;
+      }
+    }
+  } catch {
+  }
+  if (_appleFmCompiling) return _appleFmCompiling;
+  _appleFmCompiling = new Promise((resolve) => {
+    const moduleCache = path.join(APPLE_FM_CACHE_DIR, "swift-module-cache");
+    try {
+      fs.mkdirSync(moduleCache, { recursive: true });
+    } catch {
+    }
+    execFile(
+      "swiftc",
+      ["-module-cache-path", moduleCache, "-O", APPLE_FM_SWIFT_PATH, "-o", APPLE_FM_BIN_PATH],
+      { timeout: 3e4 },
+      (err) => {
+        _appleFmCompiling = null;
+        if (err) {
+          resolve(null);
+        } else {
+          try {
+            fs.chmodSync(APPLE_FM_BIN_PATH, 493);
+          } catch {
+          }
+          resolve(APPLE_FM_BIN_PATH);
+        }
+      }
+    );
+  });
+  return _appleFmCompiling;
+}
+async function runAppleFmStatus() {
+  if (process.platform !== "darwin") {
+    return {
+      available: false,
+      status: "unsupported_os",
+      reason: "Apple Foundation Models require macOS 26/27 on Apple Silicon.",
+      osVersion: `${process.platform} (${os.release()})`,
+      models: []
+    };
+  }
+  const bin = await ensureAppleFmBinary();
+  if (!bin) {
+    return {
+      available: false,
+      status: "compiler_unavailable",
+      reason: "Swift / Xcode Command Line Tools are required to bridge Apple FoundationModels on macOS.",
+      osVersion: `macOS (${os.release()})`,
+      models: [
+        { id: "apple-on-device", name: "Apple Foundation Model (On-Device ANE)", size: 0 },
+        { id: "apple-pcc", name: "Apple Private Cloud Compute (macOS 27)", size: 0 },
+        { id: "apple-content-tagging", name: "Apple Foundation Model (Fast Tagging)", size: 0 }
+      ]
+    };
+  }
+  return new Promise((resolve) => {
+    execFile(bin, ["status"], { timeout: 1e4 }, (err, stdout) => {
+      if (err || !stdout) {
+        resolve({
+          available: false,
+          status: "error",
+          reason: err?.message || "Failed to query Apple Foundation Models status.",
+          osVersion: `macOS (${os.release()})`,
+          models: [
+            { id: "apple-on-device", name: "Apple Foundation Model (On-Device ANE)", size: 0 },
+            { id: "apple-pcc", name: "Apple Private Cloud Compute (macOS 27)", size: 0 },
+            { id: "apple-content-tagging", name: "Apple Foundation Model (Fast Tagging)", size: 0 }
+          ]
+        });
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout.trim()));
+      } catch {
+        resolve({
+          available: false,
+          status: "parse_error",
+          raw: stdout.trim(),
+          models: []
+        });
+      }
+    });
+  });
+}
+async function runAppleFmGenerate(payload) {
+  if (process.platform !== "darwin") {
+    return {
+      success: false,
+      error: "Apple Foundation Models require macOS 26/27 on Apple Silicon."
+    };
+  }
+  const bin = await ensureAppleFmBinary();
+  if (!bin) {
+    return {
+      success: false,
+      error: "Unable to compile Apple FoundationModels Swift bridge. Ensure Xcode / Command Line Tools are installed."
+    };
+  }
+  return new Promise((resolve) => {
+    const child = spawn(bin, ["generate"], {
+      stdio: ["pipe", "pipe", "pipe"]
+    });
+    let stdout = "";
+    let stderr = "";
+    const timer = setTimeout(() => {
+      try {
+        child.kill("SIGKILL");
+      } catch {
+      }
+      resolve({
+        success: false,
+        error: "Apple Foundation Model request timed out."
+      });
+    }, 6e4);
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString("utf8");
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString("utf8");
+    });
+    child.on("close", () => {
+      clearTimeout(timer);
+      try {
+        const parsed = JSON.parse(stdout.trim());
+        resolve(parsed);
+      } catch {
+        resolve({
+          success: false,
+          error: stderr.trim() || stdout.trim() || "Apple Foundation Model returned an invalid response."
+        });
+      }
+    });
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      resolve({
+        success: false,
+        error: `Apple Foundation Model process error: ${err.message}`
+      });
+    });
+    child.stdin.write(JSON.stringify(payload));
+    child.stdin.end();
+  });
+}
+function readJsonBody(req, maxBytes = 10 * 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString("utf8");
+      if (body.length > maxBytes) {
+        req.destroy?.();
+        reject(new Error("Payload too large"));
+      }
+    });
+    req.on("end", () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (err) {
+        reject(err);
+      }
+    });
+    req.on("error", reject);
+  });
 }
 var WebSocketConnection = class {
   constructor(socket) {
@@ -2088,7 +2523,7 @@ var MCP_TOOLS = [
         },
         provider: {
           type: "string",
-          enum: ["ollama", "gemini", "openai", "claude"],
+          enum: ["ollama", "apple", "chromeai", "gemini", "openai", "claude"],
           description: "Optional AI provider override"
         },
         model: {
@@ -2296,7 +2731,7 @@ var MCP_TOOLS = [
   },
   {
     name: "synthux_configure_ai",
-    description: "Read or update synthux AI provider configuration (Local Ollama gemma4/qwen3.8/deepseek-r1 or Cloud Gemini/OpenAI/Claude) and test provider connectivity.",
+    description: "Read or update synthux AI provider configuration (Local Ollama, Apple Intelligence macOS 26/27 FoundationModels, Chrome Built-in AI Gemini Nano, or Cloud Gemini/OpenAI/Claude) and test provider connectivity.",
     inputSchema: {
       type: "object",
       properties: {
@@ -2305,7 +2740,7 @@ var MCP_TOOLS = [
           enum: ["get", "update", "ping"],
           default: "get"
         },
-        provider: { type: "string", enum: ["ollama", "gemini", "openai", "claude"] },
+        provider: { type: "string", enum: ["ollama", "apple", "chromeai", "gemini", "openai", "claude"] },
         model: { type: "string" },
         endpoint: { type: "string" },
         enableVision: { type: "boolean" },
@@ -2900,22 +3335,175 @@ async function handleHttpRequest(req, res) {
     res.end(JSON.stringify({ error: "Forbidden: Web origins are blocked by synthux security policy." }));
     return;
   }
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": origin || "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-synthux-token",
+    "Content-Type": "application/json"
+  };
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, corsHeaders);
+    res.end();
+    return;
+  }
   if (REQUIRED_TOKEN) {
     const headerToken = req.headers["x-synthux-token"] || (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
     if (headerToken !== REQUIRED_TOKEN) {
-      res.writeHead(401, { "Content-Type": "application/json" });
+      res.writeHead(401, corsHeaders);
       res.end(JSON.stringify({ error: "Unauthorized: Invalid SYNTHUX_MCP_TOKEN." }));
       return;
     }
   }
   const url = new URL(req.url || "/", `http://${LOOPBACK_HOST}:${PORT}`);
   if (req.method === "GET" && url.pathname === "/health") {
-    res.writeHead(200, { "Content-Type": "application/json" });
+    res.writeHead(200, corsHeaders);
     res.end(JSON.stringify({
       status: "ok",
       server: SERVER_INFO,
       extensionConnected: !!(activeExtensionClient && activeExtensionClient.authenticated)
     }));
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/apple-fm/status") {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify(status));
+    return;
+  }
+  if (req.method === "POST" && url.pathname === "/apple-fm/generate") {
+    try {
+      const payload = await readJsonBody(req);
+      if (!payload.prompt) {
+        res.writeHead(400, corsHeaders);
+        res.end(JSON.stringify({ success: false, error: "prompt is required" }));
+        return;
+      }
+      const result = await runAppleFmGenerate(payload);
+      res.writeHead(result.success ? 200 : 500, corsHeaders);
+      res.end(JSON.stringify(result));
+    } catch (err) {
+      res.writeHead(400, corsHeaders);
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    }
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/tags") {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({
+      models: (status.models || []).map((m) => ({
+        name: m.id,
+        model: m.id,
+        size: m.size || 0,
+        details: { family: "apple-foundation-model", parameter_size: "3B-ANE" }
+      }))
+    }));
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/api/version") {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({ version: status.variant || status.osVersion || "apple-fm-27.0" }));
+    return;
+  }
+  if (req.method === "POST" && url.pathname === "/api/show") {
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({
+      capabilities: ["completion"],
+      details: { family: "apple-foundation-model" }
+    }));
+    return;
+  }
+  if (req.method === "POST" && url.pathname === "/api/generate") {
+    try {
+      const body = await readJsonBody(req);
+      if (!body.model) {
+        res.writeHead(400, corsHeaders);
+        res.end(JSON.stringify({ error: "model is required" }));
+        return;
+      }
+      const result = await runAppleFmGenerate({
+        model: body.model,
+        prompt: body.prompt || "",
+        system: body.system || "",
+        temperature: body.options?.temperature ?? 0.3,
+        maxTokens: body.options?.num_predict ?? 2048
+      });
+      if (!result.success) {
+        res.writeHead(500, corsHeaders);
+        res.end(JSON.stringify({ error: result.error || "Apple Foundation Model error" }));
+        return;
+      }
+      res.writeHead(200, corsHeaders);
+      res.end(JSON.stringify({
+        model: result.model || body.model,
+        response: result.response,
+        done: true,
+        total_duration: result.totalDuration || 0,
+        prompt_eval_count: result.inputTokens || 0,
+        eval_count: result.outputTokens || 0
+      }));
+    } catch (err) {
+      res.writeHead(400, corsHeaders);
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/v1/models") {
+    const status = await runAppleFmStatus();
+    res.writeHead(200, corsHeaders);
+    res.end(JSON.stringify({
+      object: "list",
+      data: (status.models || []).map((m) => ({
+        id: m.id,
+        object: "model",
+        owned_by: "apple-foundation-models"
+      }))
+    }));
+    return;
+  }
+  if (req.method === "POST" && url.pathname === "/v1/chat/completions") {
+    try {
+      const body = await readJsonBody(req);
+      const messages = Array.isArray(body.messages) ? body.messages : [];
+      const sysMsg = messages.find((m) => m.role === "system");
+      const userMsg = [...messages].reverse().find((m) => m.role === "user");
+      const userText = Array.isArray(userMsg?.content) ? userMsg.content.filter((p) => p.type === "text").map((p) => p.text).join("\n") : String(userMsg?.content || "");
+      const result = await runAppleFmGenerate({
+        model: body.model || "apple-on-device",
+        prompt: userText,
+        system: sysMsg?.content || "",
+        temperature: body.temperature ?? 0.3,
+        maxTokens: body.max_tokens ?? 2048
+      });
+      if (!result.success) {
+        res.writeHead(500, corsHeaders);
+        res.end(JSON.stringify({ error: { message: result.error } }));
+        return;
+      }
+      res.writeHead(200, corsHeaders);
+      res.end(JSON.stringify({
+        id: `chatcmpl-${Date.now()}`,
+        object: "chat.completion",
+        created: Math.floor(Date.now() / 1e3),
+        model: result.model || body.model || "apple-on-device",
+        choices: [
+          {
+            index: 0,
+            message: { role: "assistant", content: result.response },
+            finish_reason: "stop"
+          }
+        ],
+        usage: {
+          prompt_tokens: result.inputTokens || 0,
+          completion_tokens: result.outputTokens || 0,
+          total_tokens: (result.inputTokens || 0) + (result.outputTokens || 0)
+        }
+      }));
+    } catch (err) {
+      res.writeHead(400, corsHeaders);
+      res.end(JSON.stringify({ error: { message: err.message } }));
+    }
     return;
   }
   if (url.pathname === "/mcp") {
@@ -2930,20 +3518,20 @@ async function handleHttpRequest(req, res) {
           const parsed = JSON.parse(body);
           if (Array.isArray(parsed)) {
             const responses = (await Promise.all(parsed.map((m) => handleJsonRpcMessage(m)))).filter(Boolean);
-            res.writeHead(200, { "Content-Type": "application/json" });
+            res.writeHead(200, corsHeaders);
             res.end(JSON.stringify(responses));
           } else {
             const response = await handleJsonRpcMessage(parsed);
             if (!response) {
-              res.writeHead(202);
+              res.writeHead(202, corsHeaders);
               res.end();
             } else {
-              res.writeHead(200, { "Content-Type": "application/json" });
+              res.writeHead(200, corsHeaders);
               res.end(JSON.stringify(response));
             }
           }
         } catch (err) {
-          res.writeHead(400, { "Content-Type": "application/json" });
+          res.writeHead(400, corsHeaders);
           res.end(JSON.stringify({
             jsonrpc: "2.0",
             id: null,
@@ -2954,7 +3542,7 @@ async function handleHttpRequest(req, res) {
       return;
     }
     if (req.method === "GET") {
-      res.writeHead(200, { "Content-Type": "application/json" });
+      res.writeHead(200, corsHeaders);
       res.end(JSON.stringify({
         name: SERVER_INFO.name,
         version: SERVER_INFO.version,
@@ -2965,7 +3553,7 @@ async function handleHttpRequest(req, res) {
       return;
     }
   }
-  res.writeHead(404, { "Content-Type": "application/json" });
+  res.writeHead(404, corsHeaders);
   res.end(JSON.stringify({ error: "Not Found" }));
 }
 function handleWebSocketUpgrade(req, socket) {

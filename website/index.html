@@ -273,7 +273,7 @@
       <div class="hero-badges fade-in">
         <span class="badge"><span class="dot"></span> <span data-i18n="heroBadgePrivacy">100% Private</span></span>
         <span class="badge"><span data-i18n="heroBadgeOpenSource">Open Source</span></span>
-        <span class="badge badge-new">v2.1.0 — MCP Agent Bridge + Sectoral Rule Packs</span>
+        <span class="badge badge-new">v2.1.1 — MCP Agent Bridge + Apple Intelligence &amp; Built-in AI</span>
       </div>
 
       <h1 class="fade-in" data-i18n="heroTagline">AI-powered UX audit in your browser.</h1>
@@ -308,7 +308,7 @@
         <div class="feature-card fade-in">
           <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--sx-blue)"><path d="M12 2a4 4 0 0 1 4 4v1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2V6a4 4 0 0 1 4-4z"/><rect x="5" y="14" width="14" height="8" rx="2"/><path d="M9 18h6"/></svg></div>
           <h3 data-i18n="feature1Title">Multi-Provider AI</h3>
-          <p data-i18n="feature1Desc">Local via Ollama (Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1) or cloud with your own API key — Gemini, OpenAI, or Claude. BYOK, no middleman.</p>
+          <p data-i18n="feature1Desc">Local via Ollama (Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1), Apple Intelligence (macOS FoundationModels), Chrome Built-in AI (Gemini Nano), or cloud BYOK — Gemini, OpenAI, or Claude.</p>
         </div>
         <div class="feature-card fade-in">
           <span class="feature-new">New</span>
@@ -397,7 +397,7 @@
             <div class="compare-col-label"></div>
             <div class="compare-col-head">
               <span data-i18n="compareCol1Title">Local AI</span>
-              <span class="compare-sub" data-i18n="compareCol1Sub">Ollama · LM Studio</span>
+              <span class="compare-sub" data-i18n="compareCol1Sub">Ollama · Apple Intelligence · Chrome AI</span>
             </div>
             <div class="compare-col-head">
               <span data-i18n="compareCol2Title">Cloud API (BYOK)</span>
@@ -450,7 +450,7 @@
             </div>
             <div class="compare-row">
               <div class="compare-col-label" data-i18n="compareSetup">Setup</div>
-              <div class="compare-col" data-i18n="compareSetupLocal">Install Ollama + model</div>
+              <div class="compare-col" data-i18n="compareSetupLocal">Ollama / Built-in OS &amp; Browser AI</div>
               <div class="compare-col compare-highlight" data-i18n="compareSetupCloud">API key only</div>
               <div class="compare-col compare-mcp"><code>npx -y synthux-mcp</code></div>
             </div>
@@ -472,7 +472,7 @@
         <div class="step fade-in">
           <div class="step-number">1</div>
           <h3 data-i18n="howStep1Title">1. Choose Your AI</h3>
-          <p><strong>Local (free):</strong> Install <a href="https://ollama.com" target="_blank">Ollama</a> and pull a 2026 model (<code style="font-size: 12px;">gemma4</code>, <code style="font-size: 12px;">qwen3.8</code>, <code style="font-size: 12px;">llama4:scout</code>, <code style="font-size: 12px;">deepseek-r1</code>). <strong>Cloud:</strong> Enter your Gemini, OpenAI, or Claude API key in Settings.</p>
+          <p><strong>Local &amp; Built-in (free):</strong> Use <a href="https://ollama.com" target="_blank">Ollama</a> (<code style="font-size: 12px;">gemma4</code>, <code style="font-size: 12px;">qwen3.8</code>, <code style="font-size: 12px;">deepseek-r1</code>), <strong> Apple Intelligence</strong> (macOS 26/27 FoundationModels), or <strong>Chrome Built-in AI</strong> (Gemini Nano). <strong>Cloud:</strong> Enter your Gemini, OpenAI, or Claude API key.</p>
         </div>
         <div class="step fade-in">
           <div class="step-number">2</div>
@@ -565,6 +565,9 @@
       <div class="providers-row fade-in">
         <a href="https://ollama.com" target="_blank" class="provider-logo" title="Ollama">
           <svg viewBox="0 0 200 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="800" font-size="40">ollama</text></svg>
+        </a>
+        <a href="https://developer.apple.com/documentation/foundationmodels" target="_blank" class="provider-logo" title="Apple Intelligence (macOS FoundationModels)">
+          <svg viewBox="0 0 320 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,-apple-system,sans-serif" font-weight="700" font-size="34">&#63743; Apple Intelligence</text></svg>
         </a>
         <a href="https://ai.google.dev" target="_blank" class="provider-logo" title="Google Gemini">
           <svg viewBox="0 0 200 50" height="28"><text x="0" y="38" fill="currentColor" font-family="Inter,sans-serif" font-weight="700" font-size="36">Gemini</text></svg>
@@ -788,7 +791,7 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="i18n.js?v=2.1.2"></script>
-  <script src="script.js?v=2.1.2"></script>
+  <script src="i18n.js?v=2.1.3"></script>
+  <script src="script.js?v=2.1.3"></script>
 </body>
 </html>
