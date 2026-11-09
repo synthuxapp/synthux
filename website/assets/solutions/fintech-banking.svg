@@ -1,54 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
-  <defs>
-    <radialGradient id="glowFin" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.18"/>
-      <stop offset="60%" stop-color="#22c55e" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="gridFin" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
-    </pattern>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" fill="none">
+  <rect width="520" height="320" fill="#09090B"/>
 
-  <rect width="640" height="360" fill="#09090b"/>
-  <rect width="640" height="360" fill="url(#gridFin)"/>
-  <rect width="640" height="360" fill="url(#glowFin)"/>
+  <!-- Top Header Card -->
+  <rect x="20" y="20" width="480" height="62" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <text x="38" y="46" fill="#60A5FA" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">FINTECH.JSON · 10 FINANCIAL HEURISTICS</text>
+  <text x="38" y="68" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="800">Payment &amp; Transfer UX Audit</text>
+  <rect x="372" y="33" width="112" height="36" rx="9" fill="#052E16" stroke="#22C55E" stroke-opacity="0.5"/>
+  <text x="428" y="57" text-anchor="middle" fill="#4ADE80" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="800">92 / 100</text>
 
-  <!-- Main Card -->
-  <rect x="32" y="24" width="576" height="312" rx="18" fill="#101014" stroke="#27272a" stroke-width="1.5"/>
+  <!-- Rule Check 1 -->
+  <rect x="20" y="98" width="480" height="62" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <rect x="36" y="114" width="30" height="30" rx="8" fill="#052E16"/>
+  <text x="51" y="134" text-anchor="middle" fill="#4ADE80" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="800">✓</text>
+  <text x="80" y="126" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">IBAN &amp; Numeric Input Masking</text>
+  <text x="80" y="146" fill="#A1A1AA" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="600">TR33 0006 1005 1978 6457 8413 26</text>
+  <rect x="412" y="116" width="72" height="26" rx="6" fill="#052E16"/>
+  <text x="448" y="133" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">PASSED</text>
 
-  <!-- Header Row -->
-  <rect x="56" y="46" width="176" height="30" rx="7" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-opacity="0.4"/>
-  <text x="72" y="66" fill="#60a5fa" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">PACK: FINTECH.JSON</text>
+  <!-- Rule Check 2 -->
+  <rect x="20" y="172" width="480" height="62" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <rect x="36" y="188" width="30" height="30" rx="8" fill="#052E16"/>
+  <text x="51" y="208" text-anchor="middle" fill="#4ADE80" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="800">✓</text>
+  <text x="80" y="200" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Pre-Commit Fee &amp; FX Spread Clarity</text>
+  <text x="80" y="220" fill="#A1A1AA" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="500">Fee $18.50 · Net Recipient €22,684.35</text>
+  <rect x="412" y="190" width="72" height="26" rx="6" fill="#052E16"/>
+  <text x="448" y="207" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">PASSED</text>
 
-  <!-- Score Pill -->
-  <rect x="436" y="42" width="148" height="38" rx="10" fill="#22c55e" fill-opacity="0.14" stroke="#22c55e" stroke-opacity="0.5"/>
-  <text x="454" y="67" fill="#4ade80" font-family="Inter, sans-serif" font-size="16" font-weight="800">UX Score: 92/100</text>
-
-  <!-- Audit Row 1: IBAN & Numeric Formatting -->
-  <rect x="56" y="94" width="528" height="68" rx="12" fill="#16161c" stroke="#27272a"/>
-  <circle cx="88" cy="128" r="14" fill="#22c55e" fill-opacity="0.18"/>
-  <path d="M82 128l4 4 8-8" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="116" y="123" fill="#fafafa" font-family="Inter, sans-serif" font-size="15.5" font-weight="700">IBAN &amp; Numeric Input Masking</text>
-  <text x="116" y="145" fill="#a1a1aa" font-family="SF Mono, monospace" font-size="13">DE89 3704 0044 0532 · 4-char chunking</text>
-  <rect x="492" y="114" width="72" height="28" rx="6" fill="#22c55e" fill-opacity="0.15"/>
-  <text x="511" y="133" fill="#4ade80" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">PASS</text>
-
-  <!-- Audit Row 2: Fee & Exchange Rate Transparency -->
-  <rect x="56" y="174" width="528" height="68" rx="12" fill="#16161c" stroke="#27272a"/>
-  <circle cx="88" cy="208" r="14" fill="#22c55e" fill-opacity="0.18"/>
-  <path d="M82 208l4 4 8-8" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="116" y="203" fill="#fafafa" font-family="Inter, sans-serif" font-size="15.5" font-weight="700">Pre-Commit Fee &amp; FX Spread Clarity</text>
-  <text x="116" y="225" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">Net recipient amount + rate lock timer visible</text>
-  <rect x="492" y="194" width="72" height="28" rx="6" fill="#22c55e" fill-opacity="0.15"/>
-  <text x="511" y="213" fill="#4ade80" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">PASS</text>
-
-  <!-- Audit Row 3: Irreversible Transaction Guardrail -->
-  <rect x="56" y="254" width="528" height="64" rx="12" fill="#16161c" stroke="#f59e0b" stroke-opacity="0.65" stroke-width="1.5"/>
-  <circle cx="88" cy="286" r="14" fill="#f59e0b" fill-opacity="0.2"/>
-  <text x="84" y="292" fill="#fbbf24" font-family="Inter, sans-serif" font-size="15" font-weight="800">!</text>
-  <text x="116" y="281" fill="#fafafa" font-family="Inter, sans-serif" font-size="15.5" font-weight="700">Irreversible Settlement Warning</text>
-  <text x="116" y="303" fill="#fcd34d" font-family="Inter, sans-serif" font-size="13">Explicit finality notice before wire signature</text>
-  <rect x="476" y="272" width="88" height="28" rx="6" fill="#f59e0b" fill-opacity="0.18"/>
-  <text x="491" y="291" fill="#fbbf24" font-family="SF Mono, monospace" font-size="12" font-weight="700">GUARDED</text>
+  <!-- Rule Check 3 (Flagged Warning) -->
+  <rect x="20" y="246" width="480" height="54" rx="12" fill="#1C160C" stroke="#F59E0B" stroke-opacity="0.55" stroke-width="1.5"/>
+  <rect x="36" y="258" width="30" height="30" rx="8" fill="#451A03"/>
+  <text x="51" y="278" text-anchor="middle" fill="#FBBF24" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="800">!</text>
+  <text x="80" y="278" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Irreversible Wire Finality Warning</text>
+  <rect x="394" y="260" width="90" height="26" rx="6" fill="#451A03"/>
+  <text x="439" y="277" text-anchor="middle" fill="#FBBF24" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">P1 REVIEW</text>
 </svg>

@@ -1,45 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
-  <defs>
-    <radialGradient id="glowSaas" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.18"/>
-      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="gridSaas" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
-    </pattern>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" fill="none">
+  <rect width="520" height="320" fill="#09090B"/>
 
-  <rect width="640" height="360" fill="#09090b"/>
-  <rect width="640" height="360" fill="url(#gridSaas)"/>
-  <rect width="640" height="360" fill="url(#glowSaas)"/>
+  <!-- Top Header -->
+  <rect x="20" y="20" width="480" height="62" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <text x="38" y="46" fill="#60A5FA" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">SAAS.JSON · LOCALHOST &amp; AUTH SESSION</text>
+  <text x="38" y="68" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="800">B2B SaaS Workspace Audit</text>
+  <rect x="362" y="33" width="122" height="36" rx="9" fill="#172554" stroke="#3B82F6" stroke-opacity="0.5"/>
+  <text x="423" y="56" text-anchor="middle" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700">localhost:3000</text>
 
-  <rect x="32" y="24" width="576" height="312" rx="18" fill="#101014" stroke="#27272a" stroke-width="1.5"/>
+  <!-- Card 1: Empty State Onboarding -->
+  <rect x="20" y="98" width="480" height="62" rx="12" fill="#1A1114" stroke="#EF4444" stroke-opacity="0.55" stroke-width="1.5"/>
+  <rect x="36" y="114" width="32" height="30" rx="8" fill="#EF4444"/>
+  <text x="52" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="800">P0</text>
+  <text x="82" y="126" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Dead-End Empty State Table</text>
+  <text x="82" y="146" fill="#FCA5A5" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="500">Add starter template &amp; sample data CTA</text>
+  <rect x="388" y="116" width="96" height="26" rx="6" fill="#450A0A"/>
+  <text x="436" y="133" text-anchor="middle" fill="#FCA5A5" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">ONBOARDING</text>
 
-  <!-- Top Bar -->
-  <rect x="56" y="44" width="164" height="34" rx="8" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-opacity="0.4"/>
-  <text x="72" y="66" fill="#60a5fa" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">PACK: SAAS.JSON</text>
+  <!-- Card 2: Data Density & Bulk Actions -->
+  <rect x="20" y="172" width="480" height="62" rx="12" fill="#19150E" stroke="#F59E0B" stroke-opacity="0.5" stroke-width="1.5"/>
+  <rect x="36" y="188" width="32" height="30" rx="8" fill="#F59E0B"/>
+  <text x="52" y="208" text-anchor="middle" fill="#09090B" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="800">P1</text>
+  <text x="82" y="200" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Missing Bulk Table Action Bar</text>
+  <text x="82" y="220" fill="#FDE68A" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="500">Power users click row-by-row to archive</text>
+  <rect x="388" y="190" width="96" height="26" rx="6" fill="#451A03"/>
+  <text x="436" y="207" text-anchor="middle" fill="#FBBF24" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">POWER USER</text>
 
-  <rect x="436" y="44" width="148" height="34" rx="8" fill="#22c55e" fill-opacity="0.14" stroke="#22c55e" stroke-opacity="0.45"/>
-  <text x="454" y="66" fill="#4ade80" font-family="Inter, sans-serif" font-size="15" font-weight="800">UX Score: 89/100</text>
-
-  <!-- 2-Column Cards: Empty State Onboarding + Power User Shortcuts -->
-  <rect x="56" y="96" width="254" height="126" rx="12" fill="#16161c" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="76" y="124" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">ONBOARDING UX</text>
-  <text x="76" y="152" fill="#fafafa" font-family="Inter, sans-serif" font-size="16.5" font-weight="800">Actionable Empty State</text>
-  <text x="76" y="176" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">Starter template + primary</text>
-  <text x="76" y="196" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">CTA prevents user drop-off</text>
-
-  <rect x="330" y="96" width="254" height="126" rx="12" fill="#16161c" stroke="#27272a" stroke-width="1.5"/>
-  <text x="350" y="124" fill="#4ade80" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">POWER USER</text>
-  <text x="350" y="152" fill="#fafafa" font-family="Inter, sans-serif" font-size="16.5" font-weight="800">Bulk Actions &amp; Hotkeys</text>
-  <rect x="350" y="168" width="68" height="28" rx="6" fill="#09090b" stroke="#3f3f46"/>
-  <text x="362" y="187" fill="#fafafa" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">⌘ + K</text>
-  <text x="430" y="187" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">Batch selection ✓</text>
-
-  <!-- Bottom Card: Destructive Action & RBAC Guardrails -->
-  <rect x="56" y="238" width="528" height="76" rx="12" fill="#16161c" stroke="#f59e0b" stroke-opacity="0.6" stroke-width="1.5"/>
-  <text x="76" y="266" fill="#fafafa" font-family="Inter, sans-serif" font-size="16" font-weight="800">Data Density &amp; Destructive Action Guardrails</text>
-  <text x="76" y="292" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13.5">Audits table scanability, RBAC permission clarity &amp; delete confirmation</text>
-  <rect x="488" y="256" width="76" height="32" rx="7" fill="#22c55e" fill-opacity="0.15"/>
-  <text x="507" y="277" fill="#4ade80" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">VERIFIED</text>
+  <!-- Card 3: Shortcuts & RBAC -->
+  <rect x="20" y="246" width="480" height="54" rx="12" fill="#121216" stroke="#22C55E" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="36" y="258" width="32" height="30" rx="8" fill="#052E16"/>
+  <text x="52" y="278" text-anchor="middle" fill="#4ADE80" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="800">✓</text>
+  <text x="82" y="278" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">⌘K Command Bar &amp; RBAC Guardrails</text>
+  <rect x="404" y="260" width="80" height="26" rx="6" fill="#052E16"/>
+  <text x="444" y="277" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">VERIFIED</text>
 </svg>

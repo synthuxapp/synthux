@@ -1,46 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
-  <defs>
-    <radialGradient id="heatSpot" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.38"/>
-      <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.14"/>
-      <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="gridEcom" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
-    </pattern>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" fill="none">
+  <rect width="520" height="320" fill="#09090B"/>
 
-  <rect width="640" height="360" fill="#09090b"/>
-  <rect width="640" height="360" fill="url(#gridEcom)"/>
+  <!-- Top Header -->
+  <rect x="20" y="20" width="480" height="62" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <text x="38" y="46" fill="#F87171" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">ECOMMERCE.JSON · LIVE HEATMAP OVERLAY</text>
+  <text x="38" y="68" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="800">Checkout Conversion Blockers</text>
+  <rect x="358" y="33" width="126" height="36" rx="9" fill="#450A0A" stroke="#EF4444" stroke-opacity="0.5"/>
+  <text x="421" y="56" text-anchor="middle" fill="#FCA5A5" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="800">3 Issues Found</text>
 
-  <rect x="32" y="24" width="576" height="312" rx="18" fill="#101014" stroke="#27272a" stroke-width="1.5"/>
+  <!-- Blocker 1: Critical P0 -->
+  <rect x="20" y="98" width="480" height="62" rx="12" fill="#1A1114" stroke="#EF4444" stroke-opacity="0.55" stroke-width="1.5"/>
+  <rect x="36" y="114" width="32" height="30" rx="8" fill="#EF4444"/>
+  <text x="52" y="134" text-anchor="middle" fill="#FFFFFF" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="800">P0</text>
+  <text x="82" y="126" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Forced Account Creation Wall</text>
+  <text x="82" y="146" fill="#FCA5A5" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="500">Missing Guest Checkout CTA before payment</text>
+  <rect x="404" y="116" width="80" height="26" rx="6" fill="#450A0A"/>
+  <text x="444" y="133" text-anchor="middle" fill="#FCA5A5" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">CRITICAL</text>
 
-  <!-- Top Funnel Step Bar -->
-  <rect x="56" y="44" width="330" height="34" rx="8" fill="#16161c" stroke="#27272a"/>
-  <circle cx="76" cy="61" r="6" fill="#22c55e"/>
-  <text x="90" y="66" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="13" font-weight="700">1. Cart</text>
-  <text x="144" y="66" fill="#52525b" font-family="Inter, sans-serif" font-size="13">→</text>
-  <circle cx="172" cy="61" r="6" fill="#ef4444"/>
-  <text x="186" y="66" fill="#fafafa" font-family="Inter, sans-serif" font-size="13" font-weight="700">2. Checkout</text>
-  <text x="276" y="66" fill="#52525b" font-family="Inter, sans-serif" font-size="13">→</text>
-  <circle cx="304" cy="61" r="6" fill="#3b82f6"/>
-  <text x="318" y="66" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13" font-weight="600">3. Pay</text>
+  <!-- Blocker 2: Moderate P1 -->
+  <rect x="20" y="172" width="480" height="62" rx="12" fill="#19150E" stroke="#F59E0B" stroke-opacity="0.5" stroke-width="1.5"/>
+  <rect x="36" y="188" width="32" height="30" rx="8" fill="#F59E0B"/>
+  <text x="52" y="208" text-anchor="middle" fill="#09090B" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="800">P1</text>
+  <text x="82" y="200" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Late Shipping &amp; Tax Surprise (+$19)</text>
+  <text x="82" y="220" fill="#FDE68A" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="500">Hidden until final credit card step</text>
+  <rect x="404" y="190" width="80" height="26" rx="6" fill="#451A03"/>
+  <text x="444" y="207" text-anchor="middle" fill="#FBBF24" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">MODERATE</text>
 
-  <rect x="404" y="44" width="180" height="34" rx="8" fill="#3b82f6" fill-opacity="0.14" stroke="#3b82f6" stroke-opacity="0.45"/>
-  <text x="422" y="66" fill="#60a5fa" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">PACK: ECOMMERCE</text>
-
-  <!-- P0 Critical Conversion Card with Heatmap Glow -->
-  <rect x="56" y="96" width="528" height="106" rx="14" fill="#16161c" stroke="#ef4444" stroke-width="1.75"/>
-  <ellipse cx="430" cy="148" rx="140" ry="50" fill="url(#heatSpot)"/>
-  <rect x="76" y="114" width="108" height="24" rx="6" fill="#ef4444" fill-opacity="0.2"/>
-  <text x="88" y="130" fill="#f87171" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">P0 CRITICAL</text>
-  <text x="76" y="160" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">Forced Account Creation Wall</text>
-  <text x="76" y="184" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="13.5">Fix: Enable 1-Click Guest Checkout (+24% conversion)</text>
-
-  <!-- P1 Quick Win Card: Shipping & Total Cost -->
-  <rect x="56" y="216" width="528" height="98" rx="14" fill="#16161c" stroke="#22c55e" stroke-opacity="0.6" stroke-width="1.5"/>
-  <rect x="76" y="234" width="118" height="24" rx="6" fill="#22c55e" fill-opacity="0.16"/>
-  <text x="88" y="250" fill="#4ade80" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">QUICK WIN FIX</text>
-  <text x="76" y="280" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">Upfront Shipping &amp; Free-Tier Bar</text>
-  <text x="76" y="302" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13.5">Eliminates surprise fee abandonment at final payment step</text>
+  <!-- Blocker 3: Quick Win Fix -->
+  <rect x="20" y="246" width="480" height="54" rx="12" fill="#121216" stroke="#22C55E" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="36" y="258" width="32" height="30" rx="8" fill="#052E16"/>
+  <text x="52" y="278" text-anchor="middle" fill="#4ADE80" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="800">✓</text>
+  <text x="82" y="278" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Before / After HTML &amp; CSS Fix Ready</text>
+  <rect x="392" y="260" width="92" height="26" rx="6" fill="#052E16"/>
+  <text x="438" y="277" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">QUICK WIN</text>
 </svg>

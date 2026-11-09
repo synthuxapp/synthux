@@ -1,59 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
-  <defs>
-    <radialGradient id="glowMcp" cx="50%" cy="45%" r="60%">
-      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
-      <stop offset="60%" stop-color="#22c55e" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="gridMcp" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
-    </pattern>
-  </defs>
-
-  <rect width="640" height="360" fill="#09090b"/>
-  <rect width="640" height="360" fill="url(#gridMcp)"/>
-  <rect width="640" height="360" fill="url(#glowMcp)"/>
-
-  <rect x="28" y="24" width="584" height="312" rx="18" fill="#101014" stroke="#27272a" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" fill="none">
+  <rect width="520" height="320" fill="#09090B"/>
 
   <!-- Top Header -->
-  <rect x="52" y="44" width="234" height="32" rx="8" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-opacity="0.45"/>
-  <text x="68" y="65" fill="#60a5fa" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">NPX SYNTHUX-MCP · v2.1</text>
+  <rect x="20" y="20" width="480" height="58" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <text x="38" y="44" fill="#60A5FA" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">NPX -Y SYNTHUX-MCP · 14 AGENT TOOLS</text>
+  <text x="38" y="64" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="17" font-weight="800">Model Context Protocol Bridge</text>
+  <rect x="362" y="31" width="122" height="34" rx="8" fill="#052E16" stroke="#22C55E" stroke-opacity="0.5"/>
+  <text x="423" y="53" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700">127.0.0.1:17483</text>
 
-  <rect x="412" y="44" width="176" height="32" rx="8" fill="#22c55e" fill-opacity="0.14" stroke="#22c55e" stroke-opacity="0.45"/>
-  <circle cx="430" cy="60" r="4.5" fill="#22c55e"/>
-  <text x="444" y="65" fill="#4ade80" font-family="SF Mono, monospace" font-size="12" font-weight="700">127.0.0.1:17483</text>
+  <!-- Left Node: AI Coding Agent -->
+  <rect x="20" y="94" width="210" height="122" rx="12" fill="#121216" stroke="#3B82F6" stroke-opacity="0.55" stroke-width="1.5"/>
+  <text x="36" y="120" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">HOST AI AGENT</text>
+  <text x="36" y="144" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="16" font-weight="800">Antigravity · Claude</text>
+  <text x="36" y="166" fill="#A1A1AA" font-family="Inter, -apple-system, sans-serif" font-size="13.5" font-weight="600">Cursor · OpenAI Codex</text>
+  <rect x="36" y="178" width="178" height="24" rx="6" fill="#172554"/>
+  <text x="125" y="194" text-anchor="middle" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">Single-Pass Brain</text>
 
-  <!-- Node 1: Desktop AI Agents -->
-  <rect x="52" y="96" width="160" height="148" rx="12" fill="#16161c" stroke="#27272a" stroke-width="1.5"/>
-  <text x="70" y="122" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">AI AGENT HOST</text>
-  <text x="70" y="150" fill="#fafafa" font-family="Inter, sans-serif" font-size="15.5" font-weight="800">Antigravity</text>
-  <text x="70" y="174" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="14" font-weight="600">Claude Code</text>
-  <text x="70" y="198" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="14" font-weight="600">Cursor &amp; Codex</text>
-  <text x="70" y="224" fill="#4ade80" font-family="SF Mono, monospace" font-size="11.5">Agent-Brain Mode</text>
+  <!-- Center MCP Connector -->
+  <line x1="230" y1="155" x2="290" y2="155" stroke="#3B82F6" stroke-width="2.5" stroke-dasharray="4 4"/>
+  <rect x="236" y="141" width="48" height="28" rx="7" fill="#172554" stroke="#3B82F6"/>
+  <text x="260" y="159" text-anchor="middle" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">MCP</text>
 
-  <line x1="212" y1="170" x2="242" y2="170" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4 3"/>
+  <!-- Right Node: synthux Chrome Extension -->
+  <rect x="290" y="94" width="210" height="122" rx="12" fill="#121216" stroke="#22C55E" stroke-opacity="0.55" stroke-width="1.5"/>
+  <text x="306" y="120" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">CHROME EXTENSION</text>
+  <text x="306" y="144" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="16" font-weight="800">synthux v2.1 Bridge</text>
+  <text x="306" y="166" fill="#A1A1AA" font-family="Inter, -apple-system, sans-serif" font-size="13.5" font-weight="600">DOM · WCAG · Vision</text>
+  <rect x="306" y="178" width="178" height="24" rx="6" fill="#052E16"/>
+  <text x="395" y="194" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">Live Heatmap &amp; PDF</text>
 
-  <!-- Node 2: MCP Bridge -->
-  <rect x="242" y="96" width="156" height="148" rx="12" fill="#16161c" stroke="#3b82f6" stroke-width="1.75"/>
-  <text x="260" y="122" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">MCP SERVER</text>
-  <text x="260" y="152" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">14 UX Tools</text>
-  <text x="260" y="178" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• Stdio &amp; HTTP</text>
-  <text x="260" y="200" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• Origin Guard</text>
-  <text x="260" y="222" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• 0 Key Exposure</text>
-
-  <line x1="398" y1="170" x2="428" y2="170" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="4 3"/>
-
-  <!-- Node 3: Chrome Extension -->
-  <rect x="428" y="96" width="160" height="148" rx="12" fill="#16161c" stroke="#22c55e" stroke-width="1.75"/>
-  <text x="446" y="122" fill="#4ade80" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">CHROME EXT</text>
-  <text x="446" y="150" fill="#fafafa" font-family="Inter, sans-serif" font-size="15.5" font-weight="800">Live Browser</text>
-  <text x="446" y="176" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="13">• DOM &amp; WCAG</text>
-  <text x="446" y="198" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="13">• Rule Packs</text>
-  <text x="446" y="220" fill="#d4d4d8" font-family="Inter, sans-serif" font-size="13">• Live Heatmap</text>
-
-  <!-- Bottom Output Bar -->
-  <rect x="52" y="262" width="536" height="50" rx="10" fill="#16161c" stroke="#27272a"/>
-  <text x="72" y="292" fill="#fafafa" font-family="Inter, sans-serif" font-size="14" font-weight="700">Autonomous Audit → v2.0 Report + Code Fixes</text>
-  <text x="448" y="292" fill="#4ade80" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">✓ Zero Extra Keys</text>
+  <!-- Bottom Tool Strip -->
+  <rect x="20" y="232" width="480" height="68" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <text x="36" y="256" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="700">Zero Extra API Key Required (Agent-Brain Mode)</text>
+  <text x="36" y="280" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="600">prepare_external_audit → submit_external_audit (~30s)</text>
 </svg>

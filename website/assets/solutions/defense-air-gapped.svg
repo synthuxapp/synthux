@@ -1,56 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
-  <defs>
-    <radialGradient id="glowDef" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.16"/>
-      <stop offset="55%" stop-color="#3b82f6" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="gridDef" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
-    </pattern>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" fill="none">
+  <rect width="520" height="320" fill="#09090B"/>
 
-  <rect width="640" height="360" fill="#09090b"/>
-  <rect width="640" height="360" fill="url(#gridDef)"/>
-  <rect width="640" height="360" fill="url(#glowDef)"/>
+  <!-- Top Security Perimeter Header -->
+  <rect x="20" y="20" width="480" height="54" rx="12" fill="#121216" stroke="#22C55E" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="44" cy="47" r="6" fill="#22C55E"/>
+  <text x="60" y="52" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">AIR-GAPPED PERIMETER</text>
+  <rect x="342" y="33" width="142" height="28" rx="7" fill="#052E16" stroke="#22C55E" stroke-opacity="0.5"/>
+  <text x="413" y="51" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700">0 B Cloud Egress</text>
 
-  <!-- Air-Gapped Hardware Perimeter Dashed Frame -->
-  <rect x="28" y="24" width="584" height="312" rx="18" fill="#0c0c10" fill-opacity="0.85" stroke="#22c55e" stroke-opacity="0.55" stroke-width="1.75" stroke-dasharray="8 6"/>
+  <!-- Left Node: Intranet App -->
+  <rect x="20" y="92" width="212" height="142" rx="14" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <rect x="36" y="110" width="38" height="38" rx="9" fill="#172554" stroke="#3B82F6" stroke-opacity="0.5"/>
+  <path d="M55 120l9 4v6c0 5.5-3.8 10.6-9 12-5.2-1.4-9-6.5-9-12v-6l9-4z" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="86" y="127" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Intranet UI</text>
+  <text x="86" y="145" fill="#A1A1AA" font-family="Inter, -apple-system, sans-serif" font-size="12.5" font-weight="500">C4ISR · Core Banking</text>
 
-  <!-- Top Security Pill -->
-  <rect x="52" y="44" width="268" height="32" rx="8" fill="#111827" stroke="#22c55e" stroke-opacity="0.5"/>
-  <circle cx="70" cy="60" r="5" fill="#22c55e"/>
-  <text x="84" y="65" fill="#4ade80" font-family="SF Mono, Inter, monospace" font-size="12.5" font-weight="700">AIR-GAPPED · 127.0.0.1 ONLY</text>
+  <rect x="36" y="164" width="180" height="26" rx="6" fill="#18181C"/>
+  <text x="46" y="181" fill="#E4E4E7" font-family="Inter, -apple-system, sans-serif" font-size="12.5" font-weight="600">✓ DOM &amp; Vision Capture</text>
+  <rect x="36" y="196" width="180" height="26" rx="6" fill="#18181C"/>
+  <text x="46" y="213" fill="#E4E4E7" font-family="Inter, -apple-system, sans-serif" font-size="12.5" font-weight="600">✓ axe-core WCAG 2.2 AA</text>
 
-  <!-- Right Egress Counter Pill -->
-  <rect x="424" y="44" width="164" height="32" rx="8" fill="#22c55e" fill-opacity="0.12" stroke="#22c55e" stroke-opacity="0.4"/>
-  <text x="442" y="65" fill="#fafafa" font-family="Inter, sans-serif" font-size="13" font-weight="800">0 Bytes Cloud Egress</text>
+  <!-- Loopback Connector -->
+  <line x1="232" y1="163" x2="288" y2="163" stroke="#3B82F6" stroke-width="2.5" stroke-dasharray="4 4"/>
+  <rect x="236" y="149" width="48" height="28" rx="7" fill="#172554" stroke="#3B82F6"/>
+  <text x="260" y="167" text-anchor="middle" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">LOCAL</text>
 
-  <!-- Left Node: Classified Intranet / C4ISR UI -->
-  <rect x="52" y="96" width="232" height="168" rx="14" fill="#121217" stroke="#27272a" stroke-width="1.5"/>
-  <rect x="70" y="114" width="96" height="24" rx="6" fill="#3b82f6" fill-opacity="0.15"/>
-  <text x="82" y="130" fill="#60a5fa" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">INTRANET UI</text>
-  <text x="70" y="164" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">C4ISR &amp; Core Banking</text>
-  <text x="70" y="188" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• DOM &amp; Contrast Scan</text>
-  <text x="70" y="210" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• Cognitive Load Check</text>
-  <text x="70" y="232" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">• Custom HMI JSON Rules</text>
+  <!-- Right Node: On-Device Ollama -->
+  <rect x="288" y="92" width="212" height="142" rx="14" fill="#121216" stroke="#3B82F6" stroke-opacity="0.55" stroke-width="1.5"/>
+  <rect x="304" y="110" width="38" height="38" rx="9" fill="#052E16" stroke="#22C55E" stroke-opacity="0.5"/>
+  <rect x="314" y="120" width="18" height="18" rx="3" stroke="#4ADE80" stroke-width="2"/>
+  <text x="354" y="127" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="15" font-weight="700">Local Ollama</text>
+  <text x="354" y="145" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700">127.0.0.1:11434</text>
 
-  <!-- Bidirectional Loopback Bridge -->
-  <line x1="284" y1="180" x2="356" y2="180" stroke="#22c55e" stroke-width="2.5" stroke-dasharray="5 4"/>
-  <circle cx="320" cy="180" r="16" fill="#111827" stroke="#22c55e" stroke-width="2"/>
-  <path d="M315 180l3 3 7-7" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="304" y="164" width="180" height="26" rx="6" fill="#18181C"/>
+  <text x="314" y="181" fill="#E4E4E7" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="600">Gemma 4 · Qwen 3.8</text>
+  <rect x="304" y="196" width="180" height="26" rx="6" fill="#18181C"/>
+  <text x="314" y="213" fill="#E4E4E7" font-family="Inter, -apple-system, sans-serif" font-size="12.5" font-weight="600">Custom JSON Rule Pack</text>
 
-  <!-- Right Node: On-Device Ollama Engine -->
-  <rect x="356" y="96" width="232" height="168" rx="14" fill="#121217" stroke="#3b82f6" stroke-width="1.75"/>
-  <rect x="374" y="114" width="128" height="24" rx="6" fill="#22c55e" fill-opacity="0.15"/>
-  <text x="386" y="130" fill="#4ade80" font-family="SF Mono, monospace" font-size="11.5" font-weight="700">ON-DEVICE AI</text>
-  <text x="374" y="164" fill="#fafafa" font-family="Inter, sans-serif" font-size="17" font-weight="800">Local Ollama Runtime</text>
-  <text x="374" y="188" fill="#d4d4d8" font-family="SF Mono, monospace" font-size="12.5">gemma4 · qwen3.8</text>
-  <text x="374" y="210" fill="#d4d4d8" font-family="SF Mono, monospace" font-size="12.5">llama4:scout · deepseek</text>
-  <text x="374" y="234" fill="#60a5fa" font-family="Inter, sans-serif" font-size="12.5" font-weight="600">localhost:11434 (Offline)</text>
-
-  <!-- Bottom Bar: Audit Deliverable -->
-  <rect x="52" y="280" width="536" height="38" rx="10" fill="#141419" stroke="#27272a"/>
-  <text x="72" y="304" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="13" font-weight="600">Offline PDF &amp; Markdown Report</text>
-  <text x="412" y="304" fill="#4ade80" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">✓ MIT Auditable Source</text>
+  <!-- Bottom Blocked Cloud Bar -->
+  <rect x="20" y="250" width="480" height="50" rx="12" fill="#181115" stroke="#EF4444" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="34" y="263" width="84" height="24" rx="6" fill="#450A0A"/>
+  <text x="76" y="279" text-anchor="middle" fill="#FCA5A5" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">✕ BLOCKED</text>
+  <text x="132" y="280" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="600">External Cloud APIs &amp; Telemetry Disabled</text>
 </svg>

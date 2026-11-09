@@ -1,42 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" fill="none">
-  <defs>
-    <radialGradient id="glowA11y" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.16"/>
-      <stop offset="55%" stop-color="#3b82f6" stop-opacity="0.08"/>
-      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="gridA11y" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
-    </pattern>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" fill="none">
+  <rect width="520" height="320" fill="#09090B"/>
 
-  <rect width="640" height="360" fill="#09090b"/>
-  <rect width="640" height="360" fill="url(#gridA11y)"/>
-  <rect width="640" height="360" fill="url(#glowA11y)"/>
+  <!-- Top Header -->
+  <rect x="20" y="20" width="480" height="62" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <text x="38" y="46" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">DUAL-ENGINE ACCESSIBILITY AUDIT</text>
+  <text x="38" y="68" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="18" font-weight="800">WCAG 2.2 AA + AI Persona</text>
+  <rect x="358" y="33" width="126" height="36" rx="9" fill="#052E16" stroke="#22C55E" stroke-opacity="0.5"/>
+  <text x="421" y="56" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700">EAA · 508 Ready</text>
 
-  <rect x="32" y="24" width="576" height="312" rx="18" fill="#101014" stroke="#27272a" stroke-width="1.5"/>
+  <!-- Two Side-by-Side Engine Cards -->
+  <rect x="20" y="98" width="232" height="122" rx="12" fill="#121216" stroke="#3B82F6" stroke-opacity="0.5" stroke-width="1.5"/>
+  <rect x="36" y="114" width="96" height="24" rx="6" fill="#172554"/>
+  <text x="84" y="130" text-anchor="middle" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">ENGINE 01</text>
+  <text x="36" y="160" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="16" font-weight="800">axe-core DOM</text>
+  <text x="36" y="182" fill="#A1A1AA" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="600">✓ Contrast 11.4:1 (AAA)</text>
+  <text x="36" y="202" fill="#FCA5A5" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="600">✕ Missing aria-label</text>
 
-  <!-- Top Bar -->
-  <rect x="56" y="44" width="224" height="34" rx="8" fill="#22c55e" fill-opacity="0.14" stroke="#22c55e" stroke-opacity="0.45"/>
-  <text x="72" y="66" fill="#4ade80" font-family="SF Mono, monospace" font-size="12.5" font-weight="700">WCAG 2.2 AA · AXE-CORE</text>
+  <rect x="268" y="98" width="232" height="122" rx="12" fill="#121216" stroke="#22C55E" stroke-opacity="0.5" stroke-width="1.5"/>
+  <rect x="284" y="114" width="96" height="24" rx="6" fill="#052E16"/>
+  <text x="332" y="130" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">ENGINE 02</text>
+  <text x="284" y="160" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="16" font-weight="800">Screen-Reader AI</text>
+  <text x="284" y="182" fill="#A1A1AA" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="600">✓ Tab Order #1 → #2 → #3</text>
+  <text x="284" y="202" fill="#A1A1AA" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="600">✓ VoiceOver Landmarks</text>
 
-  <rect x="412" y="44" width="172" height="34" rx="8" fill="#3b82f6" fill-opacity="0.14" stroke="#3b82f6" stroke-opacity="0.45"/>
-  <text x="428" y="66" fill="#60a5fa" font-family="Inter, sans-serif" font-size="13.5" font-weight="800">EAA &amp; Section 508</text>
-
-  <!-- Contrast Comparison Row -->
-  <rect x="56" y="96" width="254" height="106" rx="12" fill="#16161c" stroke="#22c55e" stroke-width="1.5"/>
-  <text x="76" y="124" fill="#4ade80" font-family="SF Mono, monospace" font-size="12" font-weight="700">AAA PASS · 11.4 : 1</text>
-  <text x="76" y="156" fill="#fafafa" font-family="Inter, sans-serif" font-size="18" font-weight="800">Primary Heading</text>
-  <text x="76" y="182" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13">Readable in all lighting</text>
-
-  <rect x="330" y="96" width="254" height="106" rx="12" fill="#16161c" stroke="#ef4444" stroke-width="1.5"/>
-  <text x="350" y="124" fill="#f87171" font-family="SF Mono, monospace" font-size="12" font-weight="700">AA FAIL · 2.3 : 1</text>
-  <text x="350" y="156" fill="#fafafa" font-family="Inter, sans-serif" font-size="18" font-weight="800">Auto-Fix CSS Color</text>
-  <text x="350" y="182" fill="#86efac" font-family="SF Mono, monospace" font-size="12.5">#52525b → #a1a1aa ✓</text>
-
-  <!-- Bottom Layer: AI Accessibility Persona & Keyboard Tab Path -->
-  <rect x="56" y="218" width="528" height="96" rx="12" fill="#16161c" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="76" y="246" fill="#60a5fa" font-family="SF Mono, monospace" font-size="12" font-weight="700">AI ACCESSIBILITY PERSONA · SCREEN READER &amp; KEYBOARD</text>
-  <text x="76" y="274" fill="#fafafa" font-family="Inter, sans-serif" font-size="16.5" font-weight="800">Semantic Landmarks, ARIA Labels &amp; Focus Order</text>
-  <text x="76" y="298" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="13.5">Tab #1 Header  →  Tab #2 Main Form  →  Tab #3 44×44px Submit CTA</text>
+  <!-- Bottom Auto-Fix Bar -->
+  <rect x="20" y="236" width="480" height="64" rx="12" fill="#121216" stroke="#27272A" stroke-width="1.5"/>
+  <rect x="36" y="254" width="86" height="28" rx="6" fill="#052E16" stroke="#22C55E" stroke-opacity="0.4"/>
+  <text x="79" y="272" text-anchor="middle" fill="#4ADE80" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700">CODE FIX</text>
+  <text x="136" y="264" fill="#FAFAFA" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="700">Auto-Generated ARIA &amp; CSS Patch</text>
+  <text x="136" y="284" fill="#93C5FD" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="600">&lt;button aria-label="Confirm Transfer"&gt;</text>
 </svg>

@@ -45,9 +45,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Desktop hover intent with 180ms grace timer for Solutions dropdown
+  const solItem = document.getElementById('nav-solutions-item');
+  let solCloseTimer = null;
+
+  const openSolDropdown = () => {
+    if (!solItem) return;
+    if (solCloseTimer) {
+      clearTimeout(solCloseTimer);
+      solCloseTimer = null;
+    }
+    solItem.classList.add('dropdown-open');
+    const trigger = solItem.querySelector('.nav-link');
+    if (trigger) trigger.setAttribute('aria-expanded', 'true');
+    document.querySelectorAll('.lang-picker.open').forEach(el => el.classList.remove('open'));
+  };
+
+  const scheduleCloseSolDropdown = (delay = 180) => {
+    if (!solItem) return;
+    if (solCloseTimer) clearTimeout(solCloseTimer);
+    solCloseTimer = setTimeout(() => {
+      solItem.classList.remove('dropdown-open');
+      const trigger = solItem.querySelector('.nav-link');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }, delay);
+  };
+
+  if (solItem) {
+    solItem.addEventListener('mouseenter', () => {
+      if (window.innerWidth > 900) openSolDropdown();
+    });
+    solItem.addEventListener('mouseleave', () => {
+      if (window.innerWidth > 900) scheduleCloseSolDropdown(180);
+    });
+  }
+
   // Close desktop Solutions dropdown on outside click
   document.addEventListener('click', (e) => {
     if (!e.target.closest('#nav-solutions-item')) {
+      if (solCloseTimer) clearTimeout(solCloseTimer);
       document.querySelectorAll('.nav-item.dropdown-open').forEach(el => {
         el.classList.remove('dropdown-open');
         const trigger = el.querySelector('.nav-link');
