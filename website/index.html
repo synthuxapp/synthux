@@ -27,7 +27,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="style.css?v=2.1.0">
+  <link rel="stylesheet" href="style.css?v=2.1.1">
 
   <!-- Structured Data -->
   <script type="application/ld+json">
@@ -387,50 +387,77 @@
   <section id="compare" class="screenshot-section">
     <div class="container">
       <div class="section-header fade-in">
-        <h2 data-i18n="compareTitle">Local vs Cloud</h2>
-        <p data-i18n="compareSubtitle">Choose the setup that fits your workflow.</p>
+        <h2 data-i18n="compareTitle">Local vs Cloud vs MCP Agent</h2>
+        <p data-i18n="compareSubtitle">Choose the AI workflow that fits your security, speed, and tooling requirements.</p>
       </div>
 
-      <div class="compare-table fade-in">
-        <div class="compare-header">
-          <div class="compare-col-label"></div>
-          <div class="compare-col-head">Local AI<span class="compare-sub">Ollama · LM Studio</span></div>
-          <div class="compare-col-head">Cloud API<span class="compare-sub">Gemini · OpenAI · Claude</span></div>
-        </div>
-        <div class="compare-body">
-          <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareQuick">Quick (3 heuristics)</div>
-            <div class="compare-col">~12-20 min</div>
-            <div class="compare-col compare-highlight">~2-3 min</div>
+      <div class="compare-table-wrap fade-in">
+        <div class="compare-table">
+          <div class="compare-header">
+            <div class="compare-col-label"></div>
+            <div class="compare-col-head">
+              <span data-i18n="compareCol1Title">Local AI</span>
+              <span class="compare-sub" data-i18n="compareCol1Sub">Ollama · LM Studio</span>
+            </div>
+            <div class="compare-col-head">
+              <span data-i18n="compareCol2Title">Cloud API (BYOK)</span>
+              <span class="compare-sub" data-i18n="compareCol2Sub">Gemini · OpenAI · Claude</span>
+            </div>
+            <div class="compare-col-head compare-col-mcp-head">
+              <span class="compare-head-badge-row">
+                <span data-i18n="compareCol3Title">MCP Agent</span>
+                <span class="compare-pill-new">v2.1</span>
+              </span>
+              <span class="compare-sub" data-i18n="compareCol3Sub">Antigravity · Claude · Cursor · Codex</span>
+            </div>
           </div>
-          <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareDeep">Deep (10 heuristics)</div>
-            <div class="compare-col">~40-60 min</div>
-            <div class="compare-col compare-highlight">~5-8 min</div>
-          </div>
-          <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareCustom">Custom mode</div>
-            <div class="compare-col">~4 min × heuristic</div>
-            <div class="compare-col compare-highlight">~30s × heuristic</div>
-          </div>
-          <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareCost">Cost</div>
-            <div class="compare-col compare-free">Free</div>
-            <div class="compare-col">~$0.05 – $0.30</div>
-          </div>
-          <div class="compare-row">
-            <div class="compare-col-label" data-i18n="comparePrivacy">Privacy</div>
-            <div class="compare-col compare-free">100% on-device</div>
-            <div class="compare-col">Your key, direct API</div>
-          </div>
-          <div class="compare-row">
-            <div class="compare-col-label" data-i18n="compareSetup">Setup</div>
-            <div class="compare-col">Install Ollama + model</div>
-            <div class="compare-col compare-highlight">API key only</div>
+          <div class="compare-body">
+            <div class="compare-row">
+              <div class="compare-col-label" data-i18n="compareQuick">Quick (3 heuristics)</div>
+              <div class="compare-col" data-i18n="compareQuickLocal">~2–4 min</div>
+              <div class="compare-col compare-highlight" data-i18n="compareQuickCloud">~30–45 sec</div>
+              <div class="compare-col compare-mcp" data-i18n="compareQuickMcp">~15–25 sec (Single-pass)</div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-col-label" data-i18n="compareDeep">Deep (10 heuristics)</div>
+              <div class="compare-col" data-i18n="compareDeepLocal">~8–15 min</div>
+              <div class="compare-col compare-highlight" data-i18n="compareDeepCloud">~1.5–3 min</div>
+              <div class="compare-col compare-mcp" data-i18n="compareDeepMcp">~30–45 sec (Single-pass)</div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-col-label" data-i18n="compareCustom">Custom mode</div>
+              <div class="compare-col" data-i18n="compareCustomLocal">~45–90s × rule</div>
+              <div class="compare-col compare-highlight" data-i18n="compareCustomCloud">~10–15s × rule</div>
+              <div class="compare-col compare-mcp" data-i18n="compareCustomMcp">~20–30s total</div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-col-label" data-i18n="compareFeatures">WCAG 2.2 AA &amp; Vision</div>
+              <div class="compare-col" data-i18n="compareFeaturesLocal">axe-core + Local Vision</div>
+              <div class="compare-col" data-i18n="compareFeaturesCloud">axe-core + Cloud Vision</div>
+              <div class="compare-col compare-mcp" data-i18n="compareFeaturesMcp">axe-core + Vision + Auto Fix</div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-col-label" data-i18n="compareCost">Cost</div>
+              <div class="compare-col compare-free" data-i18n="compareCostLocal">Free</div>
+              <div class="compare-col" data-i18n="compareCostCloud">~$0.01 – $0.15 / scan</div>
+              <div class="compare-col compare-free" data-i18n="compareCostMcp">$0 extra key (Uses Agent)</div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-col-label" data-i18n="comparePrivacy">Privacy</div>
+              <div class="compare-col compare-free" data-i18n="comparePrivacyLocal">100% on-device (Air-Gapped)</div>
+              <div class="compare-col" data-i18n="comparePrivacyCloud">Your key, direct API</div>
+              <div class="compare-col compare-free" data-i18n="comparePrivacyMcp">127.0.0.1 Local MCP Bridge</div>
+            </div>
+            <div class="compare-row">
+              <div class="compare-col-label" data-i18n="compareSetup">Setup</div>
+              <div class="compare-col" data-i18n="compareSetupLocal">Install Ollama + model</div>
+              <div class="compare-col compare-highlight" data-i18n="compareSetupCloud">API key only</div>
+              <div class="compare-col compare-mcp"><code>npx -y synthux-mcp</code></div>
+            </div>
           </div>
         </div>
       </div>
-      <p class="compare-note" data-i18n="compareNote">Times shown per profile. Selecting multiple profiles multiplies the duration proportionally.</p>
+      <p class="compare-note" data-i18n="compareNote">Local AI and Cloud API times are shown per persona profile. MCP Agent-Brain mode evaluates all selected rules and personas in a single bundled pass.</p>
     </div>
   </section>
   <!-- ─── How It Works ─── -->
@@ -761,7 +788,7 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="i18n.js?v=2.1.0"></script>
-  <script src="script.js?v=2.1.0"></script>
+  <script src="i18n.js?v=2.1.1"></script>
+  <script src="script.js?v=2.1.1"></script>
 </body>
 </html>
