@@ -1,0 +1,163 @@
+{
+  "id": "fintech",
+  "name": "Fintech, Banking & Web3 UX",
+  "shortName": "Fintech",
+  "category": "Finance & Banking",
+  "description": "High-trust financial UX rules covering transaction safety, fee/rate transparency, numerical legibility, and risk prevention.",
+  "version": "1.0.0",
+  "source": "https://www.nngroup.com/articles/",
+  "rules": [
+    {
+      "id": "fin-transaction-safety",
+      "name": { "en": "Transaction Confirmation & Irreversibility Safeguards", "tr": "İşlem Onayı ve Geri Döndürülemezlik Koruması" },
+      "description": {
+        "en": "Financial actions (transfers, payments, trades, subscriptions) must display a crystal-clear pre-execution summary (recipient, amount, fees, net total, timing) and prevent accidental double-submission.",
+        "tr": "Finansal işlemler (transfer, ödeme, alım-satım) işlem öncesi net bir özet (alıcı, tutar, komisyon, net toplam, valör) göstermeli ve yanlışlıkla çift gönderimi engellemelidir."
+      },
+      "weight": 1.3,
+      "automated_checks": ["confirmation_steps", "form_validation", "submit_safeguards"],
+      "evaluation_guide": "Look for: clear review/confirmation steps before committing funds, explicit breakdown of amount + fee = total, clear recipient verification, and unambiguous primary action labels (e.g., 'Send $250.00' instead of 'Submit').",
+      "prompt_template": "Evaluate this page for 'Transaction Confirmation & Irreversibility Safeguards'. Are high-stakes financial actions protected by clear summaries, explicit button labels, and error safeguards?",
+      "scoring_rubric": {
+        "0-20": "High risk of financial mistakes, vague 'Submit' buttons, no review/confirmation clarity",
+        "21-40": "Weak transaction previews, easy to misread amounts or submit unintended actions",
+        "41-60": "Basic confirmation exists but lacks detailed summary or explicit action labeling",
+        "61-80": "Solid safeguards and clear action labels with minor improvements possible",
+        "81-100": "Excellent — bulletproof transaction review, explicit CTAs, strong mistake prevention"
+      }
+    },
+    {
+      "id": "fin-numerical-legibility",
+      "name": { "en": "Numerical, Currency & Tabular Legibility", "tr": "Sayısal, Para Birimi ve Tablo Okunabilirliği" },
+      "description": {
+        "en": "Balances, rates, percentages, and ledger tables must use unambiguous formatting (proper thousand separators, decimal precision, explicit currency symbols/codes, tabular numerals, and color+sign for gains/losses).",
+        "tr": "Bakiyeler, oranlar, yüzdeler ve hesap tabloları net biçimlendirme (binlik ayırıcılar, ondalık hassasiyet, açık para birimi kodları, hizalı rakamlar ve artış/azalış için renk+işaret) kullanmalıdır."
+      },
+      "weight": 1.2,
+      "automated_checks": ["number_formatting", "currency_clarity", "color_contrast"],
+      "evaluation_guide": "Look for: consistent thousand/decimal separators, explicit currency symbols + ISO codes ($ USD, € EUR, ₺ TRY), `+`/`-` signs alongside green/red colors (never color alone), and right-aligned tabular numbers.",
+      "prompt_template": "Evaluate this page for 'Numerical, Currency & Tabular Legibility'. Are monetary amounts, percentages, and financial figures formatted clearly and accessibly?",
+      "scoring_rubric": {
+        "0-20": "Unformatted raw numbers, missing currency symbols, reliance on red/green color alone",
+        "21-40": "Inconsistent decimal/thousand formatting, hard-to-scan financial figures",
+        "41-60": "Readable numbers but missing tabular alignment or `+`/`-` indicators for colorblind users",
+        "61-80": "Well-formatted currency and numbers with minor typography/alignment gaps",
+        "81-100": "Excellent — crisp tabular numbers, explicit currencies, accessible gain/loss indicators"
+      }
+    },
+    {
+      "id": "fin-fee-rate-transparency",
+      "name": { "en": "Fee, Exchange Rate & APR/Risk Transparency", "tr": "Komisyon, Kur ve Faiz/Risk Şeffaflığı" },
+      "description": {
+        "en": "Commissions, spreads, interest rates (APR/APY), exchange rates, and regulatory risk disclaimers must be surfaced in plain language alongside figures—never buried in hidden footnotes.",
+        "tr": "Komisyonlar, makas aralıkları, faiz oranları (APR/APY), döviz kurları ve yasal risk uyarıları rakamların hemen yanında anlaşılır bir dille gösterilmeli, gizli dipnotlara gömülmemelidir."
+      },
+      "weight": 1.2,
+      "automated_checks": ["fee_disclosure", "rate_clarity", "disclaimer_visibility"],
+      "evaluation_guide": "Look for: upfront fee breakdowns, live/timestamped exchange or interest rates, clear distinction between fixed and variable rates, and legible regulatory/risk disclosures.",
+      "prompt_template": "Evaluate this page for 'Fee, Exchange Rate & APR/Risk Transparency'. Are fees, rates, conditions, and financial risks disclosed honestly and prominently?",
+      "scoring_rubric": {
+        "0-20": "Hidden fees, misleading yield/return claims, illegible or missing risk disclosures",
+        "21-40": "Important cost/rate conditions buried in tiny footnotes or external PDFs",
+        "41-60": "Rates and fees are mentioned but require effort to calculate net outcome",
+        "61-80": "Clear fee and rate presentation with minor improvements in plain-language explanations",
+        "81-100": "Excellent — complete cost/rate transparency, clear calculations, readable disclosures"
+      }
+    },
+    {
+      "id": "fin-security-trust-cues",
+      "name": { "en": "Security Posture, Licensing & Trust Assurance", "tr": "Güvenlik Göstergeleri, Lisans ve Güven Güvencesi" },
+      "description": {
+        "en": "Financial interfaces must project institutional reliability through clear licensing/regulatory registration info, encryption/2FA indicators, privacy assurances, and zero visual glitches.",
+        "tr": "Finansal arayüzler; açık lisans/regülasyon bilgileri, şifreleme/2FA göstergeleri, gizlilik güvenceleri ve kusursuz görsel tutarlılıkla kurumsal güven vermelidir."
+      },
+      "weight": 1.1,
+      "automated_checks": ["trust_signals", "regulatory_footer", "security_cues"],
+      "evaluation_guide": "Look for: regulatory/licensing disclosures (FDIC, FCA, BDDK, PCI-DSS, SOC2), security explanations near sensitive inputs, masked sensitive data toggles, and polished layout consistency.",
+      "prompt_template": "Evaluate this page for 'Security Posture, Licensing & Trust Assurance'. Does the interface inspire financial trust through clear security cues, regulatory transparency, and visual polish?",
+      "scoring_rubric": {
+        "0-20": "Looks suspicious or unprofessional, no regulatory/company identity, broken UI elements",
+        "21-40": "Weak institutional trust signals, sensitive inputs lack security reassurance",
+        "41-60": "Basic company/legal footer exists, but security cues aren't surfaced contextually",
+        "61-80": "Strong trust and regulatory presence with minor contextual security enhancements possible",
+        "81-100": "Excellent — institutional-grade trust, contextual security cues, transparent licensing"
+      }
+    },
+    {
+      "id": "fin-high-stakes-input-error",
+      "name": { "en": "High-Stakes Input Formatting & Error Prevention", "tr": "Kritik Girdi Biçimlendirme ve Hata Önleme" },
+      "description": {
+        "en": "Inputs for IBANs, card numbers, wallet addresses, tax IDs, and monetary amounts must use auto-spacing/masks, real-time checksum/format validation, and clear min/max balance constraints.",
+        "tr": "IBAN, kart numarası, cüzdan adresi, vergi/TCKN ve tutar girdileri otomatik boşluklandırma/maskeleme, anlık format doğrulaması ve net alt/üst limit kontrolleri kullanmalıdır."
+      },
+      "weight": 1.1,
+      "automated_checks": ["input_masks", "inline_validation", "constraint_hints"],
+      "evaluation_guide": "Look for: grouped formatting for long numbers (e.g., 4-digit IBAN/card chunks), visible available balance/limits next to amount inputs, instant inline validation, and copy/paste safety.",
+      "prompt_template": "Evaluate this page for 'High-Stakes Input Formatting & Error Prevention'. Do forms and numerical inputs guide the user with masks, balance limits, and instant validation?",
+      "scoring_rubric": {
+        "0-20": "Raw unvalidated text boxes for sensitive financial inputs, no limit/format guidance",
+        "21-40": "Errors only shown after form submission, hard-to-read ungrouped account/card numbers",
+        "41-60": "Standard validation present but lacks input masking or contextual limit hints",
+        "61-80": "Well-constrained inputs and helpful validation with minor ergonomic gaps",
+        "81-100": "Excellent — smart input masks, real-time validation, clear balance/limit bounds"
+      }
+    },
+    {
+      "id": "fin-status-audit-trail",
+      "name": { "en": "Transaction Status Tracking & Auditability", "tr": "İşlem Durumu Takibi ve Denetlenebilirlik" },
+      "description": {
+        "en": "Users must never wonder 'Where is my money?'. Pending, processing, completed, and failed states require clear timestamps, reference IDs, expected settlement times, and downloadable receipts.",
+        "tr": "Kullanıcılar asla 'Param nerede?' diye endişelenmemelidir. Bekleyen, işlenen, tamamlanan ve başarısız işlemler net zaman damgaları, referans numaraları ve dekont/makbuz sunmalıdır."
+      },
+      "weight": 1.0,
+      "automated_checks": ["status_indicators", "timestamps", "receipt_export"],
+      "evaluation_guide": "Look for: distinct semantic badges for Pending/Completed/Failed states, human-readable timestamps, copyable reference/transaction IDs, and clear timeline expectations for settlements.",
+      "prompt_template": "Evaluate this page for 'Transaction Status Tracking & Auditability'. How clearly are account states, processing timelines, status badges, and historical records communicated?",
+      "scoring_rubric": {
+        "0-20": "Ambiguous status states, no timestamps or reference info, users left in the dark",
+        "21-40": "Vague status labels without expected completion times or audit details",
+        "41-60": "Basic status labels exist but lack detailed timeline or receipt/reference access",
+        "61-80": "Clear status badges and timestamps with minor auditability improvements possible",
+        "81-100": "Excellent — transparent settlement timelines, clear status badges, full audit trail"
+      }
+    },
+    {
+      "id": "fin-progressive-disclosure",
+      "name": { "en": "Progressive Disclosure of Financial Complexity", "tr": "Finansal Karmaşıklığın Aşamalı Gösterimi" },
+      "description": {
+        "en": "Serve both everyday users and financial analysts by showing essential summary metrics first while offering expandable breakdowns, plain-language glossary tooltips, and advanced views on demand.",
+        "tr": "Önce temel özet metrikleri gösterip, istendiğinde açılabilir detaylar, finansal terim ipuçları (tooltip) ve gelişmiş görünümler sunarak hem günlük hem uzman kullanıcılara hitap edin."
+      },
+      "weight": 0.9,
+      "automated_checks": ["progressive_disclosure", "jargon_tooltips", "summary_hierarchy"],
+      "evaluation_guide": "Look for: clean summary cards paired with 'View details' expandables, tooltips explaining financial jargon (APY, slippage, margin, withholding), and uncluttered primary views.",
+      "prompt_template": "Evaluate this page for 'Progressive Disclosure of Financial Complexity'. Does the design simplify complex financial concepts while keeping detailed breakdowns accessible?",
+      "scoring_rubric": {
+        "0-20": "Overwhelming financial jargon and dense data dumped without explanation or hierarchy",
+        "21-40": "Either overly simplified (missing crucial details) or overly dense for normal users",
+        "41-60": "Reasonable balance of info, though some financial terms lack inline explanation",
+        "61-80": "Good summary-to-detail hierarchy and helpful explanations for most terms",
+        "81-100": "Excellent — approachable summaries, rich drill-downs, clear inline financial tooltips"
+      }
+    },
+    {
+      "id": "fin-emergency-support",
+      "name": { "en": "Urgent Support, Dispute & Freeze Accessibility", "tr": "Acil Destek, İtiraz ve Hesap Dondurma Erişimi" },
+      "description": {
+        "en": "When something goes wrong (suspicious activity, failed transfer, lost card), users need immediate, visible paths to freeze accounts/cards, dispute transactions, or reach human support.",
+        "tr": "Bir sorun yaşandığında (şüpheli işlem, başarısız transfer, kayıp kart) kullanıcılar kart/hesap dondurma, işlem itirazı veya canlı desteğe ulaşma adımlarına anında erişebilmelidir."
+      },
+      "weight": 0.9,
+      "automated_checks": ["emergency_help", "support_channels", "dispute_links"],
+      "evaluation_guide": "Look for: easily discoverable help/security contact channels, clear 'Report a problem' or support actions, and reassuring guidance for urgent account issues.",
+      "prompt_template": "Evaluate this page for 'Urgent Support, Dispute & Freeze Accessibility'. If a user encounters a financial discrepancy or security concern, how easily can they find help or protective actions?",
+      "scoring_rubric": {
+        "0-20": "No support or security contact options visible anywhere on the page",
+        "21-40": "Support buried behind circular FAQ bots with no clear path for urgent issues",
+        "41-60": "Standard contact/help link in footer, but not surfaced for high-stress scenarios",
+        "61-80": "Accessible support and security help options with minor discoverability gaps",
+        "81-100": "Excellent — prominent, reassuring support and security action paths"
+      }
+    }
+  ]
+}

@@ -68,6 +68,17 @@ const pdfExportConfig = {
   plugins: [mv3CompliancePlugin],
 };
 
+const mcpServerConfig = {
+  entryPoints: ['mcp/server.js'],
+  bundle: true,
+  outfile: 'mcp/dist/cli.js',
+  platform: 'node',
+  format: 'esm',
+  target: 'node18',
+  minify: false,
+  logLevel: 'info',
+};
+
 if (isWatch) {
   const ctx1 = await esbuild.context(sidepanelConfig);
   await ctx1.watch();
@@ -78,5 +89,13 @@ if (isWatch) {
   fs.rmSync('extension/sidepanel/chunks', { recursive: true, force: true });
   await esbuild.build(sidepanelConfig);
   await esbuild.build(pdfExportConfig);
+  await esbuild.build(mcpServerConfig);
+  fs.mkdirSync('mcp/rules', { recursive: true });
+  for (const file of fs.readdirSync('extension/rules')) {
+    if (file.endsWith('.json')) {
+      fs.copyFileSync(`extension/rules/${file}`, `mcp/rules/${file}`);
+    }
+  }
+  fs.chmodSync('mcp/dist/cli.js', 0o755);
   console.log('✅ Build complete!');
 }

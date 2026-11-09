@@ -1,6 +1,57 @@
 # synthux — Development Log & Technical Notes
 
-Bu dosya, **synthux** projesinin geliştirme geçmişini, mimari kararlarını, yapılan teknik iyileştirmeleri ve kalan yol haritası maddelerini takip etmek için tutulmaktadır.
+Bu dosya, **synthux** projesinin geliştirme geçmişini, mimari kararlarını ve yapılan teknik iyileştirmeleri takip etmek için tutulmaktadır.
+
+---
+
+## 📅 9 Kasım 2026 — v2.1.0 Sürümü (MCP Server & Chrome Extension Agent Bridge)
+
+### 1. Model Context Protocol (MCP) Sunucusu (`mcp/` — `synthux-mcp@2.1.0`)
+- **Çift Aktarım Katmanı (Stdio + Streamable HTTP) (`mcp/server.js`, `mcp/dist/cli.js`):**
+  - Sıfır harici bağımlılıklı, JSON-RPC 2.0 uyumlu MCP sunucusu oluşturuldu.
+  - **Stdio (`npx -y synthux-mcp`):** Google Antigravity (Gemini 4 Argon), Claude Desktop, Claude Code, Cursor ve Windsurf gibi masaüstü ajanlarla doğrudan `stdin`/`stdout` üzerinden haberleşir.
+  - **Streamable HTTP (`http://127.0.0.1:17483/mcp`):** Yerel LLM sunucuları ve HTTP tabanlı MCP istemcileri için yerel endpoint sağlar.
+  - **Çoklu Süreç Uyumluluğu (Multi-Instance Coexistence):** `17483` portu başka bir `synthux-mcp` süreci tarafından dinleniyorsa, yeni başlatılan `stdio` süreçleri hata vermek yerine araç çağrılarını mevcut yerel köprüye (`http://127.0.0.1:17483/mcp`) şeffaf biçimde yönlendirir.
+- **14 MCP Aracı (Tool) ve 4 Kaynak (Resource):**
+  - Tarayıcı ve sekme yönetimi: `get_extension_status`, `list_browser_tabs`, `open_and_audit_url`
+  - Canlı sayfa tarama ve erişilebilirlik: `scan_page_ux_context`, `run_wcag_audit`
+  - UX ve Heuristik denetim: `run_ux_audit` (`quick`, `deep`, `custom` modları, Sektörel Kural Paketleri ve Sentetik Personalar)
+  - **Agent-Brain Modu (Ekstra API Anahtarsız Değerlendirme):** `prepare_external_audit` ve `submit_external_audit` araçlarıyla masaüstü AI ajanının (Antigravity / Gemini 4 Argon, Claude, Cursor, Codex) canlı DOM + WCAG + ekran görüntüsü verisini kendi LLM beyniyle değerlendirip ürettiği v2.0 raporunu Chrome Yan Paneline senkronize etmesi sağlandı.
+  - Çok sayfalı akış ve canlı görsel katmanlar: `start_flow_analysis`, `toggle_heatmap`, `highlight_issue`, `capture_annotated_screenshot`
+  - Yapılandırma ve geçmiş: `manage_rule_packs`, `manage_personas`, `configure_ai_provider`, `get_report_history`
+- **Bağımsız npm Paketi (`mcp/package.json`, `esbuild.config.js`):**
+  - `npm run build` sırasında `mcp/server.js` ve çekirdek modüller `mcp/dist/cli.js` olarak paketlenir, `extension/rules/*.json` kural paketleri `mcp/rules/` altına kopyalanır ve npm üzerinde `synthux-mcp@2.1.0` olarak yayınlanır.
+
+---
+
+### 2. Chrome Eklentisi MV3 WebSocket Köprüsü ve Uygulama İçi Ayarlar
+- **MV3 Service Worker Köprüsü (`extension/core/mcp-bridge.js`, `extension/background/service-worker.js`):**
+  - `ws://127.0.0.1:17483/ws` üzerinden yerel MCP sunucusuna otomatik bağlanan, kopma durumunda yeniden bağlanan ve heartbeat destekleyen `MCPBridge` sınıfı eklendi.
+  - Harici ajanların ürettiği raporları Chrome Yan Paneline ve `synthux_reports` geçmişine kaydeden `saveCompletedReport` entegrasyonu yapıldı.
+- **Uygulama İçi MCP Ayar Kartı (`src/sidepanel/components/synthux-settings.js`, `src/sidepanel/app.js`):**
+  - **Settings → MCP Agent Bridge** kartı: Köprü açma/kapatma anahtarı (`mcpEnabled`), canlı bağlantı rozeti (`Connected · 127.0.0.1:17483` / `Standby`), opsiyonel eşleştirme tokenı (`SYNTHUX_MCP_TOKEN`) alanı ve tek tıkla kopyalanabilir `mcp_config.json` / Streamable HTTP kurulum rehberi eklendi.
+  - Yan panel üst barına canlı `Connected · MCP` / `MCP Agent Ready` rozeti eklendi.
+
+---
+
+### 3. Gizlilik, Güvenlik Sıkılaştırması ve Otomatik E2E Test Paketi
+- **Loopback ve Origin CSRF Koruması (`SECURITY.md`, `PRIVACY.md`):**
+  - Sunucu ve eklenti köprüsü yalnızca `127.0.0.1` / `localhost` adreslerinde çalışır (`isLoopbackWsUrl` koruması).
+  - `isAllowedOrigin` güvenlik duvarı ile `http://` ve `https://` web sayfalarından gelebilecek tüm Cross-Site WebSocket Hijacking (CSWSH) ve CSRF istekleri `403 Forbidden` ile engellenir.
+  - Tarayıcıdaki BYOK API anahtarları (`gemini`, `openai`, `claude`) MCP yanıtlarında tamamen maskelenir ve dışarı aktarılmaz.
+- **Otomatik Test Paketi (`mcp/test-suite.js` — `npm run test:mcp`):**
+  - 16 uçtan uca test senaryosu (JSON-RPC 2.0 protokolü, Streamable HTTP, Origin/URL güvenlik duvarları, Sektörel Kural Paketleri, özel JSON kural paketi, personalar, WCAG, Antigravity Agent-Brain değerlendirme döngüsü, canlı WebSocket eklenti köprüsü ve `stdio` alt süreç testi) eklendi.
+
+---
+
+### 4. Website (`synthux.app`), Yayınlama ve Dağıtım Bilgileri (`v2.1.0`)
+- **7. SEO Çözüm Sayfası (`website/solutions/mcp-agentic-ux-audit.html` & `website/assets/solutions/mcp-agentic-ux.svg`):**
+  - 6 dilde (`en`, `tr`, `de`, `zh`, `fr`, `it`) yeni çözüm sayfası, navigasyon menüsü, ana sayfa özellik kartı (`feature13`) ve `website/sitemap.xml` / `website/llms.txt` güncellemeleri yapıldı ve `synthux.app` (Firebase Hosting) üzerine deploy edildi.
+- **Yayınlanan Paketler:**
+  - **npm Paketi:** `synthux-mcp@2.1.0` (`https://www.npmjs.com/package/synthux-mcp` — `npx -y synthux-mcp`)
+  - **Chrome Web Store Paketi:** `synthux-v2.1.0.zip` ve `v2.1.0-release-notes.md` (EN & TR mağaza metinleri)
+  - **GitHub Release:** `https://github.com/synthuxapp/synthux/releases/tag/v2.1.0`
+  - **Firebase Hosting:** `https://synthux-app.web.app` / `https://synthux.app` (`ufuk@ufukaydin.com`)
 
 ---
 

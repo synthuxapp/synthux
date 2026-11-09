@@ -1,0 +1,163 @@
+{
+  "id": "ecommerce",
+  "name": "E-Commerce & Conversion UX",
+  "shortName": "E-Commerce",
+  "category": "E-Commerce & Retail",
+  "description": "Specialized UX heuristics for online stores, product pages, carts, and checkout flows.",
+  "version": "1.0.0",
+  "source": "https://baymard.com/research",
+  "rules": [
+    {
+      "id": "ecom-product-clarity",
+      "name": { "en": "Product Clarity & Visual Inspection", "tr": "Ürün Netliği ve Görsel İnceleme" },
+      "description": {
+        "en": "Product pages and listings must provide crystal-clear titles, high-resolution imagery, zoom/gallery views, key specifications, and variant selectors (size, color, stock status) without ambiguity.",
+        "tr": "Ürün sayfaları ve listelemeler net başlıklar, yüksek çözünürlüklü görseller, yakınlaştırma/galeri görünümü, temel özellikler ve varyant seçicileri (beden, renk, stok durumu) sunmalıdır."
+      },
+      "weight": 1.2,
+      "automated_checks": ["product_images", "variant_selectors", "spec_hierarchy"],
+      "evaluation_guide": "Look for: high-quality product images with clear aspect ratios, visible variant selection (size/color availability), concise key specs above the fold, clear product titles, and stock status visibility.",
+      "prompt_template": "Evaluate this page for 'Product Clarity & Visual Inspection'. Can shoppers clearly inspect products, understand specifications, and select variants without confusion?",
+      "scoring_rubric": {
+        "0-20": "Missing or broken product visuals, unclear what is being sold, hidden specs",
+        "21-40": "Low-detail product presentation, confusing variant selection or missing attributes",
+        "41-60": "Basic product info present but lacks scannable specs or clear variant state",
+        "61-80": "Good product imagery and specs with minor visual hierarchy gaps",
+        "81-100": "Excellent — rich visual presentation, scannable specs, effortless variant selection"
+      }
+    },
+    {
+      "id": "ecom-pricing-transparency",
+      "name": { "en": "Pricing, Shipping & Fee Transparency", "tr": "Fiyat, Kargo ve Ek Ücret Şeffaflığı" },
+      "description": {
+        "en": "Total cost, currency, discounts, taxes, shipping estimates, and free-shipping thresholds must be transparent early in the shopping journey—never hidden until the final checkout step.",
+        "tr": "Toplam maliyet, para birimi, indirimler, vergiler, tahmini kargo ücreti ve ücretsiz kargo baremi alışverişin başında şeffaf olmalı, son ödeme adımına kadar gizlenmemelidir."
+      },
+      "weight": 1.2,
+      "automated_checks": ["price_visibility", "shipping_info", "discount_clarity"],
+      "evaluation_guide": "Look for: prominent and unambiguous price formatting, visible shipping cost/delivery date estimates near the CTA, clear strikethrough discount math, and no hidden mandatory fees.",
+      "prompt_template": "Evaluate this page for 'Pricing, Shipping & Fee Transparency'. Are prices, discounts, taxes, and delivery costs communicated upfront and clearly?",
+      "scoring_rubric": {
+        "0-20": "Prices or mandatory fees are hidden, deceptive discount display, no shipping info",
+        "21-40": "Confusing price hierarchy, shipping costs unknown until deep in checkout",
+        "41-60": "Price is visible but delivery timeframes or extra costs are vague",
+        "61-80": "Clear pricing and discounts with minor gaps in shipping/tax estimation",
+        "81-100": "Excellent — upfront total cost clarity, clear savings math, transparent delivery info"
+      }
+    },
+    {
+      "id": "ecom-cart-cta-ergonomics",
+      "name": { "en": "Add-to-Cart & Primary CTA Ergonomics", "tr": "Sepete Ekle ve Birincil CTA Ergonomisi" },
+      "description": {
+        "en": "Primary purchase actions ('Add to Cart', 'Buy Now', 'Checkout') must be visually dominant, immediately recognizable, provide instant state feedback, and allow easy quantity/cart editing.",
+        "tr": "Birincil satın alma eylemleri ('Sepete Ekle', 'Hemen Al', 'Ödemeye Geç') görsel olarak baskın olmalı, anında geri bildirim vermeli ve kolay miktar/sepet düzenlemesine izin vermelidir."
+      },
+      "weight": 1.1,
+      "automated_checks": ["cta_prominence", "cart_feedback", "quantity_controls"],
+      "evaluation_guide": "Look for: high-contrast primary purchase button above the fold, clear distinction between primary and secondary actions (e.g., Wishlist), instant mini-cart or confirmation feedback, easy quantity adjustment.",
+      "prompt_template": "Evaluate this page for 'Add-to-Cart & Primary CTA Ergonomics'. Is the primary buying action unmistakable, easy to reach, and responsive?",
+      "scoring_rubric": {
+        "0-20": "Purchase CTA is buried, indistinguishable, or broken",
+        "21-40": "Weak visual contrast on CTA, competing buttons cause confusion, no cart feedback",
+        "41-60": "CTA works but competes with secondary links or lacks clear confirmation",
+        "61-80": "Prominent CTA and clear cart interaction with minor spacing/contrast issues",
+        "81-100": "Excellent — high-converting CTA hierarchy, instant cart feedback, effortless controls"
+      }
+    },
+    {
+      "id": "ecom-trust-social-proof",
+      "name": { "en": "Trust Signals, Reviews & Social Proof", "tr": "Güven Sinyalleri, Yorumlar ve Sosyal Kanıt" },
+      "description": {
+        "en": "Shoppers need authentic social proof (verified ratings, review distribution, user photos) and security assurances (payment badges, SSL/security cues, authentic contact info) to overcome purchase anxiety.",
+        "tr": "Alışveriş yapanlar, satın alma endişesini aşmak için gerçek sosyal kanıtlara (doğrulanmış puanlar, yorum dağılımı) ve güvenlik güvencelerine (ödeme logoları, açık iletişim bilgileri) ihtiyaç duyar."
+      },
+      "weight": 1.0,
+      "automated_checks": ["review_elements", "trust_badges", "security_indicators"],
+      "evaluation_guide": "Look for: rating summaries near product titles, filterable/authentic customer reviews, recognizable payment method icons, money-back guarantees, and verifiable company/support details.",
+      "prompt_template": "Evaluate this page for 'Trust Signals, Reviews & Social Proof'. Does the page build shopper confidence with authentic reviews, ratings, and security assurances?",
+      "scoring_rubric": {
+        "0-20": "Looks untrustworthy or spammy, zero trust signals or fabricated-looking elements",
+        "21-40": "Minimal trust cues, no customer reviews or security assurances near purchase areas",
+        "41-60": "Some ratings or badges present but poorly placed or lacking detail",
+        "61-80": "Solid reviews and trust indicators with minor improvements possible",
+        "81-100": "Excellent — transparent review breakdown, strong trust badges, high credibility"
+      }
+    },
+    {
+      "id": "ecom-search-filtering",
+      "name": { "en": "Product Discovery, Search & Filtering", "tr": "Ürün Keşfi, Arama ve Filtreleme" },
+      "description": {
+        "en": "Users must be able to find products quickly via prominent search (with autocomplete/typo tolerance), logical category navigation, faceted filters, and clear sort options.",
+        "tr": "Kullanıcılar belirgin arama çubuğu (otomatik tamamlama destekli), mantıklı kategori ağacı, çoklu filtreler ve net sıralama seçenekleriyle ürünleri hızla bulabilmelidir."
+      },
+      "weight": 1.0,
+      "automated_checks": ["search_input", "filter_controls", "category_nav"],
+      "evaluation_guide": "Look for: easily accessible search bar with descriptive placeholder, visible active filter pills with 'clear all' option, relevant sorting (price, rating, newest), and logical breadcrumb trail.",
+      "prompt_template": "Evaluate this page for 'Product Discovery, Search & Filtering'. How easily can a shopper search, filter, sort, and navigate between product categories?",
+      "scoring_rubric": {
+        "0-20": "No search or filtering, impossible to browse products effectively",
+        "21-40": "Hard-to-find search bar, rigid categories, missing sort/filter controls",
+        "41-60": "Basic search and categories exist but filtering/sorting is limited",
+        "61-80": "Good search and faceted navigation with minor usability friction",
+        "81-100": "Excellent — prominent smart search, rich faceted filters, intuitive breadcrumbs"
+      }
+    },
+    {
+      "id": "ecom-checkout-friction",
+      "name": { "en": "Checkout Friction & Guest Purchase Freedom", "tr": "Ödeme Akışı Akıcılığı ve Misafir Alışverişi" },
+      "description": {
+        "en": "Minimize form fields, never force account creation before purchase (offer Guest Checkout), support autofill/address lookup, and show a clear step indicator during checkout.",
+        "tr": "Form alanlarını en aza indirin, satın alma öncesi hesap açmayı zorunlu tutmayın (Misafir Ödemesi sunun), otomatik doldurmayı destekleyin ve net adım göstergesi sunun."
+      },
+      "weight": 1.1,
+      "automated_checks": ["form_friction", "guest_checkout", "input_autocomplete"],
+      "evaluation_guide": "Look for: guest checkout availability, minimal required form inputs, appropriate input types (tel, email, autocomplete attributes), inline validation, and clear step progress.",
+      "prompt_template": "Evaluate this page for 'Checkout Friction & Guest Purchase Freedom'. Does the page minimize form effort, avoid forced registration traps, and streamline conversion?",
+      "scoring_rubric": {
+        "0-20": "Forced registration wall, excessive/broken forms, high abandonment risk",
+        "21-40": "Heavy form friction, intrusive popups blocking purchase flow",
+        "41-60": "Standard forms but could reduce fields or improve autofill/guest flow",
+        "61-80": "Smooth purchase path with minor form optimization opportunities",
+        "81-100": "Excellent — frictionless guest checkout, smart autofill, minimal cognitive load"
+      }
+    },
+    {
+      "id": "ecom-returns-support",
+      "name": { "en": "Return Policy, Warranty & Support Access", "tr": "İade Politikası, Garanti ve Destek Erişimi" },
+      "description": {
+        "en": "Return windows, exchange terms, warranty coverage, and customer support channels should be summarized in plain language right where purchase decisions happen.",
+        "tr": "İade süresi, değişim koşulları, garanti kapsamı ve müşteri destek kanalları satın alma kararının verildiği noktada sade bir dille özetlenmelidir."
+      },
+      "weight": 0.8,
+      "automated_checks": ["return_policy_links", "support_visibility", "faq_summary"],
+      "evaluation_guide": "Look for: concise return policy summary (e.g., '30-day free returns') near the product/cart summary, easy access to live chat or help center, and plain-language warranty details.",
+      "prompt_template": "Evaluate this page for 'Return Policy, Warranty & Support Access'. Can shoppers easily find return terms, guarantees, and customer assistance?",
+      "scoring_rubric": {
+        "0-20": "No mention of returns, refunds, or customer support anywhere",
+        "21-40": "Return terms buried in legal fine print, hard to contact support",
+        "41-60": "Footer links exist for returns/contact, but not surfaced near decision points",
+        "61-80": "Clear return and support links, reasonably easy to locate",
+        "81-100": "Excellent — reassuring return summary right near CTA, accessible support options"
+      }
+    },
+    {
+      "id": "ecom-urgency-ethics",
+      "name": { "en": "Ethical Persuasion & Anti-Dark-Pattern Design", "tr": "Etik İkna ve Karanlık Örüntüden Kaçınma" },
+      "description": {
+        "en": "Promotions, scarcity indicators, and cross-sells should help the user without resorting to manipulative dark patterns (fake countdowns, pre-checked add-ons, confirmshaming, or obstructive popups).",
+        "tr": "Promosyonlar, stok uyarıları ve çapraz satışlar manipülatif karanlık örüntülere (sahte sayaçlar, önceden seçili ek paketler, agresif pop-up'lar) başvurmadan kullanıcıya yardımcı olmalıdır."
+      },
+      "weight": 0.9,
+      "automated_checks": ["popup_obstruction", "prechecked_boxes", "visual_clutter"],
+      "evaluation_guide": "Look for: clean promotional banners that don't block content, honest stock/discount badges, opt-in (not pre-checked) upsells, and easy-to-dismiss newsletter/promo overlays.",
+      "prompt_template": "Evaluate this page for 'Ethical Persuasion & Anti-Dark-Pattern Design'. Are promotions and upsells presented cleanly and ethically without manipulative dark patterns or intrusive clutter?",
+      "scoring_rubric": {
+        "0-20": "Heavy dark patterns, deceptive checkboxes, aggressive popups blocking the screen",
+        "21-40": "Pushy upsells, cluttered promotional badges, hard-to-close overlays",
+        "41-60": "Some promotional noise or popups, though not overtly deceptive",
+        "61-80": "Clean merchandising with minor promotional clutter",
+        "81-100": "Excellent — respectful, transparent merchandising with zero dark patterns"
+      }
+    }
+  ]
+}

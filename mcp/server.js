@@ -45,7 +45,12 @@ import { AIClient } from '../extension/core/ai-client.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
-const RULES_DIR = path.join(ROOT_DIR, 'extension', 'rules');
+const RULES_DIR = [
+  path.join(__dirname, 'rules'),
+  path.join(__dirname, '..', 'rules'),
+  path.join(ROOT_DIR, 'extension', 'rules'),
+  path.join(__dirname, '..', '..', 'extension', 'rules')
+].find(dir => fs.existsSync(dir)) || path.join(ROOT_DIR, 'extension', 'rules');
 
 const LOOPBACK_HOST = '127.0.0.1';
 const PORT = Number(process.env.SYNTHUX_MCP_PORT || 17483);
