@@ -4,6 +4,48 @@ Bu dosya, **synthux** projesinin geliştirme geçmişini, mimari kararlarını v
 
 ---
 
+## 📅 9 Kasım 2026 — v2.1.1 Sürümü (Apple Intelligence macOS FoundationModels, Chrome Built-in AI & Website UX/SEO Yenilemesi)
+
+### 1.  Apple Intelligence (`FoundationModels.framework` — macOS 26 / 27) Entegrasyonu
+- **Native Swift Köprüsü (`mcp/apple-fm-bridge.swift`, `mcp/dist/apple-fm-bridge.swift`):**
+  - macOS 26 ve macOS 27 (Apple Silicon Neural Engine) üzerindeki yerleşik `FoundationModels` çatısını (`SystemLanguageModel.default`, `LanguageModelSession`, `GenerationOptions` ve macOS 27'deki `PrivateCloudComputeLanguageModel`) doğrudan çağıran bağımsız Swift CLI köprüsü geliştirildi.
+  - Desteklenen yerleşik modeller:
+    1. `apple-on-device` — Apple Intelligence On-Device (`AFM 3 Core`, %100 cihaz içi, sıfır veri çıkışı)
+    2. `apple-pcc` — Apple Private Cloud Compute (macOS 27.0+)
+    3. `apple-content-tagging` — Apple Intelligence Content Tagging (`SystemLanguageModel(useCase: .contentTagging)`)
+- **MCP Sunucusu Yerel HTTP Köprüsü (`mcp/server.js`):**
+  - `http://127.0.0.1:17483` üzerinde çalışan `synthux-mcp` sunucusuna ilk çağrıda `apple-fm-bridge.swift` dosyasını otomatik derleyip `/tmp/synthux-apple-fm-cache/synthux-apple-fm` olarak önbelleğe alan `ensureAppleFmBinary()` mekanizması eklendi.
+  - **Yeni Endpoint'ler:** `GET /apple-fm/status` ve `POST /apple-fm/generate`.
+  - **Geriye Dönük Uyumluluk:** Mevcut `v2.1.0` eklentilerinin dahi doğrudan çalışabilmesi için `127.0.0.1:17483` üzerinde **Ollama uyumlu** (`/api/tags`, `/api/version`, `/api/show`, `/api/generate`) ve **OpenAI uyumlu** (`/v1/models`, `/v1/chat/completions`) endpoint'ler eklendi.
+
+---
+
+### 2. 🌐 Chrome Built-in AI (`window.LanguageModel` — Gemini Nano Prompt API) Entegrasyonu
+- **Tarayıcı İçi Doğrudan Sağlayıcı (`extension/core/providers.js`, `extension/core/ai-client.js`, `extension/core/cost-calculator.js`):**
+  - Chrome 138+ içindeki `globalThis.LanguageModel` (ve geriye dönük `globalThis.ai.languageModel`) Prompt API'sini kullanan `chromeai` sağlayıcısı eklendi; hiçbir harici sunucuya veya API anahtarına ihtiyaç duymadan doğrudan tarayıcı içinde UX denetimi çalıştırır.
+  - Yerleşik modellerin (`apple` ve `chromeai`) context penceresi sınırlarını aşmamak için `checkVisionSupport` fonksiyonunda base64 ekran görüntüsü gönderimi otomatik devre dışı bırakıldı.
+- **Sidepanel Ayarlar Arayüzü (`src/sidepanel/components/synthux-settings.js`):**
+  - Sağlayıcı seçimine ** Apple Intelligence (macOS)** ve **🌐 Chrome Built-in AI** eklendi (`Free — On-Device`), tek tıkla bağlantı testi ve adım adım kurulum rehberleri eklendi.
+
+---
+
+### 3. Website (`synthux.app`) Görsel, Navigasyon, Karşılaştırma ve 6-Dil SEO Güncellemeleri
+- **7 Çözüm Sayfası Hero Görsellerinin Yenilenmesi (`website/assets/solutions/*.svg`):**
+  - Tüm çözüm sayfalarındaki hero SVG görselleri `520×320` native boyutta, yüksek kontrastlı (`13px–20px` okunaklı tipografi) ve minimal 2 kartlı düzende yeniden tasarlandı; `firebase.json` önbellek başlıkları (`max-age=3600, must-revalidate`) ve `?v=2.1.3` sorgusu ile tarayıcı önbelleği yenilendi.
+- **Navigasyon Menüsü Hover İyileştirmesi (`website/style.css`, `website/script.js`):**
+  - Solutions açılır menüsündeki görünmez hover köprüsü (`::before`) genişletildi ve fare geçişlerinde menünün aniden kapanmasını önleyen `180ms` gecikmeli `mouseenter`/`mouseleave` hover-intent mekanizması eklendi.
+- **3 Sütunlu Karşılaştırma Tablosu (`Local AI` vs `Cloud API (BYOK)` vs `MCP Agent`):**
+  - Ana sayfadaki karşılaştırma tablosu gerçekçi 2026 süreleri ve yeni **MCP Agent (`v2.1` Single-pass)** sütunu ile 6 dilde güncellendi.
+- **6 Dil (`en`, `tr`, `de`, `zh`, `fr`, `it`), `llms.txt`, `sitemap.xml` ve `Schema.org`:**
+  - 7 çözüm sayfasının tamamında 6 dil çevirileri tamamlandı; `website/llms.txt`, `website/sitemap.xml` ve JSON-LD `SoftwareApplication` / `FAQPage` şemaları `v2.1.1` sürümüyle senkronize edildi.
+- **Yayınlanan Paketler (`v2.1.1`):**
+  - **npm Paketi:** `synthux-mcp@2.1.1` (`https://www.npmjs.com/package/synthux-mcp`)
+  - **Chrome Web Store Paketi:** `synthux-extension-v2.1.1.zip` (ana dizinde hazır)
+  - **GitHub Release:** `https://github.com/synthuxapp/synthux/releases/tag/v2.1.1`
+  - **Firebase Hosting:** `https://synthux.app`
+
+---
+
 ## 📅 9 Kasım 2026 — v2.1.0 Sürümü (MCP Server & Chrome Extension Agent Bridge)
 
 ### 1. Model Context Protocol (MCP) Sunucusu (`mcp/` — `synthux-mcp@2.1.0`)
