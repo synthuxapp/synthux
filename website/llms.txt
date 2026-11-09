@@ -1,27 +1,39 @@
 # synthux
 
-> AI-powered UX audit in your browser. Open source.
+> AI-powered UX & WCAG 2.2 AA audit in your browser and via Model Context Protocol (MCP). Open source.
 
 ## What is synthux?
 
-synthux is an open-source Chrome extension and Model Context Protocol (MCP) server (`synthux-mcp`, v2.1.0) that evaluates web pages and multi-page user journeys using synthetic user personas, Sectoral UX Rule Packs (Nielsen's 10, E-Commerce, SaaS, Fintech, plus custom JSON plugins), WCAG 2.2 AA audit (axe-core), and multimodal vision analysis — powered by local AI (Ollama / LM Studio), your own Cloud API key (Gemini, OpenAI, Claude), or desktop AI coding agents (Google Antigravity / Gemini 4 Argon, Claude Desktop & Claude Code, Cursor, OpenAI Codex, Windsurf) via MCP.
+synthux is an open-source Chrome extension and Model Context Protocol (MCP) server (`synthux-mcp`, v2.1.1) that evaluates web pages and multi-page user journeys using synthetic user personas, Sectoral UX Rule Packs (Nielsen's 10, E-Commerce, SaaS, Fintech, plus custom JSON plugins), WCAG 2.2 AA audit (axe-core), and multimodal vision analysis — powered by:
 
-All local analysis and the MCP Agent Bridge (`127.0.0.1:17483`) run entirely on the user's machine. Cloud analysis connects directly to the provider using the user's API key (BYOK) with zero middleman.
+1. **Local & Built-in On-Device AI (Free, 100% Private):**
+   - **Ollama**: `gemma4`, `gemma4:e4b`, `qwen3.8`, `qwen3.5`, `llama4:scout`, `deepseek-r1`
+   - ** Apple Intelligence (macOS 26/27 `FoundationModels.framework`)**: Native Apple Silicon Neural Engine execution via `SystemLanguageModel.default` (`apple-on-device`, `apple-content-tagging`) and `PrivateCloudComputeLanguageModel` (`apple-pcc`) bridged locally via `synthux-mcp`
+   - **🌐 Chrome Built-in AI (`window.LanguageModel`)**: Direct in-browser Gemini Nano Prompt API execution with zero external server or API key
+2. **Cloud API (BYOK — Bring Your Own Key):**
+   - **Google Gemini** (`gemini-2.5-flash`, `gemini-2.5-pro`)
+   - **OpenAI** (`gpt-4.1`, `gpt-4.1-mini`, `o4-mini`)
+   - **Anthropic Claude** (`claude-sonnet-4-6`, `claude-haiku-4-5`)
+3. **Desktop AI Coding Agents via MCP (`synthux-mcp`):**
+   - **Google Antigravity (Gemini 4 Argon)**, **Claude Desktop & Claude Code**, **Cursor**, **OpenAI Codex**, **Windsurf**, and local LLM MCP hosts via `npx -y synthux-mcp` (Stdio) or `http://127.0.0.1:17483/mcp` (Streamable HTTP)
+
+All local analysis, Apple Intelligence FoundationModels inference, Chrome Built-in AI, and the MCP Agent Bridge (`127.0.0.1:17483`) run entirely on the user's machine. Cloud analysis connects directly to the provider using the user's API key (BYOK) with zero middleman.
 
 ## Key Features
 
-- **MCP Server & AI Agent Bridge (`synthux-mcp`)**: 14 MCP tools over Stdio and Streamable HTTP (`http://127.0.0.1:17483/mcp`) + local WebSocket bridge (`ws://127.0.0.1:17483/ws`) to the Chrome extension. Supports both Extension AI Engine mode and Agent-Brain mode (`prepare_external_audit` + `submit_external_audit`) where the host AI agent evaluates the page with zero extra API keys
-- **2026 Local AI & Cloud BYOK**: Local via Ollama (`gemma4`, `gemma4:e4b`, `qwen3.8`, `qwen3.5`, `llama4:scout`, `deepseek-r1`, `mistral-small`) or Cloud via Gemini 2.5, OpenAI GPT-4.1 / o4-mini, and Claude Sonnet 4 / Haiku 4.5
+- **MCP Server & AI Agent Bridge (`synthux-mcp`)**: 14 MCP tools over Stdio and Streamable HTTP (`http://127.0.0.1:17483/mcp`) + local WebSocket bridge (`ws://127.0.0.1:17483/ws`) to the Chrome extension. Supports both Extension AI Engine mode and Agent-Brain mode (`synthux_prepare_external_audit` + `synthux_submit_external_audit`) where the host AI agent evaluates the page in a single pass (~15–45 seconds) with zero extra API keys
+- **Apple Intelligence (`FoundationModels.framework`) & Chrome Built-in AI (`window.LanguageModel`)**: Native macOS 26/27 Swift bridge (`mcp/apple-fm-bridge.swift`) for Apple Silicon on-device LLM inference (`AFM 3 Core` & Private Cloud Compute) + Chrome 138+ Gemini Nano Prompt API support
+- **2026 Local AI (Ollama) & Cloud BYOK**: Local via Ollama (`gemma4`, `gemma4:e4b`, `qwen3.8`, `qwen3.5`, `llama4:scout`, `deepseek-r1`) or Cloud via Gemini 2.5, OpenAI GPT-4.1 / o4-mini, and Claude Sonnet 4.6 / Haiku 4.5
 - **Sectoral Rule Packs & Plugin Ecosystem**: Built-in rule packs for General UX (Nielsen's 10), E-Commerce & Conversion, SaaS & Dashboards, and Fintech & Banking — plus custom `.json` rule pack plugin import
 - **Synthetic User Profiles**: 3 built-in profiles (First-Time Visitor, Power User, Accessibility User) + up to 5 custom user personas
 - **Automated Accessibility Audit**: WCAG 2.2 AA compliance checks powered by axe-core + deterministic DOM checks
-- **Enhanced PDF & Markdown Reporting**: Executive KPI scorecard, annotated viewport screenshot issue map, 2×2 Impact × Effort priority matrix, visual score bars, and collapsible before/after code fixes
+- **Enhanced PDF & Markdown Reporting (v2.0)**: Executive KPI scorecard, annotated viewport screenshot issue map, 2×2 Impact × Effort priority matrix, visual score bars, and collapsible before/after code fixes
 - **Interactive Page Overlays & Flow Builder**: Live issue heatmap, hover-to-highlight element borders, and multi-page visual Flow Builder canvas
 - **100% Private**: No telemetry, no analytics, no data collection in the extension
 
 ## Solutions & Target Audiences
 
-- **Defense, Military & Banking Intranets (Air-Gapped UX)**: https://synthux.app/solutions/defense-air-gapped-ux — 100% offline, on-device UX and cognitive-load auditing via local Ollama for classified C4ISR systems, defense software, and core banking intranets.
+- **Defense, Military & Banking Intranets (Air-Gapped UX)**: https://synthux.app/solutions/defense-air-gapped-ux — 100% offline, on-device UX and cognitive-load auditing via local Ollama, macOS 26/27 Apple Intelligence (`FoundationModels`), or Chrome Built-in AI (`Gemini Nano`) for classified C4ISR systems, defense software, and core banking intranets.
 - **Fintech, Digital Banking & Payments UX**: https://synthux.app/solutions/fintech-banking-ux — Built-in `fintech.json` rule pack for fee/FX transparency, irreversible transaction guardrails, IBAN masking, and session security.
 - **E-Commerce & Checkout Conversion UX**: https://synthux.app/solutions/ecommerce-ux-audit — Built-in `ecommerce.json` rule pack for cart abandonment, guest checkout friction, shipping transparency, and PDP conversion.
 - **SaaS, B2B Dashboards & Enterprise Web Apps**: https://synthux.app/solutions/saas-dashboard-ux — Built-in `saas.json` rule pack for empty-state onboarding, high-density data tables, bulk actions, keyboard shortcuts, and RBAC guardrails.
@@ -31,22 +43,19 @@ All local analysis and the MCP Agent Bridge (`127.0.0.1:17483`) run entirely on 
 
 ## Technical Stack
 
-- Chrome Extension (Manifest V3)
-- Lit Web Components
+- Chrome Extension (Manifest V3) + Lit Web Components
+- Node.js MCP Server (`synthux-mcp`) + Native Swift `FoundationModels.framework` Bridge (`mcp/apple-fm-bridge.swift`)
 - jsPDF (Vector PDF Export) & axe-core (WCAG 2.2 AA)
-- Ollama local AI runtime & Multi-provider Cloud adapters
+- Ollama local AI runtime, Apple Intelligence (`SystemLanguageModel`), Chrome Built-in AI (`window.LanguageModel`), & Cloud BYOK adapters
 - esbuild bundler
 - MIT License
 
 ## Links
 
 - Website: https://synthux.app
+- Chrome Web Store: https://chromewebstore.google.com/detail/synthux/cgldigellmojaejmnhjhpbfccncbmnhm
+- NPM Package (`synthux-mcp`): https://www.npmjs.com/package/synthux-mcp
 - GitHub: https://github.com/synthuxapp/synthux
 - Privacy Policy: https://github.com/synthuxapp/synthux/blob/main/PRIVACY.md
 - Security Policy: https://github.com/synthuxapp/synthux/blob/main/SECURITY.md
 - Changelog: https://github.com/synthuxapp/synthux/blob/main/CHANGELOG.md
-
-## Contact
-
-- Issues: https://github.com/synthuxapp/synthux/issues
-- Contributing: https://github.com/synthuxapp/synthux/blob/main/docs/CONTRIBUTING.md

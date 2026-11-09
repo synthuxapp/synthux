@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Air-Gapped UX Audit for Defense, Military & Banking Intranets — synthux</title>
-  <meta name="description" content="100% offline, on-device AI UX and WCAG 2.2 AA auditing for classified military C4ISR interfaces, defense systems, core banking intranets, and NDA staging environments using local Ollama.">
-  <meta name="keywords" content="air-gapped ux audit, defense c4isr usability testing, military ui audit, banking intranet ux, offline ai ux tool, ollama local ai ux audit, zero telemetry chrome extension">
+  <meta name="description" content="100% offline, on-device AI UX and WCAG 2.2 AA auditing for classified military C4ISR interfaces, defense systems, core banking intranets, and NDA staging environments using local Ollama, Apple Intelligence (macOS FoundationModels), or Chrome Built-in AI (Gemini Nano).">
+  <meta name="keywords" content="air-gapped ux audit, defense c4isr usability testing, military ui audit, banking intranet ux, offline ai ux tool, ollama local ai ux audit, apple intelligence foundationmodels ux, chrome built-in ai gemini nano, zero telemetry chrome extension">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://synthux.app/solutions/defense-air-gapped-ux">
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="../style.css?v=2.1.2">
+  <link rel="stylesheet" href="../style.css?v=2.1.3">
 
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://synthux.app/solutions/defense-air-gapped-ux">
   <meta property="og:title" content="Air-Gapped UX Audit for Defense, Military & Banking Intranets — synthux">
-  <meta property="og:description" content="Run AI heuristic and WCAG 2.2 AA audits 100% on-device via Ollama. Zero external network calls, zero telemetry — built for defense, C4ISR, and core banking intranets.">
+  <meta property="og:description" content="Run AI heuristic and WCAG 2.2 AA audits 100% on-device via Ollama, Apple Intelligence (macOS FoundationModels), or Chrome Built-in AI. Zero external network calls, zero telemetry.">
   <meta property="og:image" content="https://synthux.app/assets/solutions/defense-air-gapped.svg">
 
   <script type="application/ld+json">
@@ -25,17 +25,17 @@
         "@type": "WebPage",
         "name": "Air-Gapped UX Audit for Defense, Military & Banking Intranets",
         "url": "https://synthux.app/solutions/defense-air-gapped-ux",
-        "description": "100% offline, on-device AI UX and WCAG 2.2 AA auditing for classified defense C4ISR systems, banking intranets, and strict NDA environments."
+        "description": "100% offline, on-device AI UX and WCAG 2.2 AA auditing for classified defense C4ISR systems, banking intranets, and strict NDA environments using Ollama, Apple Intelligence, or Chrome Built-in AI."
       },
       {
         "@type": "FAQPage",
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "Does synthux transmit any DOM data or screenshots outside the local machine in Ollama mode?",
+            "name": "Does synthux transmit any DOM data or screenshots outside the local machine in Local AI mode?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. In Local AI mode, synthux communicates exclusively with your local Ollama instance (127.0.0.1:11434). Zero bytes of DOM structure, text, or screenshots leave your workstation, making it compliant with air-gapped military, defense, and banking intranet policies."
+              "text": "No. In Local AI mode, synthux communicates exclusively on your device via local Ollama (127.0.0.1:11434), Apple Intelligence (macOS 26/27 FoundationModels via 127.0.0.1:17483), or in-browser Chrome Built-in AI (window.LanguageModel). Zero bytes of DOM structure, text, or screenshots leave your workstation."
             }
           },
           {
@@ -43,7 +43,7 @@
             "name": "Which local AI models are recommended for offline defense and banking UX audits?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "We recommend Gemma 4 (gemma4) or Llama 4 Scout (llama4:scout) for multimodal visual + DOM analysis, and Qwen 3.8 (qwen3.8) or DeepSeek R1 (deepseek-r1) for deep heuristic reasoning and structured code fixes."
+              "text": "We recommend Gemma 4 (gemma4) or Llama 4 Scout (llama4:scout) for multimodal visual + DOM analysis, Qwen 3.8 (qwen3.8) or DeepSeek R1 (deepseek-r1) for deep heuristic reasoning, or built-in Apple Intelligence (apple-on-device) on macOS 26/27 and Chrome Built-in AI (gemini-nano) for zero-download instant audits."
             }
           }
         ]
@@ -627,6 +627,54 @@
         faq1A: 'Kesinlikle hayır. Yerel AI modunda tüm DOM taraması, axe-core kontrolleri ve ekran görüntüsü yakalama işlemi tarayıcınızda gerçekleşir ve yalnızca yerel Ollama adresinize (http://localhost:11434) iletilir.',
         faq2Q: 'Bilgi güvenliği (InfoSec) ekibimiz kurulum öncesi kaynak kodunu inceleyebilir mi?',
         faq2A: 'Evet. synthux MIT Lisansı altında %100 açık kaynaklıdır, CodeQL ve Dependabot ile sürekli taranır ve hiçbir telemetri veya takip kodu içermez.'
+      },
+      de: {
+        pageTitle: 'Air-Gapped UX-Audit für Verteidigung, Militär & Banken-Intranets — synthux',
+        pageBreadcrumb: 'Verteidigung, Militär & Air-Gapped-Systeme',
+        heroBadge1: '100% Lokale On-Device KI',
+        heroBadge2: 'Air-Gapped & Null Telemetrie',
+        pageH1: 'UX- & Cognitive-Load-Auditing für Verteidigung, Militär & Banken-Intranets',
+        pageLead: 'Cloud-basierte UX-Tools dürfen nicht in klassifizierte Netzwerke, militärische C4ISR-Konsolen oder Banken-Intranets gelangen. synthux arbeitet direkt mit lokalem Ollama, Apple Intelligence (macOS 26/27 FoundationModels) oder Chrome Built-in AI (Gemini Nano) auf Ihrem Gerät.',
+        visualCaptionLeft: 'Architektur: 127.0.0.1 Lokale Loopback-Inferenz',
+        visualCaptionRight: 'Kein Cloud-Datenabfluss · MIT Open Source',
+        p1Title: 'Strikte Localhost-Inferenz (Ollama, Apple Intelligence & Chrome AI)',
+        p1Desc: 'Verbinden Sie synthux mit Ollama (Gemma 4, Qwen 3.8, Llama 4 Scout, DeepSeek R1), macOS 26/27 Apple Intelligence (FoundationModels) oder Chrome Built-in AI (Gemini Nano) ohne Internetverbindung.'
+      },
+      zh: {
+        pageTitle: '面向国防、军工系统与银行内网的物理隔离 UX 审计 — synthux',
+        pageBreadcrumb: '国防、军工与物理隔离系统',
+        heroBadge1: '100% 设备端本地 AI',
+        heroBadge2: '物理隔离 & 零遥测',
+        pageH1: '面向国防、军工系统与银行内网的 UX 与认知负荷审计',
+        pageLead: '基于云端的 UX 工具无法进入涉密网络、军工 C4ISR 控制台或银行核心内网。synthux 直接连接设备上的本地 Ollama、Apple Intelligence (macOS 26/27 FoundationModels) 或 Chrome 内置 AI (Gemini Nano)，确保截图与 DOM 数据永不离开硬件边界。',
+        visualCaptionLeft: '架构：127.0.0.1 本地环回推理',
+        visualCaptionRight: '零云端外传 · MIT 开源可审计',
+        p1Title: '严格本地推理（Ollama、Apple Intelligence 与 Chrome AI）',
+        p1Desc: '将 synthux 连接到本地 Ollama（Gemma 4、Qwen 3.8、Llama 4 Scout、DeepSeek R1）、macOS 26/27 Apple Intelligence 或 Chrome 内置 AI，无需互联网连接或外部 API 密钥。'
+      },
+      fr: {
+        pageTitle: 'Audit UX Air-Gapped pour Défense, Militaire & Intranets Bancaires — synthux',
+        pageBreadcrumb: 'Défense, Militaire & Systèmes Air-Gapped',
+        heroBadge1: 'IA Locale 100% sur Appareil',
+        heroBadge2: 'Air-Gapped & Zéro Télémétrie',
+        pageH1: 'Audit UX & Charge Cognitive pour la Défense, le Militaire & les Intranets Bancaires',
+        pageLead: 'Les outils UX cloud ne peuvent pas entrer dans les réseaux classifiés, consoles C4ISR ou intranets bancaires. synthux fonctionne directement avec Ollama local, Apple Intelligence (macOS 26/27 FoundationModels) ou Chrome Built-in AI (Gemini Nano) sur votre machine.',
+        visualCaptionLeft: 'Architecture : Inférence Loopback Locale 127.0.0.1',
+        visualCaptionRight: 'Zéro Sortie Cloud · Code MIT Auditable',
+        p1Title: 'Inférence Localhost Stricte (Ollama, Apple Intelligence & Chrome AI)',
+        p1Desc: 'Connectez synthux à Ollama (Gemma 4, Qwen 3.8, Llama 4 Scout, DeepSeek R1), Apple Intelligence (macOS 26/27 FoundationModels) ou Chrome Built-in AI sans connexion internet.'
+      },
+      it: {
+        pageTitle: 'Audit UX Air-Gapped per Difesa, Sistemi Militari e Intranet Bancarie — synthux',
+        pageBreadcrumb: 'Difesa, Militare & Sistemi Air-Gapped',
+        heroBadge1: 'IA Locale 100% su Dispositivo',
+        heroBadge2: 'Air-Gapped & Zero Telemetria',
+        pageH1: 'Audit UX e Carico Cognitivo per Difesa, Militare e Intranet Bancarie',
+        pageLead: 'Gli strumenti UX cloud non possono entrare in reti classificate, console C4ISR o intranet bancarie. synthux si collega direttamente a Ollama locale, Apple Intelligence (macOS 26/27 FoundationModels) o Chrome Built-in AI (Gemini Nano) sulla tua macchina.',
+        visualCaptionLeft: 'Architettura: Inferenza Loopback Locale 127.0.0.1',
+        visualCaptionRight: 'Zero Dati in Cloud · Codice MIT Ispezionabile',
+        p1Title: 'Inferenza Localhost Rigorosa (Ollama, Apple Intelligence & Chrome AI)',
+        p1Desc: 'Collega synthux a Ollama (Gemma 4, Qwen 3.8, Llama 4 Scout, DeepSeek R1), Apple Intelligence (macOS 26/27 FoundationModels) o Chrome Built-in AI senza connessione internet.'
       }
     };
   </script>
