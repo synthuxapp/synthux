@@ -29,24 +29,21 @@ Run locally for free with **Ollama**, ** Apple Intelligence** (macOS 26/27 bu
 
 ## Features
 
-- **MCP Server & AI Agent Bridge (`synthux-mcp`)** — Let Google Antigravity (Gemini 4 Argon), Claude Desktop/Code, Cursor, OpenAI Codex, or Windsurf control 100% of synthux via Model Context Protocol (14 tools, Stdio + Streamable HTTP, Agent-Brain mode)
-- **Multi-Provider AI** — **Ollama** (local: Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1), ** Apple Intelligence** (macOS 26/27 built-in `FoundationModels` / Private Cloud Compute), **Chrome Built-in AI** (Gemini Nano Prompt API), **Google Gemini**, **OpenAI**, **Anthropic Claude**
+- **Business, Goal & Department Context (`v2.2.0`)** — Opt-in product context layer to evaluate pages and multi-page flows against your company identity, primary conversion goals, non-negotiable must-haves (`PASS / PARTIAL / MISSING` verification table), marketing/usage metrics, and custom department lenses (5 built-in departments + user-defined custom departments)
+- **MCP Server & AI Agent Bridge (`synthux-mcp v2.2.0`)** — Let Google Antigravity (Gemini 4 Argon), Claude Desktop/Code, Cursor, OpenAI Codex, or Windsurf control 100% of synthux via Model Context Protocol (16 tools, Stdio + Streamable HTTP, Agent-Brain mode, live Flow canvas sync, discovery questions, and report comparison)
+- **Multi-Provider AI** — **Ollama** (local: Gemma 4, Qwen 3.8, Llama 4, DeepSeek R1), **Apple Intelligence** (macOS 26/27 built-in `FoundationModels` / Private Cloud Compute), **Chrome Built-in AI** (Gemini Nano Prompt API), **Google Gemini**, **OpenAI**, **Anthropic Claude**
 - **Sectoral Rule Packs & Plugin Ecosystem** — Built-in packs for General UX (Nielsen's 10), E-Commerce & Conversion, SaaS & Dashboards, and Fintech & Banking — plus custom `.json` rule pack plugin import
+- **Flow Builder 2.0** — Visual canvas for multi-page user journey analysis. Auto-import open browser tabs, define step goals and drop-off metrics, inspect transitions, auto-layout nodes, and export/import Flow JSON
+- **Instant WCAG 2.2 AA Audit (axe-core)** — 1-second deterministic WCAG 2.2 AA compliance testing and DOM accessibility check
+- **Before vs After Report Comparison (Audit Diff)** — Compare any two past reports to track score deltas, resolved issues, and regressions
+- **AI Fix Prompt & Workspace Backup** — Copy structured remediation prompts for AI coding agents directly from the report bar, and export/import full workspace backups (`.json`)
 - **Vision Analysis** — Full-page screenshot capture for visual layout evaluation
 - **Synthetic User Profiles** — 3 built-in + up to 5 custom personas (age, tech level, accessibility needs, goals)
-- **WCAG Audit (axe-core)** — Automated WCAG 2.2 AA compliance testing with impact severity and fix references
-- **Issue Heatmap** — Toggle a live heatmap overlay on the analyzed page showing issue density by severity
-- **Hover-to-Highlight** — Hover any issue in the report to highlight the affected element directly on the page
+- **Issue Heatmap & Hover-to-Highlight** — Toggle a live severity heatmap overlay or hover any issue to highlight the affected element on the live page
 - **Annotated Screenshots** — Viewport captures with numbered severity markers at issue element positions, embedded directly in PDF reports
-- **Detailed Scoring** — 0-100 scores per heuristic with actionable recommendations
-- **Code Fixes** — Concrete before/after code suggestions for each issue
-- **Quick Wins & 2×2 Priority Matrix** — Categorizes issues by Impact × Effort (Quick Wins, Major Projects, Fill-Ins, Backlog)
-- **Cost Tracking** — Real-time API cost estimation with verified pricing
-- **Enhanced PDF & Markdown Export** — Executive KPI scorecard, annotated viewport issue maps, horizontal score bars, collapsible code fixes, and 2×2 priority matrix
-- **100% Private** — BYOK (Bring Your Own Key) — no middleman, no data collection
-- **Quick, Deep & Custom Modes** — 3-rule scan, full pack analysis, or pick your own rules
-- **Dynamic Time Estimates** — Realistic duration based on profile count × heuristics × provider speed
-- **Flow Builder** — Visual canvas for multi-page user journey analysis. Connect pages, add sticky notes, run cross-page UX evaluation, save & load multiple flows
+- **Detailed Scoring, Code Fixes & 2×2 Priority Matrix** — 0-100 scores per heuristic, before/after code suggestions, and Impact × Effort quadrant filtering (Quick Wins, Major Projects, Fill-Ins, Backlog)
+- **Enhanced PDF & Markdown Export** — Executive KPI scorecard, business goal alignment checklist, annotated viewport issue maps, and 2×2 priority matrix
+- **100% Private** — Local on-device AI or BYOK (Bring Your Own Key) — no middleman, no data collection
 
 ## Quick Start
 
@@ -157,24 +154,26 @@ Or connect via **Streamable HTTP** (`http://127.0.0.1:17483/mcp`) after starting
 - **Agent-Brain Mode (Zero Extra API Keys Needed):** Your host agent calls `prepare_external_audit` to capture the live DOM, `axe-core` WCAG 2.2 AA results, full-page screenshot, and Sectoral Rule Pack prompt, evaluates the UX with its own model brain (e.g., Gemini 4 Argon, Claude, GPT), and calls `submit_external_audit` to generate the full v2.0 Markdown/JSON report and sync it directly to the Chrome Side Panel UI.
 - **Extension AI Engine Mode:** Your agent calls `run_ux_audit` or `open_and_audit_url` to trigger the extension's configured provider (Local Ollama or Cloud BYOK).
 
-### 3. Available MCP Tools (14 Tools)
+### 3. Available MCP Tools (16 Tools)
 
 | Tool | Description |
 |:--|:--|
-| `get_extension_status` | Live WebSocket bridge status, active AI provider, rule packs, and security boundary |
-| `list_browser_tabs` | List open audit-eligible Chrome tabs (`http://` & `https://`) |
-| `open_and_audit_url` | Open a URL in Chrome, wait for load, and run an audit or prepare an Agent-Brain bundle |
-| `scan_page_ux_context` | Extract DOM structure, headings, forms, contrast, navigation, and optional screenshot |
-| `run_wcag_audit` | Run `axe-core` WCAG 2.2 AA accessibility compliance audit |
-| `run_ux_audit` | Execute full UX audit (`quick`, `deep`, `custom`) with Rule Packs & Synthetic Personas |
-| `prepare_external_audit` | Capture DOM + WCAG + Screenshot + Rule Pack prompt for host Agent-Brain evaluation |
-| `submit_external_audit` | Compile Agent-Brain findings into a v2.0 report and sync to the Chrome Side Panel |
-| `start_flow_analysis` | Run multi-page User Journey (Flow Builder) analysis across 2+ URLs |
-| `toggle_heatmap` | Render or hide the live severity heatmap overlay on the browser tab |
-| `highlight_issue` | Highlight & scroll to a specific CSS selector on the live page with a severity tooltip |
-| `capture_annotated_screenshot` | Capture a viewport PNG with numbered severity markers drawn on issue elements |
-| `manage_rule_packs` / `manage_personas` | List, inspect, or import custom `.json` Sectoral Rule Packs and Synthetic Personas |
-| `configure_ai_provider` / `get_report_history` | Switch active AI provider/model or retrieve past UX audit reports |
+| `synthux_status` | Live WebSocket bridge status, active AI provider, rule packs, personas, and security boundary |
+| `synthux_open_url` | Open or navigate a Chrome tab to a target URL and wait for load completion |
+| `synthux_list_tabs` | List open audit-eligible Chrome tabs (`http://` & `https://`) |
+| `synthux_scan_page` | Extract DOM structure, headings, landmarks, forms, contrast, navigation, and performance |
+| `synthux_run_wcag_audit` | Run deterministic DOM accessibility checks + live `axe-core` WCAG 2.2 AA compliance audit |
+| `synthux_run_ux_audit` | Execute full UX audit (`quick`, `deep`, `custom`, `wcag-only`) with Rule Packs & Synthetic Personas |
+| `synthux_prepare_external_audit` | Capture DOM + WCAG + Screenshot + Rule Pack + Business Context prompts for host Agent-Brain evaluation |
+| `synthux_submit_external_audit` | Compile Agent-Brain findings into a v2.2 report, render live Heatmap, and sync to the Chrome Side Panel |
+| `synthux_run_flow_audit` | Run multi-page User Journey (Flow Builder) analysis across 2+ URLs |
+| `synthux_visual_overlay` | Trigger live `highlight`, `heatmap`, `clear_all`, `annotated_screenshot`, or `full_screenshot` |
+| `synthux_manage_rule_packs` | List, inspect, import/validate custom `.json` Sectoral Rule Packs, or delete custom rule packs |
+| `synthux_manage_personas` | List, create custom synthetic user personas, or delete custom personas |
+| `synthux_manage_business_context` | Manage Company/Product Goal Context, Must-Haves, Metrics, Custom Departments, and generate user discovery questions |
+| `synthux_manage_flows` | Read, add/edit/remove steps, connectors, notes, auto-layout, and save/load Flow Builder 2.0 canvases |
+| `synthux_configure_ai` | Configure Local Ollama, Apple Intelligence, Chrome Built-in AI, or Cloud AI settings and test connectivity |
+| `synthux_get_reports` | Retrieve latest report, history, Flow reports, Before vs After comparison (`compare`), AI Fix Prompt (`fix_prompt`), or workspace backup |
 
 See [`mcp/README.md`](mcp/README.md) for full protocol and security details.
 
@@ -231,20 +230,22 @@ AI Provider:
 ```
 synthuxapp/
 ├── extension/                  # Chrome Extension (load this in Chrome)
-│   ├── manifest.json           # Manifest V3 (v2.1.0)
+│   ├── manifest.json           # Manifest V3 (v2.2.0)
 │   ├── background/             # Service Worker + MCP Bridge integration
 │   ├── content/                # Page scanning content script
 │   ├── sidepanel/              # Side Panel UI (HTML + CSS + bundled JS)
+│   ├── flow/                   # Flow Builder 2.0 multi-page journey studio
 │   ├── core/                   # Business logic modules
-│   │   ├── analyzer.js         # Analysis orchestrator
+│   │   ├── analyzer.js         # Analysis orchestrator (Quick, Deep, Custom, Instant WCAG)
+│   │   ├── business-context.js # Company, Goal, Must-Haves, Custom Depts & Report Diff engine
 │   │   ├── mcp-bridge.js       # Local WebSocket bridge to synthux-mcp (127.0.0.1:17483)
 │   │   ├── ai-client.js        # AI provider abstraction
-│   │   ├── providers.js        # Ollama, OpenAI, Gemini, Claude adapters
+│   │   ├── providers.js        # Ollama, Apple Intelligence, Chrome AI, OpenAI, Gemini, Claude
 │   │   ├── heuristics.js       # Prompt builder + JSON parser
 │   │   ├── screenshot.js       # Full-page capture + annotated screenshots
 │   │   ├── flow-manager.js     # Multi-page flow analysis orchestrator
 │   │   ├── cost-calculator.js  # Token cost estimation
-│   │   └── report-generator.js # Markdown + JSON report
+│   │   └── report-generator.js # Markdown + JSON + AI Fix Prompt report generator
 │   ├── rules/                  # Sectoral Heuristic Rule Packs (JSON)
 │   ├── assets/                 # Icons and logo
 │   └── _locales/               # i18n (en, tr)
@@ -344,11 +345,17 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 - [x] 2026 Local LLM Updates (`gemma4`, `gemma4:e4b`, `qwen3.8`, `llama4:scout`, `deepseek-r1` with `<think>` block sanitization)
 - [x] Right-click Context Menu integration ("Analyze in synthux Flow")
 
-### v2.1.0 (Current)
-- [x] **Model Context Protocol (MCP) Server & Chrome Extension Agent Bridge (`synthux-mcp`)** — 14 MCP tools over Stdio & Streamable HTTP (`127.0.0.1:17483`) for Google Antigravity (Gemini 4 Argon), Claude Desktop/Code, Cursor, OpenAI Codex, and Windsurf
-- [x] **Agent-Brain Evaluation Mode** — Host AI agents can evaluate live DOM + WCAG + Screenshots using their own LLM reasoning (`prepare_external_audit` + `submit_external_audit`) and sync reports to the Chrome Side Panel
+### v2.1.0 / v2.1.1
+- [x] **Model Context Protocol (MCP) Server & Chrome Extension Agent Bridge (`synthux-mcp`)** — MCP tools over Stdio & Streamable HTTP (`127.0.0.1:17483`) for Google Antigravity (Gemini 4 Argon), Claude Desktop/Code, Cursor, OpenAI Codex, and Windsurf
+- [x] **Apple Intelligence (macOS 26/27 `FoundationModels`) & Chrome Built-in AI (`window.LanguageModel`)** — On-device OS and browser AI providers with zero API key or model download
+- [x] **Agent-Brain Evaluation Mode** — Host AI agents can evaluate live DOM + WCAG + Screenshots using their own LLM reasoning (`synthux_prepare_external_audit` + `synthux_submit_external_audit`) and sync reports to the Chrome Side Panel
 - [x] **Hardened Loopback Security** — Strict `127.0.0.1` binding, `Origin` CSRF firewall blocking web pages, optional `SYNTHUX_MCP_TOKEN` pairing, and zero API key exposure
-- [x] **Automated E2E MCP Test Suite (`npm run test:mcp`)** — 16 automated test suites verifying full protocol & extension bridge parity
+
+### v2.2.0 (Current)
+- [x] **Business, Goal, Non-Negotiable Must-Haves & Custom Department Context (`extension/core/business-context.js`)** — Opt-in product context layer with Must-Haves `PASS / PARTIAL / MISSING` verification, metric bottleneck diagnosis, 5 built-in department lenses, and user-defined custom departments
+- [x] **Flow Builder 2.0 Redesign (`extension/flow/`)** — Segmented SVG icon toolbar, automatic horizontal node placement, Open Browser Tabs multi-picker, Step & Transition Inspector (`stepGoal`, `dropOffMetric`, transition triggers), JSON import/export, and 4-tab results drawer
+- [x] **100% 16-Tool MCP Parity (`synthux_manage_business_context`, `synthux_manage_flows`, enhanced `synthux_get_reports`)** — Interactive user discovery questions, live 2-way Flow Builder canvas control, Before vs After Audit Diff (`compare`), AI Coding Agent Fix Prompt (`fix_prompt`), and full workspace backup/restore
+- [x] **Instant WCAG (1s) & Side Panel UI Overhaul** — 1-second deterministic `axe-core` WCAG 2.2 AA mode, interactive 2×2 Priority Matrix filtering, issue search, History Before/After Diff viewer, and clean monochrome SVG iconography
 
 ### Future
 - [ ] **synthux insights** — Auto-fetched research library from NNGroup and Baymard Institute; AI uses latest UX research findings during analysis for evidence-based recommendations

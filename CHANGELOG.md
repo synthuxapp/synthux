@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-11-20
+
+### Added
+- **Business, Goal, Non-Negotiable Must-Haves & Custom Department Context Engine (`extension/core/business-context.js`):**
+  - Opt-in product context layer allowing pages and multi-page flows to be audited either as standalone UX/WCAG evaluations or against company/product identity, primary conversion goals, value proposition, non-negotiable must-haves (`PASS / PARTIAL / MISSING` compliance table), and marketing/usage metrics.
+  - 5 built-in department lenses (`Product & UX`, `Marketing & CRO`, `Sales & Revenue`, `Legal & Compliance`, `Engineering & QA`) plus user-defined **Custom Departments** (`+ Add Department`).
+- **Flow Builder 2.0 Studio Redesign (`extension/flow/`):**
+  - Compact SVG icon toolbar with segmented tool groups, automatic horizontal node alignment (`+270px`), **Open Browser Tabs** multi-picker modal, floating **Step & Transition Inspector** (`stepGoal`, `dropOffMetric`, transition trigger labels), Flow JSON export/import, analysis cancellation, sub-toolbar for Rule Pack / Personas / Goal Context selection, and a 4-tab Results Drawer (`Overview`, `Steps`, `Links`, `Goals`).
+- **16-Tool MCP Server & Live Extension Parity (`mcp/server.js`, `extension/core/mcp-bridge.js`):**
+  - Added `synthux_manage_business_context` (including `action: "discover_questions"` for AI agents to interview the user on company goals, must-haves, departments, and metrics).
+  - Added `synthux_manage_flows` for 2-way reading, creating, editing, auto-layout, saving, loading, and submitting Flow Builder 2.0 canvases.
+  - Enhanced `synthux_get_reports` with Before vs After report comparison (`action: "compare"`), AI Coding Agent Fix Prompt generation (`action: "fix_prompt"`), saved Flow report retrieval (`flows`, `flow_by_id`), and full workspace backup/restore (`export_workspace`, `import_workspace`).
+- **Side Panel UX & Reporting Improvements (`src/sidepanel/`):**
+  - **Instant WCAG (1s)** button in the Scan tab for 1-second deterministic `axe-core` WCAG 2.2 AA and DOM accessibility checks without waiting for AI inference.
+  - Interactive 2×2 Priority Matrix filtering, issue search bar, `Expand All / Collapse` control, `Fix Prompt` clipboard action, History Before/After Diff viewer, Settings Workspace Backup (`.json`), and clean monochrome SVG icons across the entire UI.
+
+---
+
 ## [2.1.1] - 2026-11-09
 
 ### Added
