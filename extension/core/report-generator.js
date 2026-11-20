@@ -7,6 +7,8 @@
  * 3. JSON (programmatic access)
  */
 
+import { generateAiFixPrompt } from './business-context.js';
+
 /**
  * Generate a complete report object from analysis results
  */
@@ -25,14 +27,16 @@ export function generateReport(data) {
     overallScore,
     profileResults,
     accessibilityResults,
+    businessContext = null,
+    businessAlignment = null,
     issues,
     screenshot,
     annotatedScreenshot = null,
     costSummary
   } = data;
 
-  return {
-    version: '2.0.0',
+  const reportObj = {
+    version: '2.2.0',
     url,
     title,
     timestamp,
@@ -46,13 +50,18 @@ export function generateReport(data) {
     overallScore,
     profileResults,
     accessibilityResults,
+    businessContext,
+    businessAlignment,
     issues,
     annotatedScreenshot: annotatedScreenshot || null,
     visionEnabled: !!screenshot,
-    costSummary: costSummary || null,
-    markdown: generateMarkdown(data),
-    json: generateJSON(data)
+    costSummary: costSummary || null
   };
+
+  reportObj.aiFixPrompt = generateAiFixPrompt(reportObj);
+  reportObj.markdown = generateMarkdown(data);
+  reportObj.json = generateJSON(data);
+  return reportObj;
 }
 
 /**
@@ -110,6 +119,12 @@ function generateMarkdown(data) {
   if (accessibilityResults) {
     lines.push(`| **Accessibility (WCAG)** | **${accessibilityResults.score}/100** ${getScoreEmoji(accessibilityResults.score)} | \`${renderScoreBar(accessibilityResults.score)}\` (${accessibilityResults.wcagViolations?.length || 0} WCAG violations) |`);
   }
+  if (data.businessAlignment) {
+    const ba = data.businessAlignment;
+    const passCount = (ba.mustHavesAudit || []).filter(m => m.status === 'pass').length;
+    const totalMust = (ba.mustHavesAudit || []).length;
+    lines.push(`| **🏢 Business Goal Alignment** | **${ba.goalAlignmentScore}/100** ${getScoreEmoji(ba.goalAlignmentScore)} | \`${renderScoreBar(ba.goalAlignmentScore)}\` (${totalMust > 0 ? `${passCount}/${totalMust} Must-Haves Passed` : ba.contextName || 'Active'}) |`);
+  }
   Object.values(profileResults).forEach(pr => {
     const pName = pr.profile?.name?.en || pr.profile?.name || 'Profile';
     lines.push(`| **${pr.profile?.icon || '👤'} ${pName}** | **${pr.score}/100** ${getScoreEmoji(pr.score)} | \`${renderScoreBar(pr.score)}\` |`);
@@ -117,6 +132,62 @@ function generateMarkdown(data) {
   lines.push(`| **Total Unique Issues** | **${issues.length}** | 🔴 ${critical.length} Critical · 🟡 ${moderate.length} Moderate · 🟢 ${minor.length} Minor |`);
   lines.push(`| **Quick Wins** | **${quickWins.length}** | ⚡ High-impact, easy-effort fixes ready for immediate action |`);
   lines.push('');
+
+  // ─── 2.5 Business Goal, Must-Haves & Department Alignment (v2.2) ──────────
+  if (data.businessAlignment) {
+    const ba = data.businessAlignment;
+    lines.push('---');
+    lines.push('');
+    lines.push(`## 🏢 Business Goal, Must-Haves & Department Alignment — ${ba.goalAlignmentScore}/100`);
+    lines.push('');
+    if (ba.companyName || ba.productName) {
+      lines.push(`- **Company / Product:** ${[ba.companyName, ba.productName].filter(Boolean).join(' — ')} (${ba.industry || 'Digital Product'})`);
+    }
+    if (ba.primaryGoal) {
+      lines.push(`- **Primary Goal:** ${ba.primaryGoal}`);
+    }
+    if (ba.goalSummary) {
+      lines.push(`- **Strategic Summary:** ${ba.goalSummary}`);
+    }
+    lines.push('');
+
+    if (Array.isArray(ba.mustHavesAudit) && ba.mustHavesAudit.length > 0) {
+      lines.push('### 📌 Non-Negotiable Must-Haves Checklist');
+      lines.push('');
+      lines.push('| Must-Have Requirement | Status | Evidence & Action |');
+      lines.push('|:---|:---:|:---|');
+      ba.mustHavesAudit.forEach(m => {
+        const badge = m.status === 'pass' ? '✅ PASS' : m.status === 'partial' ? '⚠️ PARTIAL' : '❌ MISSING';
+        const detail = [m.evidence, m.status !== 'pass' && m.recommendation ? `**Fix:** ${m.recommendation}` : ''].filter(Boolean).join(' · ').replace(/\|/g, '\\|');
+        lines.push(`| **${m.item.replace(/\|/g, '\\|')}** | ${badge} | ${detail} |`);
+      });
+      lines.push('');
+    }
+
+    if (Array.isArray(ba.metricInsights) && ba.metricInsights.length > 0) {
+      lines.push('### 📈 Marketing & Usage Metric Root-Cause Analysis');
+      lines.push('');
+      ba.metricInsights.forEach(mi => {
+        lines.push(`- **Metric / Bottleneck:** \`${mi.metric}\``);
+        if (mi.rootCause) lines.push(`  - **UX Root Cause:** ${mi.rootCause}`);
+        if (mi.action) lines.push(`  - **Recommended Action:** ${mi.action}`);
+      });
+      lines.push('');
+    }
+
+    if (Array.isArray(ba.departmentFindings) && ba.departmentFindings.length > 0) {
+      lines.push('### 🏛️ Department-Specific Insights');
+      lines.push('');
+      ba.departmentFindings.forEach(df => {
+        lines.push(`#### ${df.icon || '🏛️'} ${df.departmentName} — ${df.score}/100`);
+        if (df.summary) lines.push(`> ${df.summary}`);
+        (df.actionItems || []).forEach(act => {
+          lines.push(`- ${act}`);
+        });
+        lines.push('');
+      });
+    }
+  }
 
   // ─── 3. 2×2 Impact × Effort Priority Matrix ────────────────────────────────
   if (issues.length > 0) {
@@ -310,7 +381,7 @@ function generateMarkdown(data) {
   // Footer
   lines.push('---');
   lines.push('');
-  lines.push('*Generated by [synthux v2.0](https://synthux.app) — Open Source AI-Powered UX Audit.*');
+  lines.push('*Generated by [synthux v2.2](https://synthux.app) — Open Source AI-Powered UX Audit.*');
 
   return lines.join('\n');
 }
@@ -320,7 +391,7 @@ function generateMarkdown(data) {
  */
 function generateJSON(data) {
   return {
-    version: '2.0.0',
+    version: '2.2.0',
     url: data.url,
     title: data.title,
     timestamp: data.timestamp,
@@ -329,6 +400,7 @@ function generateJSON(data) {
     rulePackId: data.rulePackId || 'nielsen-10',
     rulePackName: data.rulePackName || "Nielsen's 10 Usability Heuristics",
     overallScore: data.overallScore,
+    businessAlignment: data.businessAlignment || null,
     profiles: Object.fromEntries(
       Object.entries(data.profileResults || {}).map(([id, pr]) => [
         id,

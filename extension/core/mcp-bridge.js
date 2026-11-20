@@ -37,6 +37,23 @@ import { runAccessibilityChecks } from './accessibility.js';
 import { generateReport } from './report-generator.js';
 import { captureScreenshot, captureAnnotatedScreenshot } from './screenshot.js';
 import { FlowManager } from './flow-manager.js';
+import {
+  BUILT_IN_DEPARTMENTS,
+  getBusinessContextState,
+  saveBusinessContextState,
+  getAllDepartments,
+  getActiveBusinessContext,
+  upsertBusinessContextProfile,
+  deleteBusinessContextProfile,
+  upsertCustomDepartment,
+  deleteCustomDepartment,
+  buildBusinessAlignmentPrompt,
+  parseBusinessAlignmentResponse,
+  buildDeterministicBusinessAlignment,
+  generateDiscoveryQuestions,
+  compareReports,
+  generateAiFixPrompt
+} from './business-context.js';
 
 const DEFAULT_MCP_WS_URL = 'ws://127.0.0.1:17483/ws';
 const RECONNECT_DELAY_MS = 5000;
@@ -294,6 +311,12 @@ export class MCPBridge {
         case 'MANAGE_PERSONAS':
           return await this._handleManagePersonas(params);
 
+        case 'MANAGE_BUSINESS_CONTEXT':
+          return await this._handleManageBusinessContext(params);
+
+        case 'MANAGE_FLOWS':
+          return await this._handleManageFlows(params);
+
         case 'CONFIGURE_AI':
           return await this._handleConfigureAI(params);
 
@@ -535,6 +558,8 @@ export class MCPBridge {
     }
 
     const rules = await loadHeuristics(rulePackId);
+    const activeBusinessContext = params.businessContext || await getActiveBusinessContext();
+    const allDepartments = await getAllDepartments();
     const evaluationTasks = [];
 
     for (const profileId of profileIds) {
@@ -552,10 +577,17 @@ export class MCPBridge {
           heuristicId: heuristic.id,
           heuristicName: heuristic.name?.en || heuristic.name,
           weight: heuristic.weight || 1.0,
-          prompt: buildPrompt(heuristic, profile, pageData, !!screenshot)
+          prompt: buildPrompt(heuristic, profile, pageData, !!screenshot, activeBusinessContext)
         });
       }
     }
+
+    const discoveryQuestions = generateDiscoveryQuestions({
+      url: tab.url,
+      title: tab.title,
+      pageData,
+      currentContext: activeBusinessContext
+    });
 
     return {
       success: true,
@@ -568,6 +600,11 @@ export class MCPBridge {
       },
       mode,
       profiles: profileIds,
+      businessContext: activeBusinessContext || null,
+      businessAlignmentPrompt: activeBusinessContext
+        ? buildBusinessAlignmentPrompt(activeBusinessContext, JSON.stringify({ url: tab.url, title: tab.title, ctas: pageData?.content?.ctas || [] }), allDepartments)
+        : null,
+      discoveryQuestions,
       pageData,
       accessibilityResults,
       screenshot: params.includeScreenshot ? screenshot : null,
@@ -675,6 +712,14 @@ export class MCPBridge {
       } catch {}
     }
 
+    const activeBusinessContext = params.businessContext || await getActiveBusinessContext();
+    const allDepartments = await getAllDepartments();
+    const businessAlignment = activeBusinessContext
+      ? (params.businessAlignment
+          ? parseBusinessAlignmentResponse(params.businessAlignment, activeBusinessContext, pageData, allDepartments)
+          : buildDeterministicBusinessAlignment(activeBusinessContext, pageData, allDepartments))
+      : null;
+
     const report = generateReport({
       url: tab.url,
       title: tab.title,
@@ -689,6 +734,8 @@ export class MCPBridge {
       overallScore,
       profileResults,
       accessibilityResults,
+      businessContext: activeBusinessContext || null,
+      businessAlignment,
       issues: allIssues,
       screenshot: null,
       annotatedScreenshot,
@@ -824,6 +871,283 @@ export class MCPBridge {
     return { error: `Unknown persona action: ${action}` };
   }
 
+  async _handleManageBusinessContext(params = {}) {
+    const action = params.action || 'get';
+    if (action === 'get' || action === 'list') {
+      const state = await getBusinessContextState();
+      const departments = await getAllDepartments();
+      const activeProfile = await getActiveBusinessContext();
+      return {
+        success: true,
+        state,
+        activeProfile,
+        departments,
+        builtInDepartments: BUILT_IN_DEPARTMENTS
+      };
+    }
+
+    if (action === 'discover_questions') {
+      const tab = await this._resolveTargetTab(params);
+      let pageData = null;
+      if (tab?.id) {
+        try {
+          pageData = await this.handlers.scanPage(tab.id);
+        } catch {}
+      }
+      const activeProfile = await getActiveBusinessContext();
+      return {
+        success: true,
+        discovery: generateDiscoveryQuestions({
+          url: tab?.url || params.url || '',
+          title: tab?.title || '',
+          pageData,
+          flowPages: params.flowPages || null,
+          currentContext: activeProfile
+        })
+      };
+    }
+
+    if (action === 'save' || action === 'update') {
+      const payload = params.context || params;
+      const { state, profile } = await upsertBusinessContextProfile(payload, {
+        setActive: params.setActive !== false,
+        enabled: typeof params.enabled === 'boolean' ? params.enabled : true
+      });
+      return { success: true, state, profile };
+    }
+
+    if (action === 'toggle' || action === 'select') {
+      const current = await getBusinessContextState();
+      const next = await saveBusinessContextState({
+        ...current,
+        enabled: typeof params.enabled === 'boolean' ? params.enabled : !current.enabled,
+        activeContextId: params.contextId || params.activeContextId || current.activeContextId
+      });
+      return { success: true, state: next };
+    }
+
+    if (action === 'delete') {
+      const next = await deleteBusinessContextProfile(params.contextId || params.id);
+      return { success: true, state: next };
+    }
+
+    if (action === 'add_department') {
+      const deptInput = params.department || {
+        id: params.departmentId || params.id,
+        name: params.name,
+        icon: params.icon,
+        focus: params.focus || params.criteria,
+        defaultCriteria: params.defaultCriteria || params.criteria || params.focus
+      };
+      const { state, department } = await upsertCustomDepartment(deptInput);
+      return { success: true, department, state };
+    }
+
+    if (action === 'delete_department') {
+      const next = await deleteCustomDepartment(params.departmentId || params.id);
+      return { success: true, state: next };
+    }
+
+    return { error: `Unknown business context action: ${action}` };
+  }
+
+  async _sendToLiveFlowBuilder(action, params = {}) {
+    try {
+      const flowUrlPrefix = chrome.runtime.getURL('flow/index.html');
+      const tabs = await chrome.tabs.query({});
+      const flowTab = tabs.find(t => t.url && t.url.startsWith(flowUrlPrefix));
+      if (flowTab?.id) {
+        return await new Promise((resolve) => {
+          chrome.tabs.sendMessage(
+            flowTab.id,
+            { type: 'MCP_FLOW_CANVAS_ACTION', payload: { action, params } },
+            (res) => resolve(res || null)
+          );
+        });
+      }
+    } catch {}
+    return null;
+  }
+
+  async _handleManageFlows(params = {}) {
+    const action = params.action || 'get_canvas';
+
+    if (action === 'open_canvas') {
+      const flowUrl = chrome.runtime.getURL('flow/index.html');
+      const tabs = await chrome.tabs.query({});
+      const existing = tabs.find(t => t.url && t.url.startsWith(flowUrl));
+      if (existing) {
+        await chrome.tabs.update(existing.id, { active: true });
+        return { success: true, tabId: existing.id, opened: 'focused_existing' };
+      }
+      const created = await chrome.tabs.create({ url: flowUrl, active: true });
+      return { success: true, tabId: created.id, opened: 'created_new' };
+    }
+
+    if (action === 'list_saved') {
+      const data = await chrome.storage.local.get({ synthux_flows: [] });
+      return {
+        success: true,
+        savedFlows: (data.synthux_flows || []).map(f => ({
+          id: f.id,
+          name: f.name,
+          timestamp: f.timestamp,
+          pageCount: f.pageCount || f.state?.nodes?.length || 0,
+          flowScore: f.flowScore ?? f.state?.flowReport?.flowScore ?? null,
+          goalScore: f.goalScore ?? f.state?.flowReport?.businessAlignment?.goalAlignmentScore ?? null
+        }))
+      };
+    }
+
+    if (action === 'get_saved') {
+      const data = await chrome.storage.local.get({ synthux_flows: [] });
+      const flow = (data.synthux_flows || []).find(f => f.id === params.flowId || f.name === params.name);
+      if (!flow) return { error: `Saved flow "${params.flowId || params.name}" not found.` };
+      return { success: true, flow };
+    }
+
+    if (action === 'delete_flow') {
+      const data = await chrome.storage.local.get({ synthux_flows: [] });
+      const remaining = (data.synthux_flows || []).filter(f => f.id !== params.flowId && f.name !== params.name);
+      await chrome.storage.local.set({ synthux_flows: remaining });
+      return { success: true, savedFlowsCount: remaining.length };
+    }
+
+    // Try live Flow Builder tab first; fallback to storage state manipulation
+    const liveRes = await this._sendToLiveFlowBuilder(action, params);
+    const storedData = await chrome.storage.local.get({
+      synthux_live_flow_canvas: { nodes: [], notes: [], connectors: [], flowReport: null, viewport: { x: 0, y: 0, zoom: 1 } }
+    });
+    let canvasState = liveRes?.canvas || storedData.synthux_live_flow_canvas;
+
+    if (!liveRes) {
+      // Mutate storage state directly so when Flow Builder opens, it reflects all MCP edits
+      const nodes = Array.isArray(canvasState.nodes) ? [...canvasState.nodes] : [];
+      const notes = Array.isArray(canvasState.notes) ? [...canvasState.notes] : [];
+      const connectors = Array.isArray(canvasState.connectors) ? [...canvasState.connectors] : [];
+
+      if (action === 'add_node') {
+        const id = params.id || `n${Date.now().toString(36).slice(-4)}`;
+        const last = nodes[nodes.length - 1];
+        const newNode = {
+          id,
+          url: params.url || 'https://example.com',
+          label: params.label || params.url || `Step ${nodes.length + 1}`,
+          stepGoal: params.stepGoal || '',
+          dropOffMetric: params.dropOffMetric || '',
+          x: params.x ?? (last ? last.x + 270 : 80),
+          y: params.y ?? (last ? last.y : 120),
+          score: null,
+          report: null,
+          thumbnail: null
+        };
+        nodes.push(newNode);
+        if (last && params.autoConnect !== false) {
+          connectors.push({ fromId: last.id, toId: id, label: params.connectorLabel || '' });
+        }
+      } else if (action === 'update_node') {
+        const targetId = params.nodeId || params.id;
+        const idx = nodes.findIndex(n => n.id === targetId);
+        if (idx >= 0) {
+          nodes[idx] = { ...nodes[idx], ...params, id: targetId };
+        }
+      } else if (action === 'remove_node') {
+        const targetId = params.nodeId || params.id;
+        const filteredNodes = nodes.filter(n => n.id !== targetId);
+        const filteredConns = connectors.filter(c => c.fromId !== targetId && c.toId !== targetId);
+        nodes.length = 0; nodes.push(...filteredNodes);
+        connectors.length = 0; connectors.push(...filteredConns);
+      } else if (action === 'add_connector') {
+        if (params.fromId && params.toId && !connectors.some(c => c.fromId === params.fromId && c.toId === params.toId)) {
+          connectors.push({ fromId: params.fromId, toId: params.toId, label: params.label || '' });
+        }
+      } else if (action === 'update_connector') {
+        const idx = connectors.findIndex(c => c.fromId === params.fromId && c.toId === params.toId);
+        if (idx >= 0) connectors[idx] = { ...connectors[idx], ...params };
+      } else if (action === 'remove_connector') {
+        const filtered = connectors.filter(c => !(c.fromId === params.fromId && c.toId === params.toId));
+        connectors.length = 0; connectors.push(...filtered);
+      } else if (action === 'add_note') {
+        notes.push({
+          id: `s${Date.now().toString(36).slice(-4)}`,
+          x: params.x ?? 120,
+          y: params.y ?? 320,
+          text: params.text || '',
+          attachedTo: params.attachedTo || null
+        });
+      } else if (action === 'remove_note') {
+        const targetId = params.noteId || params.id;
+        const filtered = notes.filter(n => n.id !== targetId);
+        notes.length = 0; notes.push(...filtered);
+      } else if (action === 'auto_layout') {
+        nodes.forEach((n, idx) => { n.x = 80 + idx * 270; n.y = 120; });
+      } else if (action === 'clear_canvas') {
+        nodes.length = 0; notes.length = 0; connectors.length = 0;
+        canvasState.flowReport = null;
+      }
+
+      canvasState = { ...canvasState, nodes, notes, connectors, updatedAt: new Date().toISOString() };
+      await chrome.storage.local.set({ synthux_live_flow_canvas: canvasState });
+    }
+
+    if (action === 'save_flow') {
+      const name = params.name || `Flow ${new Date().toLocaleDateString()}`;
+      const data = await chrome.storage.local.get({ synthux_flows: [] });
+      const flows = data.synthux_flows || [];
+      const existingIdx = flows.findIndex(f => f.name === name || (params.flowId && f.id === params.flowId));
+      const entry = {
+        id: existingIdx >= 0 ? flows[existingIdx].id : `flow_${Date.now()}`,
+        name,
+        timestamp: new Date().toISOString(),
+        pageCount: canvasState.nodes?.length || 0,
+        flowScore: canvasState.flowReport?.flowScore ?? null,
+        goalScore: canvasState.flowReport?.businessAlignment?.goalAlignmentScore ?? null,
+        state: canvasState
+      };
+      if (existingIdx >= 0) flows[existingIdx] = entry;
+      else flows.unshift(entry);
+      await chrome.storage.local.set({ synthux_flows: flows });
+      return { success: true, savedFlow: entry };
+    }
+
+    if (action === 'load_flow') {
+      const data = await chrome.storage.local.get({ synthux_flows: [] });
+      const flow = (data.synthux_flows || []).find(f => f.id === params.flowId || f.name === params.name);
+      if (!flow) return { error: `Saved flow "${params.flowId || params.name}" not found.` };
+      await chrome.storage.local.set({ synthux_live_flow_canvas: flow.state });
+      await this._sendToLiveFlowBuilder('import_state', { state: flow.state });
+      return { success: true, loadedFlow: flow.name, canvas: flow.state };
+    }
+
+    if (action === 'submit_external_flow' && params.flowReport) {
+      const activeBiz = params.businessContext || await getActiveBusinessContext();
+      const allDepts = await getAllDepartments();
+      const flowReport = {
+        type: 'flow',
+        version: '2.2.0',
+        ...params.flowReport,
+        businessContext: activeBiz || null,
+        businessAlignment: activeBiz
+          ? (params.flowReport.businessAlignment
+              ? parseBusinessAlignmentResponse(params.flowReport.businessAlignment, activeBiz, {}, allDepts)
+              : buildDeterministicBusinessAlignment(activeBiz, {}, allDepts))
+          : null,
+        timestamp: new Date().toISOString()
+      };
+      canvasState.flowReport = flowReport;
+      await chrome.storage.local.set({ synthux_live_flow_canvas: canvasState, lastFlowReport: flowReport });
+      await this._sendToLiveFlowBuilder('apply_flow_report', { flowReport });
+      return { success: true, flowReport };
+    }
+
+    return {
+      success: true,
+      action,
+      liveWindowConnected: Boolean(liveRes),
+      canvas: canvasState
+    };
+  }
+
   async _handleConfigureAI(params = {}) {
     const action = params.action || 'get';
     if (action === 'update') {
@@ -872,6 +1196,7 @@ export class MCPBridge {
 
   async _handleGetReports(params = {}) {
     const action = params.action || 'latest';
+
     if (action === 'history') {
       const data = await chrome.storage.local.get({ reportHistory: [] });
       return {
@@ -881,11 +1206,136 @@ export class MCPBridge {
           url: item.url,
           title: item.title,
           score: item.score,
+          wcagScore: item.wcagScore ?? item.report?.accessibilityResults?.score ?? null,
+          goalScore: item.goalScore ?? item.report?.businessAlignment?.goalAlignmentScore ?? null,
+          contextName: item.contextName ?? item.report?.businessAlignment?.contextName ?? null,
           mode: item.mode,
           model: item.model,
           timestamp: item.timestamp
         }))
       };
+    }
+
+    if (action === 'flows') {
+      const data = await chrome.storage.local.get({ synthux_flows: [], lastFlowReport: null });
+      return {
+        success: true,
+        lastFlowReport: data.lastFlowReport || null,
+        savedFlows: (data.synthux_flows || []).map(f => ({
+          id: f.id,
+          name: f.name,
+          timestamp: f.timestamp,
+          pageCount: f.pageCount || f.state?.nodes?.length || 0,
+          flowScore: f.flowScore ?? f.state?.flowReport?.flowScore ?? null,
+          goalScore: f.goalScore ?? f.state?.flowReport?.businessAlignment?.goalAlignmentScore ?? null,
+          hasReport: Boolean(f.state?.flowReport)
+        }))
+      };
+    }
+
+    if (action === 'flow_by_id' && (params.flowId || params.id)) {
+      const data = await chrome.storage.local.get({ synthux_flows: [] });
+      const targetId = params.flowId || params.id;
+      const flow = (data.synthux_flows || []).find(f => f.id === targetId || f.name === targetId);
+      if (!flow) return { error: `Saved flow "${targetId}" not found.` };
+      return {
+        success: true,
+        flow,
+        flowReport: flow.state?.flowReport || null
+      };
+    }
+
+    if (action === 'compare') {
+      const data = await chrome.storage.local.get({ reportHistory: [] });
+      const hist = data.reportHistory || [];
+      if (hist.length < 2) {
+        return { error: 'At least 2 reports in history are required for comparison.' };
+      }
+      let baseEntry = params.baseId ? hist.find(r => r.id === params.baseId) : null;
+      let targetEntry = params.targetId ? hist.find(r => r.id === params.targetId) : null;
+
+      if (!targetEntry) targetEntry = hist[0];
+      if (!baseEntry) {
+        baseEntry = hist.find(r => r.id !== targetEntry.id && r.url === targetEntry.url) || hist.find(r => r.id !== targetEntry.id);
+      }
+
+      if (!baseEntry?.report || !targetEntry?.report) {
+        return { error: 'Could not resolve base and target reports for comparison.' };
+      }
+
+      const comparison = compareReports(
+        { ...baseEntry.report, id: baseEntry.id },
+        { ...targetEntry.report, id: targetEntry.id }
+      );
+      return {
+        success: true,
+        comparison: params.format === 'markdown' ? comparison.markdown : comparison
+      };
+    }
+
+    if (action === 'fix_prompt') {
+      const data = await chrome.storage.local.get({ lastReport: null, reportHistory: [] });
+      let targetReport = data.lastReport;
+      if (params.id) {
+        const entry = (data.reportHistory || []).find(r => r.id === params.id);
+        if (entry?.report) targetReport = entry.report;
+      }
+      if (!targetReport) return { error: 'No report found to generate AI fix prompt.' };
+      const fixPrompt = targetReport.aiFixPrompt || generateAiFixPrompt(targetReport);
+      return {
+        success: true,
+        url: targetReport.url,
+        overallScore: targetReport.overallScore,
+        fixPrompt
+      };
+    }
+
+    if (action === 'delete_report' && params.id) {
+      const data = await chrome.storage.local.get({ reportHistory: [] });
+      const filtered = (data.reportHistory || []).filter(r => r.id !== params.id);
+      await chrome.storage.local.set({ reportHistory: filtered });
+      return { success: true, remainingCount: filtered.length };
+    }
+
+    if (action === 'clear_history') {
+      await chrome.storage.local.set({ reportHistory: [] });
+      return { success: true, remainingCount: 0 };
+    }
+
+    if (action === 'export_workspace') {
+      const data = await chrome.storage.local.get([
+        'customProfiles',
+        'customRulePacks',
+        'synthux_business_context_state',
+        'synthux_flows',
+        'reportHistory'
+      ]);
+      return {
+        success: true,
+        workspace: {
+          synthuxBackupVersion: '2.2.0',
+          exportedAt: new Date().toISOString(),
+          customProfiles: data.customProfiles || [],
+          customRulePacks: data.customRulePacks || [],
+          businessContextState: data.synthux_business_context_state || null,
+          savedFlows: data.synthux_flows || [],
+          reportHistory: data.reportHistory || []
+        }
+      };
+    }
+
+    if (action === 'import_workspace' && params.workspace) {
+      const parsed = params.workspace;
+      const updates = {};
+      if (Array.isArray(parsed.customProfiles)) updates.customProfiles = parsed.customProfiles;
+      if (Array.isArray(parsed.customRulePacks)) updates.customRulePacks = parsed.customRulePacks;
+      if (parsed.businessContextState && typeof parsed.businessContextState === 'object') {
+        updates.synthux_business_context_state = parsed.businessContextState;
+      }
+      if (Array.isArray(parsed.savedFlows)) updates.synthux_flows = parsed.savedFlows;
+      if (Array.isArray(parsed.reportHistory)) updates.reportHistory = parsed.reportHistory;
+      await chrome.storage.local.set(updates);
+      return { success: true, importedKeys: Object.keys(updates) };
     }
 
     if (action === 'by_id' && params.id) {
@@ -902,9 +1352,13 @@ export class MCPBridge {
     if (!data.lastReport) {
       return { error: 'No report available yet.' };
     }
+    const rep = { ...data.lastReport };
+    if (!params.includeAnnotatedScreenshot) {
+      delete rep.annotatedScreenshot;
+    }
     return {
       success: true,
-      report: params.format === 'markdown' ? data.lastReport.markdown : data.lastReport
+      report: params.format === 'markdown' ? rep.markdown : rep
     };
   }
 }

@@ -207,7 +207,7 @@ function createMockExtensionWsClient() {
     // Send EXTENSION_HELLO handshake
     sendMaskedFrame({
       type: 'EXTENSION_HELLO',
-      version: '2.1.0',
+      version: '2.2.0',
       extensionId: 'cgldigellmojaejmnhjhpbfccncbmnhm',
       timestamp: new Date().toISOString()
     });
@@ -229,7 +229,7 @@ function handleMockExtensionCommand(msg, send) {
     case 'PING_EXTENSION':
       result = {
         success: true,
-        extensionVersion: '2.1.0',
+        extensionVersion: '2.2.0',
         activeTab: { id: 101, url: 'https://synthux.app', title: 'synthux — AI-Powered UX Audit' }
       };
       break;
@@ -291,6 +291,22 @@ function handleMockExtensionCommand(msg, send) {
         }
       };
       break;
+    case 'MANAGE_BUSINESS_CONTEXT':
+      result = {
+        success: true,
+        action: params.action || 'get',
+        enabled: true,
+        activeProfileId: 'biz-live-ext'
+      };
+      break;
+    case 'MANAGE_FLOWS':
+      result = {
+        success: true,
+        action: params.action || 'get_canvas',
+        nodeCount: 2,
+        connectorCount: 1
+      };
+      break;
     default:
       result = { success: true, command };
   }
@@ -302,7 +318,7 @@ function handleMockExtensionCommand(msg, send) {
 
 async function main() {
   console.log('\n================================================================');
-  console.log(' 🧪 synthux v2.1.1 — MCP Server, Security & E2E Test Suite');
+  console.log(' 🧪 synthux v2.2.0 — MCP Server, Security & E2E Test Suite');
   console.log('================================================================\n');
 
   const server = startBridgeServer();
@@ -318,18 +334,18 @@ async function main() {
       params: { protocolVersion: '2024-11-05' }
     });
     assert.equal(res.result.serverInfo.name, 'synthux-mcp');
-    assert.equal(res.result.serverInfo.version, '2.1.1');
+    assert.equal(res.result.serverInfo.version, '2.2.0');
     assert.ok(res.result.capabilities.tools);
   });
 
-  await runTest('MCP tools/list exposes all 14 synthux tools with valid schemas', async () => {
+  await runTest('MCP tools/list exposes all 16 synthux tools with valid schemas', async () => {
     const res = await handleJsonRpcMessage({
       jsonrpc: '2.0',
       id: 2,
       method: 'tools/list'
     });
-    assert.equal(res.result.tools.length, 14);
-    assert.equal(MCP_TOOLS.length, 14);
+    assert.equal(res.result.tools.length, 16);
+    assert.equal(MCP_TOOLS.length, 16);
     for (const tool of res.result.tools) {
       assert.ok(tool.name.startsWith('synthux_'), `Invalid tool name: ${tool.name}`);
       assert.equal(tool.inputSchema.type, 'object');
@@ -571,6 +587,138 @@ async function main() {
     assert.ok(latestMd.data.report.includes('# 📊 synthux UX Audit Report'));
   });
 
+  await runTest('v2.2.0 Business Context, Custom Departments, Flow Canvas & Before/After Audit Diff E2E', async () => {
+    // 1. Discovery questions
+    const disc = await callMcpTool('synthux_manage_business_context', {
+      action: 'discover_questions'
+    });
+    assert.equal(disc.isError, false);
+    assert.ok(disc.data.discoveryQuestions.questions.length >= 4);
+
+    // 2. Add Custom Department
+    const customDept = await callMcpTool('synthux_manage_business_context', {
+      action: 'add_department',
+      department: {
+        name: 'Customer Support & Success',
+        icon: '🎧',
+        focus: 'Help widget visibility, self-service FAQ clarity, and refund ticket deflection'
+      }
+    });
+    assert.equal(customDept.isError, false);
+    assert.equal(customDept.data.department.id, 'customer-support-success');
+    assert.ok(customDept.data.allDepartments.length >= 6);
+
+    // 3. Save Business & Goal Context Profile with Must-Haves and Metrics
+    const savedBiz = await callMcpTool('synthux_manage_business_context', {
+      action: 'save',
+      enabled: true,
+      profile: {
+        companyName: 'NeoBank FinTech',
+        productName: 'Global Wire Transfer',
+        industry: 'Fintech & Cross-Border Payments',
+        primaryGoal: 'Complete an international wire transfer in under 60 seconds',
+        targetAudience: 'SMB Founders & Remote Contractors',
+        valueProposition: 'Zero hidden FX markup with instant IBAN verification',
+        mustHaves: [
+          'Transparent FX rate and fee breakdown before final CTA',
+          'SOC2 / FCA regulatory badge visible near transfer button'
+        ],
+        metrics: {
+          conversionRate: '2.1%',
+          dropOffStep: 'Step 2: Amount & FX Fee Preview',
+          bounceRate: '49%',
+          targetKpi: 'Increase wire completion rate to 4.5%'
+        },
+        activeDepartments: ['product-ux', 'marketing-cro', customDept.data.department.id],
+        customDepartments: [customDept.data.department]
+      }
+    });
+    assert.equal(savedBiz.isError, false);
+    assert.equal(savedBiz.data.enabled, true);
+    assert.equal(savedBiz.data.profile.companyName, 'NeoBank FinTech');
+
+    // 4. Submit an improved "After" audit report to verify Business Alignment & Before/After Diff
+    const afterSubmit = await callMcpTool('synthux_submit_external_audit', {
+      url: 'https://neobank.example.com/transfer',
+      title: 'NeoBank Wire Transfer (v2 Redesign)',
+      rulePackId: 'fintech',
+      mode: 'quick',
+      model: 'Gemini 4 Argon (Antigravity MCP)',
+      pageData: {
+        meta: { title: 'NeoBank Wire Transfer (v2 Redesign)', lang: 'en' },
+        structure: { headings: [{ level: 1, text: 'Send International Wire — Transparent FX Rate & Fee Breakdown' }], landmarks: [{ role: 'main' }], forms: [] },
+        content: { ctas: ['Send Money Now — SOC2 & FCA Regulated'] },
+        accessibility: { hasLangAttr: true }
+      },
+      evaluations: [
+        {
+          profileId: 'first-time',
+          heuristicId: 'fee-transparency',
+          heuristicName: 'Fee & Rate Transparency',
+          evaluation: {
+            score: 91,
+            summary: 'FX fee breakdown and FCA badge are now prominently displayed above the CTA.',
+            issues: [],
+            positives: ['Transparent FX rate and fee breakdown before final CTA', 'SOC2 / FCA regulatory badge visible']
+          }
+        }
+      ]
+    });
+    assert.equal(afterSubmit.isError, false);
+    assert.ok(afterSubmit.data.report.businessAlignment, 'Expected businessAlignment in report');
+    assert.ok(afterSubmit.data.report.markdown.includes('Business Goal, Must-Haves & Department Alignment'));
+
+    // 5. Compare Before vs After reports
+    const diffRes = await callMcpTool('synthux_get_reports', {
+      action: 'compare',
+      format: 'json'
+    });
+    assert.equal(diffRes.isError, false);
+    assert.ok(diffRes.data.comparison.scores.overallScoreDelta > 0, 'Expected positive score improvement delta');
+    assert.ok(diffRes.data.comparison.counts.resolvedCount >= 1, 'Expected previous critical issue to be marked resolved');
+
+    // 6. Generate AI Coding Agent Fix Prompt
+    const fixRes = await callMcpTool('synthux_get_reports', {
+      action: 'fix_prompt'
+    });
+    assert.equal(fixRes.isError, false);
+    assert.ok(fixRes.data.fixPrompt.includes('Business Goal issues identified by synthux'));
+
+    // 7. Manage Flow Builder 2.0 Canvas via MCP
+    const n1 = await callMcpTool('synthux_manage_flows', {
+      action: 'add_node',
+      node: {
+        title: 'Step 1: Recipient IBAN',
+        url: 'https://neobank.example.com/transfer/recipient',
+        stepGoal: 'Enter and validate recipient IBAN',
+        dropOffMetric: '12% drop-off'
+      }
+    });
+    assert.equal(n1.isError, false);
+
+    const n2 = await callMcpTool('synthux_manage_flows', {
+      action: 'add_node',
+      connectFromNodeId: n1.data.node.id,
+      connectorLabel: 'Click Continue to FX Preview',
+      node: {
+        title: 'Step 2: FX Rate & Fee Confirm',
+        url: 'https://neobank.example.com/transfer/confirm',
+        stepGoal: 'Review FX fee breakdown and confirm wire',
+        dropOffMetric: '49% drop-off'
+      }
+    });
+    assert.equal(n2.isError, false);
+    assert.equal(n2.data.canvas.nodes.length, 2);
+    assert.equal(n2.data.canvas.connectors.length, 1);
+
+    const savedFlow = await callMcpTool('synthux_manage_flows', {
+      action: 'save_flow',
+      name: 'NeoBank International Wire Funnel'
+    });
+    assert.equal(savedFlow.isError, false);
+    assert.equal(savedFlow.data.flow.stepCount, 2);
+  });
+
   console.log('\n5️⃣  Live Chrome Extension WebSocket Bridge E2E Tests');
 
   const mockExt = await createMockExtensionWsClient();
@@ -578,7 +726,7 @@ async function main() {
   await runTest('Chrome Extension connects over ws://127.0.0.1:17483/ws and synthux_status reports live connection', async () => {
     const status = await callMcpTool('synthux_status', {});
     assert.equal(status.data.chromeExtension.connected, true);
-    assert.equal(status.data.chromeExtension.extensionVersion, '2.1.0');
+    assert.equal(status.data.chromeExtension.extensionVersion, '2.2.0');
   });
 
   await runTest('Desktop Agent controls browser navigation (synthux_open_url & synthux_list_tabs)', async () => {

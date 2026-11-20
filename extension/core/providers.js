@@ -40,7 +40,7 @@ export const PROVIDERS = {
   ollama: {
     id: 'ollama',
     name: 'Ollama (Local)',
-    icon: '🖥️',
+    icon: '',
     authType: 'none',
     defaultEndpoint: 'http://localhost:11434',
     models: [],  // Dynamically fetched from local server
@@ -170,7 +170,7 @@ export const PROVIDERS = {
   openai: {
     id: 'openai',
     name: 'OpenAI',
-    icon: '🟢',
+    icon: '',
     authType: 'bearer',
     defaultEndpoint: 'https://api.openai.com',
     models: [
@@ -268,7 +268,7 @@ export const PROVIDERS = {
   gemini: {
     id: 'gemini',
     name: 'Google Gemini',
-    icon: '🔵',
+    icon: '',
     authType: 'query_param',
     defaultEndpoint: 'https://generativelanguage.googleapis.com',
     models: [
@@ -382,7 +382,7 @@ export const PROVIDERS = {
   claude: {
     id: 'claude',
     name: 'Anthropic Claude',
-    icon: '🟠',
+    icon: '',
     authType: 'x-api-key',
     defaultEndpoint: 'https://api.anthropic.com',
     models: [
@@ -500,7 +500,7 @@ export const PROVIDERS = {
   apple: {
     id: 'apple',
     name: 'Apple Intelligence (macOS)',
-    icon: '',
+    icon: '',
     authType: 'none',
     defaultEndpoint: 'http://127.0.0.1:17483',
     models: [
@@ -619,7 +619,7 @@ export const PROVIDERS = {
   chromeai: {
     id: 'chromeai',
     name: 'Chrome Built-in AI',
-    icon: '🌐',
+    icon: '',
     authType: 'none',
     defaultEndpoint: 'chrome://on-device-internals',
     models: [

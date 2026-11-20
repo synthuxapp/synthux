@@ -314,6 +314,104 @@ export function generatePDF(report) {
     }
   }
 
+  // ─── Business Goal, Must-Haves & Department Alignment (v2.2) ─────────
+  if (report.businessAlignment) {
+    const ba = report.businessAlignment;
+    ensureSpace(28);
+
+    doc.setFillColor(...COLORS.card);
+    doc.roundedRect(margin, y - 4, contentWidth, 9, 1.5, 1.5, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(...COLORS.white);
+    doc.text(sanitize(`Business Goal & Must-Haves Alignment (${ba.contextName || 'Company Context'})`), margin + 3, y + 2);
+
+    const gColor = getScoreColor(ba.goalAlignmentScore || 0);
+    doc.setTextColor(...gColor);
+    doc.text(`${ba.goalAlignmentScore || 0}/100`, pageWidth - margin - 3, y + 2, { align: 'right' });
+    y += 9;
+
+    if (ba.primaryGoal) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.accent);
+      const pgLines = doc.splitTextToSize(`Primary Goal: ${sanitize(ba.primaryGoal)}`, contentWidth - 4);
+      doc.text(pgLines, margin + 2, y);
+      y += pgLines.length * 3.5 + 1;
+    }
+
+    if (ba.goalSummary) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.textSecondary);
+      const gsLines = doc.splitTextToSize(sanitize(ba.goalSummary), contentWidth - 4);
+      doc.text(gsLines, margin + 2, y);
+      y += gsLines.length * 3.5 + 2;
+    }
+
+    if (Array.isArray(ba.mustHavesAudit) && ba.mustHavesAudit.length > 0) {
+      ensureSpace(14);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...COLORS.white);
+      doc.text('Non-Negotiable Must-Haves Checklist:', margin + 2, y);
+      y += 4;
+
+      ba.mustHavesAudit.forEach(m => {
+        ensureSpace(9);
+        const stColor = m.status === 'pass' ? COLORS.success : m.status === 'partial' ? COLORS.warning : COLORS.error;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...stColor);
+        doc.text(`[${String(m.status || 'partial').toUpperCase()}]`, margin + 2, y);
+
+        doc.setTextColor(...COLORS.textPrimary);
+        const itemLines = doc.splitTextToSize(sanitize(m.item), contentWidth - 24);
+        doc.text(itemLines, margin + 18, y);
+        y += itemLines.length * 3.3;
+
+        if (m.evidence || m.recommendation) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(...COLORS.textTertiary);
+          const evLines = doc.splitTextToSize(sanitize([m.evidence, m.status !== 'pass' ? m.recommendation : ''].filter(Boolean).join(' - ')), contentWidth - 24);
+          doc.text(evLines, margin + 18, y);
+          y += evLines.length * 3 + 1;
+        }
+      });
+      y += 2;
+    }
+
+    if (Array.isArray(ba.departmentFindings) && ba.departmentFindings.length > 0) {
+      ensureSpace(14);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...COLORS.white);
+      doc.text('Department Lens Findings:', margin + 2, y);
+      y += 4;
+
+      ba.departmentFindings.forEach(df => {
+        ensureSpace(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7.8);
+        doc.setTextColor(...COLORS.accent);
+        doc.text(sanitize(`${df.departmentName} (${df.score}/100)`), margin + 2, y);
+        y += 3.3;
+
+        if (df.summary) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7.2);
+          doc.setTextColor(...COLORS.textSecondary);
+          const dfLines = doc.splitTextToSize(sanitize(df.summary), contentWidth - 6);
+          doc.text(dfLines, margin + 4, y);
+          y += dfLines.length * 3.1 + 1;
+        }
+      });
+      y += 3;
+    }
+  }
+
   // ─── Per-Profile Detailed Results ────────────────────────────────────
   const profiles = Object.values(report.profileResults || {});
 
@@ -722,6 +820,40 @@ export function generateFlowPDF(flowReport) {
   doc.setTextColor(...COLORS.textTertiary);
   doc.text('Overall Flow Score', circleCx, y + 26, { align: 'center' });
   y += 34;
+
+  // Business Goal & Must-Haves Alignment in Flow PDF (v2.2)
+  if (flowReport.businessAlignment) {
+    const ba = flowReport.businessAlignment;
+    ensureSpace(24);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...COLORS.white);
+    doc.text(sanitize(`Business Goal & Must-Haves Alignment — ${ba.goalAlignmentScore || 0}/100`), margin, y);
+    y += 5;
+
+    if (ba.goalSummary) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.textSecondary);
+      const gs = doc.splitTextToSize(sanitize(ba.goalSummary), contentWidth);
+      doc.text(gs, margin, y);
+      y += gs.length * 3.5 + 2;
+    }
+
+    (ba.mustHavesAudit || []).forEach(m => {
+      ensureSpace(8);
+      const stColor = m.status === 'pass' ? COLORS.success : m.status === 'partial' ? COLORS.warning : COLORS.error;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...stColor);
+      doc.text(`[${String(m.status).toUpperCase()}]`, margin, y);
+      doc.setTextColor(...COLORS.textPrimary);
+      const ml = doc.splitTextToSize(sanitize(m.item), contentWidth - 20);
+      doc.text(ml, margin + 18, y);
+      y += ml.length * 3.4 + 1;
+    });
+    y += 4;
+  }
 
   // Cross-Page Findings
   if (flowReport.crossPage?.findings?.length > 0) {

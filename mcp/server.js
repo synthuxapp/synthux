@@ -43,6 +43,23 @@ import {
 import { runAccessibilityChecks } from '../extension/core/accessibility.js';
 import { generateReport } from '../extension/core/report-generator.js';
 import { AIClient } from '../extension/core/ai-client.js';
+import {
+  BUILT_IN_DEPARTMENTS,
+  getBusinessContextState,
+  saveBusinessContextState,
+  getAllDepartments,
+  getActiveBusinessContext,
+  upsertBusinessContextProfile,
+  deleteBusinessContextProfile,
+  upsertCustomDepartment,
+  deleteCustomDepartment,
+  buildBusinessAlignmentPrompt,
+  parseBusinessAlignmentResponse,
+  buildDeterministicBusinessAlignment,
+  generateDiscoveryQuestions,
+  compareReports,
+  generateAiFixPrompt
+} from '../extension/core/business-context.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,7 +76,7 @@ const PORT = Number(process.env.SYNTHUX_MCP_PORT || 17483);
 const REQUIRED_TOKEN = (process.env.SYNTHUX_MCP_TOKEN || '').trim();
 const SERVER_INFO = {
   name: 'synthux-mcp',
-  version: '2.1.1'
+  version: '2.2.0'
 };
 const PROTOCOL_VERSION = '2024-11-05';
 
@@ -70,6 +87,8 @@ const localState = {
   customProfiles: [],
   lastReport: null,
   reportHistory: [],
+  savedFlows: [],
+  liveFlowCanvas: { nodes: [], notes: [], connectors: [], flowReport: null, viewport: { x: 0, y: 0, zoom: 1 } },
   aiSettings: {
     ollamaEndpoint: process.env.OLLAMA_HOST || 'http://localhost:11434',
     ollamaModel: process.env.SYNTHUX_MODEL || 'gemma4',
@@ -735,6 +754,98 @@ export const MCP_TOOLS = [
     }
   },
   {
+    name: 'synthux_manage_business_context',
+    description: 'Manage Company, Product, Primary Goal, Non-Negotiable Must-Haves, Marketing/Usage Metrics, and Department Lenses (5 built-in + custom user-defined departments). Also generates interactive discovery questions (action="discover_questions") for the AI agent to ask the user before running a business-aware UX or Flow audit.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          enum: ['get', 'list', 'discover_questions', 'save', 'update', 'toggle', 'select', 'delete', 'add_department', 'delete_department'],
+          default: 'get'
+        },
+        enabled: { type: 'boolean', description: 'Enable or disable Business & Goal Context in audits' },
+        contextId: { type: 'string', description: 'Context profile ID for select or delete' },
+        context: {
+          type: 'object',
+          description: 'Company & Product context profile (for action="save" or "update")',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            companyName: { type: 'string' },
+            productName: { type: 'string' },
+            industry: { type: 'string' },
+            primaryGoal: { type: 'string' },
+            valueProposition: { type: 'string' },
+            targetAudience: { type: 'string' },
+            mustHaves: { type: 'array', items: { type: 'string' }, description: 'Non-negotiable requirements that must be present on the page/flow' },
+            metrics: { type: 'array', items: { type: 'string' }, description: 'Current marketing/usage metrics or bottlenecks (e.g. "Bounce rate: 68%")' },
+            departments: { type: 'array', items: { type: 'string' }, description: 'Active department lens IDs (e.g. ["product-ux", "marketing-cro"])' },
+            departmentNotes: { type: 'object', description: 'Custom evaluation notes per department ID' }
+          }
+        },
+        department: {
+          type: 'object',
+          description: 'Custom department definition (for action="add_department")',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            icon: { type: 'string' },
+            focus: { type: 'string' },
+            defaultCriteria: { type: 'string' }
+          }
+        },
+        departmentId: { type: 'string', description: 'Department ID for delete_department' }
+      }
+    }
+  },
+  {
+    name: 'synthux_manage_flows',
+    description: 'Read, create, edit, auto-layout, save, load, and control the multi-page Flow Builder 2.0 canvas and saved user journey flows in real time. Any edits made here synchronize live with the open Flow Builder window in Chrome.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          enum: [
+            'open_canvas',
+            'get_canvas',
+            'list_saved',
+            'get_saved',
+            'add_node',
+            'update_node',
+            'remove_node',
+            'add_connector',
+            'update_connector',
+            'remove_connector',
+            'add_note',
+            'remove_note',
+            'auto_layout',
+            'clear_canvas',
+            'save_flow',
+            'load_flow',
+            'delete_flow',
+            'submit_external_flow'
+          ],
+          default: 'get_canvas'
+        },
+        flowId: { type: 'string', description: 'Saved flow ID for get_saved, load_flow, or delete_flow' },
+        name: { type: 'string', description: 'Flow name for save_flow, get_saved, or load_flow' },
+        nodeId: { type: 'string', description: 'Node ID for update_node or remove_node' },
+        url: { type: 'string', description: 'Step URL for add_node or update_node' },
+        label: { type: 'string', description: 'Step label (for add_node/update_node) or connector trigger label (for add_connector/update_connector)' },
+        stepGoal: { type: 'string', description: 'Expected user goal/action on this step' },
+        dropOffMetric: { type: 'string', description: 'Step metric or drop-off percentage (e.g. "Drop-off: 42%")' },
+        fromId: { type: 'string', description: 'Source node ID for connector actions' },
+        toId: { type: 'string', description: 'Target node ID for connector actions' },
+        text: { type: 'string', description: 'Sticky note text for add_note' },
+        attachedTo: { type: 'string', description: 'Node ID to attach sticky note to' },
+        noteId: { type: 'string', description: 'Note ID for remove_note' },
+        flowReport: { type: 'object', description: 'External Agent-Brain evaluated flowReport object for submit_external_flow' }
+      }
+    }
+  },
+  {
     name: 'synthux_configure_ai',
     description: 'Read or update synthux AI provider configuration (Local Ollama, Apple Intelligence macOS 26/27 FoundationModels, Chrome Built-in AI Gemini Nano, or Cloud Gemini/OpenAI/Claude) and test provider connectivity.',
     inputSchema: {
@@ -750,22 +861,26 @@ export const MCP_TOOLS = [
         endpoint: { type: 'string' },
         enableVision: { type: 'boolean' },
         rulePackId: { type: 'string' },
-        analysisMode: { type: 'string', enum: ['quick', 'deep', 'custom'] }
+        analysisMode: { type: 'string', enum: ['quick', 'deep', 'custom', 'wcag-only'] }
       }
     }
   },
   {
     name: 'synthux_get_reports',
-    description: 'Retrieve the latest UX audit report, list report history, or export a report in Enhanced Markdown v2.0 or JSON format.',
+    description: 'Retrieve the latest UX audit report, list report history, inspect saved Flow Builder reports, compare Before vs After reports (Audit Diff: resolved, new, persistent issues & Must-Haves progress), generate an AI Coding Agent Fix Prompt, or export/import full workspace backups.',
     inputSchema: {
       type: 'object',
       properties: {
         action: {
           type: 'string',
-          enum: ['latest', 'history', 'by_id'],
+          enum: ['latest', 'history', 'by_id', 'compare', 'fix_prompt', 'flows', 'flow_by_id', 'delete_report', 'clear_history', 'export_workspace', 'import_workspace'],
           default: 'latest'
         },
-        id: { type: 'string', description: 'Report ID when action="by_id"' },
+        id: { type: 'string', description: 'Report ID or Flow ID when action="by_id", "flow_by_id", "fix_prompt", or "delete_report"' },
+        baseId: { type: 'string', description: 'Older (Before) report ID when action="compare" (optional; auto-selects previous report if omitted)' },
+        targetId: { type: 'string', description: 'Newer (After) report ID when action="compare" (optional; defaults to latest report)' },
+        includeAnnotatedScreenshot: { type: 'boolean', description: 'Include numbered annotated viewport screenshot data URL in report response (default: false)' },
+        workspace: { type: 'object', description: 'Workspace backup JSON object when action="import_workspace"' },
         format: {
           type: 'string',
           enum: ['json', 'markdown'],
@@ -910,6 +1025,14 @@ async function executeToolCall(name, args = {}) {
       const accessibilityResults = runAccessibilityChecks(pageData);
       const evaluationTasks = [];
 
+      let businessContext = args.businessContext || null;
+      if (!businessContext) {
+        businessContext = await getActiveBusinessContext();
+      }
+      if (args.includeBusinessContext === false) {
+        businessContext = null;
+      }
+
       for (const pid of profileIds) {
         const profile = getProfile(pid) || localState.customProfiles.find(p => p.id === pid);
         if (!profile) continue;
@@ -925,10 +1048,15 @@ async function executeToolCall(name, args = {}) {
             heuristicId: heuristic.id,
             heuristicName: heuristic.name?.en || heuristic.name,
             weight: heuristic.weight || 1.0,
-            prompt: buildPrompt(heuristic, profile, pageData, false)
+            prompt: buildPrompt(heuristic, profile, pageData, false, businessContext)
           });
         }
       }
+
+      const allDepartments = await getAllDepartments();
+      const businessAlignmentPrompt = businessContext
+        ? buildBusinessAlignmentPrompt(businessContext, pageData, allDepartments)
+        : null;
 
       return {
         success: true,
@@ -941,6 +1069,14 @@ async function executeToolCall(name, args = {}) {
         },
         mode,
         profiles: profileIds,
+        businessContext,
+        businessAlignmentPrompt,
+        discoveryQuestions: generateDiscoveryQuestions({
+          url: args.url || '',
+          title: args.title || pageData.meta?.title || '',
+          pageData,
+          currentContext: businessContext
+        }),
         accessibilityResults,
         evaluationTasks
       };
@@ -963,6 +1099,14 @@ async function executeToolCall(name, args = {}) {
         accessibility: { hasLangAttr: true, contrastResults: [], tabOrderIssues: [], unlabeledInteractives: [] }
       };
       const accessibilityResults = runAccessibilityChecks(pageData);
+
+      let businessContext = args.businessContext || null;
+      if (!businessContext) {
+        businessContext = await getActiveBusinessContext();
+      }
+      if (args.includeBusinessContext === false) {
+        businessContext = null;
+      }
 
       const rawEvaluations = Array.isArray(args.evaluations) ? args.evaluations : [];
       const profileGroups = new Map();
@@ -1023,6 +1167,16 @@ async function executeToolCall(name, args = {}) {
         });
       });
 
+      const allDepartments = await getAllDepartments();
+      let businessAlignment = null;
+      if (args.businessAlignment) {
+        businessAlignment = typeof args.businessAlignment === 'string'
+          ? parseBusinessAlignmentResponse(args.businessAlignment, businessContext, pageData, allDepartments)
+          : args.businessAlignment;
+      } else if (businessContext) {
+        businessAlignment = buildDeterministicBusinessAlignment(businessContext, pageData, allDepartments);
+      }
+
       const report = generateReport({
         url: args.url || 'https://synthux.app',
         title: args.title || pageData.meta?.title || 'MCP Audited Page',
@@ -1038,6 +1192,8 @@ async function executeToolCall(name, args = {}) {
         profileResults,
         accessibilityResults,
         issues: allIssues,
+        businessContext,
+        businessAlignment,
         screenshot: null,
         annotatedScreenshot: null,
         costSummary: null
@@ -1045,12 +1201,15 @@ async function executeToolCall(name, args = {}) {
 
       localState.lastReport = report;
       localState.reportHistory.unshift({
-        id: `mcp-${Date.now()}`,
+        id: `mcp-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         url: report.url,
         title: report.title,
         score: report.overallScore,
         mode: report.mode,
         model: report.model,
+        rulePackShortName: report.rulePackShortName,
+        businessCompany: report.businessContext?.companyName || null,
+        goalScore: report.businessAlignment?.goalAlignmentScore ?? null,
         timestamp: report.timestamp,
         report
       });
@@ -1180,6 +1339,327 @@ async function executeToolCall(name, args = {}) {
       };
     }
 
+    case 'synthux_manage_business_context': {
+      if (extConnected) {
+        return await sendExtensionCommand('MANAGE_BUSINESS_CONTEXT', args, 15000);
+      }
+
+      const action = args.action || 'get';
+      const state = await getBusinessContextState();
+      const contexts = state.contexts || [];
+
+      if (action === 'get' || action === 'list') {
+        const activeProfile = contexts.find(p => p.id === state.activeContextId) || contexts[0] || null;
+        return {
+          success: true,
+          enabled: state.enabled,
+          activeContextId: state.activeContextId,
+          activeProfileId: state.activeContextId,
+          activeProfile,
+          contexts,
+          profiles: contexts,
+          builtInDepartments: BUILT_IN_DEPARTMENTS,
+          customDepartments: state.customDepartments || [],
+          allDepartments: await getAllDepartments()
+        };
+      }
+
+      if (action === 'set_active' || action === 'toggle' || action === 'select') {
+        const nextEnabled = typeof args.enabled === 'boolean' ? args.enabled : state.enabled;
+        const nextId = args.profileId || args.contextId || args.activeContextId || state.activeContextId;
+        const updated = await saveBusinessContextState({
+          ...state,
+          enabled: nextEnabled,
+          activeContextId: nextId
+        });
+        return {
+          success: true,
+          enabled: updated.enabled,
+          activeContextId: updated.activeContextId,
+          activeProfileId: updated.activeContextId,
+          activeProfile: (updated.contexts || []).find(p => p.id === updated.activeContextId) || null
+        };
+      }
+
+      if (action === 'save' || action === 'update') {
+        const profileInput = args.profile || args.context || args;
+        const { state: updated, profile: saved } = await upsertBusinessContextProfile(profileInput, {
+          setActive: args.setActive !== false,
+          enabled: typeof args.enabled === 'boolean' ? args.enabled : true
+        });
+        return {
+          success: true,
+          profile: saved,
+          enabled: updated.enabled,
+          activeContextId: updated.activeContextId,
+          activeProfileId: updated.activeContextId,
+          state: updated
+        };
+      }
+
+      if (action === 'delete') {
+        const targetId = args.profileId || args.contextId || args.id;
+        if (!targetId) throw new Error('profileId is required to delete a business context profile.');
+        const updated = await deleteBusinessContextProfile(targetId);
+        return {
+          success: true,
+          enabled: updated.enabled,
+          activeContextId: updated.activeContextId,
+          activeProfileId: updated.activeContextId,
+          contexts: updated.contexts,
+          profiles: updated.contexts
+        };
+      }
+
+      if (action === 'add_department') {
+        const deptInput = args.department || {
+          id: args.departmentId || args.id,
+          name: args.name,
+          icon: args.icon,
+          focus: args.focus || args.criteria,
+          defaultCriteria: args.defaultCriteria || args.criteria || args.focus
+        };
+        if (!deptInput || !deptInput.name) {
+          throw new Error('department.name is required to add a custom department.');
+        }
+        const { department: dept, state: updated } = await upsertCustomDepartment(deptInput);
+        return {
+          success: true,
+          department: dept,
+          state: updated,
+          allDepartments: await getAllDepartments()
+        };
+      }
+
+      if (action === 'delete_department') {
+        const targetDeptId = args.departmentId || args.id;
+        if (!targetDeptId) throw new Error('departmentId is required to delete a custom department.');
+        const updated = await deleteCustomDepartment(targetDeptId);
+        return {
+          success: true,
+          customDepartments: updated.customDepartments,
+          state: updated,
+          allDepartments: await getAllDepartments()
+        };
+      }
+
+      if (action === 'discover_questions') {
+        const targetId = args.profileId || args.contextId || state.activeContextId;
+        const activeProfile = contexts.find(p => p.id === targetId) || args.profile || null;
+        const discovery = generateDiscoveryQuestions({
+          url: args.url || '',
+          title: args.title || '',
+          pageData: args.pageData || null,
+          flowPages: args.flowPages || null,
+          currentContext: activeProfile
+        });
+        return {
+          success: true,
+          discoveryQuestions: discovery,
+          discovery,
+          activeProfile
+        };
+      }
+
+      throw new Error(`Unknown business context action: ${action}`);
+    }
+
+    case 'synthux_manage_flows': {
+      if (extConnected) {
+        return await sendExtensionCommand('MANAGE_FLOWS', args, 30000);
+      }
+
+      const action = args.action || 'get_canvas';
+      const canvas = localState.liveFlowCanvas;
+
+      if (action === 'get_canvas') {
+        return {
+          success: true,
+          mode: 'standalone-engine',
+          canvas,
+          nodeCount: (canvas.nodes || []).length,
+          connectorCount: (canvas.connectors || []).length,
+          noteCount: (canvas.notes || []).length,
+          hasReport: !!canvas.flowReport
+        };
+      }
+
+      if (action === 'set_canvas') {
+        const next = args.canvas || {};
+        localState.liveFlowCanvas = {
+          nodes: Array.isArray(next.nodes) ? next.nodes : (canvas.nodes || []),
+          notes: Array.isArray(next.notes) ? next.notes : (canvas.notes || []),
+          connectors: Array.isArray(next.connectors) ? next.connectors : (canvas.connectors || []),
+          flowReport: next.flowReport !== undefined ? next.flowReport : (canvas.flowReport || null),
+          viewport: next.viewport || canvas.viewport || { x: 0, y: 0, zoom: 1 }
+        };
+        return { success: true, canvas: localState.liveFlowCanvas };
+      }
+
+      if (action === 'clear_canvas') {
+        localState.liveFlowCanvas = { nodes: [], notes: [], connectors: [], flowReport: null, viewport: { x: 0, y: 0, zoom: 1 } };
+        return { success: true, canvas: localState.liveFlowCanvas };
+      }
+
+      if (action === 'add_node') {
+        const n = args.node || {};
+        const count = (canvas.nodes || []).length;
+        const newNode = {
+          id: n.id || `node-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          title: n.title || `Step ${count + 1}`,
+          url: n.url || '',
+          stepGoal: n.stepGoal || '',
+          dropOffMetric: n.dropOffMetric || '',
+          x: typeof n.x === 'number' ? n.x : (100 + (count % 4) * 280),
+          y: typeof n.y === 'number' ? n.y : (120 + Math.floor(count / 4) * 230),
+          screenshot: n.screenshot || null,
+          domData: n.domData || null,
+          tabId: n.tabId || null,
+          analysisResult: n.analysisResult || null,
+          status: n.status || 'idle',
+          order: count
+        };
+        canvas.nodes.push(newNode);
+        if (args.connectFromNodeId) {
+          canvas.connectors.push({
+            id: `conn-${Date.now()}`,
+            fromNodeId: args.connectFromNodeId,
+            toNodeId: newNode.id,
+            label: args.connectorLabel || '',
+            transitionScore: null,
+            transitionIssues: []
+          });
+        }
+        return { success: true, node: newNode, canvas };
+      }
+
+      if (action === 'update_node') {
+        const nodeId = args.nodeId || args.node?.id;
+        const target = (canvas.nodes || []).find(n => n.id === nodeId);
+        if (!target) throw new Error(`Flow node ${nodeId} not found.`);
+        const patch = args.node || args;
+        if (patch.title !== undefined) target.title = patch.title;
+        if (patch.url !== undefined) target.url = patch.url;
+        if (patch.stepGoal !== undefined) target.stepGoal = patch.stepGoal;
+        if (patch.dropOffMetric !== undefined) target.dropOffMetric = patch.dropOffMetric;
+        if (typeof patch.x === 'number') target.x = patch.x;
+        if (typeof patch.y === 'number') target.y = patch.y;
+        return { success: true, node: target, canvas };
+      }
+
+      if (action === 'remove_node') {
+        const nodeId = args.nodeId;
+        canvas.nodes = (canvas.nodes || []).filter(n => n.id !== nodeId);
+        canvas.connectors = (canvas.connectors || []).filter(c => c.fromNodeId !== nodeId && c.toNodeId !== nodeId);
+        return { success: true, canvas };
+      }
+
+      if (action === 'add_connector') {
+        const c = args.connector || args;
+        if (!c.fromNodeId || !c.toNodeId) throw new Error('fromNodeId and toNodeId are required.');
+        const newConn = {
+          id: `conn-${Date.now()}`,
+          fromNodeId: c.fromNodeId,
+          toNodeId: c.toNodeId,
+          label: c.label || '',
+          transitionScore: null,
+          transitionIssues: []
+        };
+        canvas.connectors.push(newConn);
+        return { success: true, connector: newConn, canvas };
+      }
+
+      if (action === 'remove_connector') {
+        canvas.connectors = (canvas.connectors || []).filter(c => c.id !== args.connectorId);
+        return { success: true, canvas };
+      }
+
+      if (action === 'add_note') {
+        const nt = args.note || args;
+        const newNote = {
+          id: `note-${Date.now()}`,
+          text: nt.text || '',
+          color: nt.color || 'yellow',
+          x: typeof nt.x === 'number' ? nt.x : 140,
+          y: typeof nt.y === 'number' ? nt.y : 100
+        };
+        canvas.notes.push(newNote);
+        return { success: true, note: newNote, canvas };
+      }
+
+      if (action === 'auto_layout') {
+        (canvas.nodes || []).forEach((node, idx) => {
+          node.x = 80 + (idx % 4) * 280;
+          node.y = 100 + Math.floor(idx / 4) * 240;
+          node.order = idx;
+        });
+        return { success: true, canvas };
+      }
+
+      if (action === 'list_saved') {
+        return {
+          success: true,
+          flows: localState.savedFlows.map(f => ({
+            id: f.id,
+            name: f.name,
+            stepCount: f.stepCount || (f.nodes || []).length,
+            overallFlowScore: f.flowReport?.overallFlowScore ?? null,
+            goalAlignmentScore: f.flowReport?.businessAlignment?.goalAlignmentScore ?? null,
+            timestamp: f.timestamp
+          }))
+        };
+      }
+
+      if (action === 'get_saved') {
+        const flow = localState.savedFlows.find(f => f.id === args.flowId);
+        if (!flow) throw new Error(`Saved flow ${args.flowId} not found.`);
+        return { success: true, flow };
+      }
+
+      if (action === 'save_flow') {
+        const flowEntry = {
+          id: args.flowId || `flow-${Date.now()}`,
+          name: args.name || `Flow (${(canvas.nodes || []).length} steps)`,
+          timestamp: new Date().toISOString(),
+          stepCount: (canvas.nodes || []).length,
+          nodes: canvas.nodes || [],
+          notes: canvas.notes || [],
+          connectors: canvas.connectors || [],
+          flowReport: canvas.flowReport || null
+        };
+        localState.savedFlows = [flowEntry, ...localState.savedFlows.filter(f => f.id !== flowEntry.id)];
+        return { success: true, flow: flowEntry };
+      }
+
+      if (action === 'load_saved') {
+        const flow = localState.savedFlows.find(f => f.id === args.flowId);
+        if (!flow) throw new Error(`Saved flow ${args.flowId} not found.`);
+        localState.liveFlowCanvas = {
+          nodes: flow.nodes || [],
+          notes: flow.notes || [],
+          connectors: flow.connectors || [],
+          flowReport: flow.flowReport || null,
+          viewport: { x: 0, y: 0, zoom: 1 }
+        };
+        return { success: true, canvas: localState.liveFlowCanvas };
+      }
+
+      if (action === 'delete_saved') {
+        localState.savedFlows = localState.savedFlows.filter(f => f.id !== args.flowId);
+        return { success: true, count: localState.savedFlows.length };
+      }
+
+      if (action === 'open_window') {
+        return {
+          success: true,
+          mode: 'standalone-engine',
+          note: 'Connect the Chrome extension over WebSocket to launch the visual Flow Builder window in Chrome.'
+        };
+      }
+
+      throw new Error(`Unknown flow management action: ${action}`);
+    }
+
     case 'synthux_get_reports': {
       if (extConnected) {
         return await sendExtensionCommand('GET_REPORTS', args, 15000);
@@ -1196,10 +1676,97 @@ async function executeToolCall(name, args = {}) {
             score: r.score,
             mode: r.mode,
             model: r.model,
+            rulePackShortName: r.rulePackShortName || r.report?.rulePackShortName || 'Nielsen 10',
+            businessCompany: r.businessCompany || r.report?.businessContext?.companyName || null,
+            goalScore: r.goalScore ?? r.report?.businessAlignment?.goalAlignmentScore ?? null,
+            issueCount: (r.report?.issues || []).length,
             timestamp: r.timestamp
           }))
         };
       }
+
+      if (action === 'flows') {
+        return {
+          success: true,
+          flows: localState.savedFlows,
+          liveFlowReport: localState.liveFlowCanvas?.flowReport || null
+        };
+      }
+
+      if (action === 'flow_by_id' && args.id) {
+        const flow = localState.savedFlows.find(f => f.id === args.id);
+        if (!flow) throw new Error(`Flow ${args.id} not found.`);
+        return { success: true, flow };
+      }
+
+      if (action === 'compare') {
+        if (localState.reportHistory.length < 2) {
+          throw new Error('At least 2 reports in history are required to run a Before/After audit comparison.');
+        }
+        const targetEntry = args.targetId
+          ? localState.reportHistory.find(r => r.id === args.targetId)
+          : localState.reportHistory[0];
+        if (!targetEntry) throw new Error('Target (After) report not found.');
+        const baseEntry = args.baseId
+          ? localState.reportHistory.find(r => r.id === args.baseId)
+          : (localState.reportHistory.find(r => r.id !== targetEntry.id && r.url === targetEntry.url) || localState.reportHistory.find(r => r.id !== targetEntry.id));
+        if (!baseEntry) throw new Error('Base (Before) report not found.');
+        const comparison = compareReports(baseEntry.report || baseEntry, targetEntry.report || targetEntry);
+        return {
+          success: true,
+          comparison: args.format === 'markdown' ? comparison.markdown : comparison
+        };
+      }
+
+      if (action === 'fix_prompt') {
+        const targetReport = args.id
+          ? localState.reportHistory.find(r => r.id === args.id)?.report
+          : (localState.lastReport || localState.reportHistory[0]?.report);
+        if (!targetReport) throw new Error('No report found to generate an AI fix prompt.');
+        return {
+          success: true,
+          url: targetReport.url,
+          title: targetReport.title,
+          fixPrompt: targetReport.aiFixPrompt || generateAiFixPrompt(targetReport)
+        };
+      }
+
+      if (action === 'delete_report' && args.id) {
+        localState.reportHistory = localState.reportHistory.filter(r => r.id !== args.id);
+        return { success: true, remainingCount: localState.reportHistory.length };
+      }
+
+      if (action === 'clear_history') {
+        localState.reportHistory = [];
+        return { success: true, remainingCount: 0 };
+      }
+
+      if (action === 'export_workspace') {
+        const businessContextState = await getBusinessContextState();
+        return {
+          success: true,
+          workspace: {
+            version: '2.2.0',
+            exportedAt: new Date().toISOString(),
+            businessContextState,
+            customProfiles: localState.customProfiles,
+            customRulePacks: localState.customRulePacks,
+            savedFlows: localState.savedFlows,
+            reportHistory: localState.reportHistory
+          }
+        };
+      }
+
+      if (action === 'import_workspace' && args.workspace) {
+        const ws = args.workspace;
+        if (ws.businessContextState) await saveBusinessContextState(ws.businessContextState);
+        if (Array.isArray(ws.customProfiles)) localState.customProfiles = ws.customProfiles;
+        if (Array.isArray(ws.customRulePacks)) localState.customRulePacks = ws.customRulePacks;
+        if (Array.isArray(ws.savedFlows)) localState.savedFlows = ws.savedFlows;
+        if (Array.isArray(ws.reportHistory)) localState.reportHistory = ws.reportHistory;
+        return { success: true, importedAt: new Date().toISOString() };
+      }
+
       if (action === 'by_id' && args.id) {
         const entry = localState.reportHistory.find(r => r.id === args.id);
         if (!entry) throw new Error(`Report ${args.id} not found.`);

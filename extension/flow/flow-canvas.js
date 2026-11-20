@@ -14,7 +14,8 @@ export class FlowCanvas {
     this.connectors = [];         // [{id,fromId,toId,pathEl}]
     this.notes = new Map();       // id → {id,x,y,text,attachedTo,el}
     this.viewport = { x: 0, y: 0, zoom: 1 };
-    this.selected = null;         // {type:'node'|'note', id}
+    this.selected = null;         // {type:'node'|'note'|'connector', id}
+    this.flowReport = null;       // latest flowReport attached to this canvas
     this._connectFrom = null;     // node id when drawing connector
     this._tempPath = null;        // SVG temp path element
     this._dragState = null;
@@ -30,20 +31,86 @@ export class FlowCanvas {
 
   // ─── Public API ─────────────────────────────────────────────────
 
-  addNode(url, label, x, y) {
-    const id = uid('n');
-    if (x == null) x = (-this.viewport.x + this._viewportEl.clientWidth / 2) / this.viewport.zoom - 100;
-    if (y == null) y = (-this.viewport.y + this._viewportEl.clientHeight / 2) / this.viewport.zoom - 80;
+  addNode(url, label, x, y, extra = {}) {
+    const id = extra.id || uid('n');
     const lastNode = Array.from(this.nodes.values()).pop();
-    const node = { id, x, y, url, label: label || this._urlToLabel(url), score: null, report: null, thumbnail: null };
+    if (x == null) {
+      x = lastNode
+        ? lastNode.x + 270
+        : (-this.viewport.x + this._viewportEl.clientWidth / 2) / this.viewport.zoom - 160;
+    }
+    if (y == null) {
+      y = lastNode
+        ? lastNode.y
+        : (-this.viewport.y + this._viewportEl.clientHeight / 2) / this.viewport.zoom - 90;
+    }
+    const node = {
+      id,
+      x,
+      y,
+      url,
+      label: label || this._urlToLabel(url),
+      stepGoal: extra.stepGoal || '',
+      dropOffMetric: extra.dropOffMetric || '',
+      score: extra.score ?? null,
+      report: extra.report ?? null,
+      thumbnail: extra.thumbnail ?? null
+    };
     this.nodes.set(id, node);
     this._renderNode(node);
-    if (lastNode) {
+    this._refreshStepBadges();
+    if (lastNode && extra.autoConnect !== false) {
       this.addConnector(lastNode.id, id);
     }
     this._updateStatus();
+    this._syncLiveCanvas();
     this._emit('change');
     return node;
+  }
+
+  updateNode(id, updates = {}) {
+    const node = this.nodes.get(id);
+    if (!node) return null;
+    if (updates.label !== undefined) node.label = updates.label || this._urlToLabel(node.url);
+    if (updates.url !== undefined) node.url = updates.url;
+    if (updates.stepGoal !== undefined) node.stepGoal = updates.stepGoal;
+    if (updates.dropOffMetric !== undefined) node.dropOffMetric = updates.dropOffMetric;
+    if (updates.x !== undefined) node.x = Number(updates.x);
+    if (updates.y !== undefined) node.y = Number(updates.y);
+    this._renderNodeUpdate(node);
+    this._updateAllConnectors();
+    this._syncLiveCanvas();
+    this._emit('change');
+    return node;
+  }
+
+  autoLayout() {
+    if (this.nodes.size === 0) return;
+    const startX = 80;
+    const startY = 120;
+    const spacingX = 270;
+    let idx = 0;
+    for (const node of this.nodes.values()) {
+      node.x = startX + idx * spacingX;
+      node.y = startY;
+      if (node.el) {
+        node.el.style.transform = `translate(${node.x}px, ${node.y}px)`;
+      }
+      idx++;
+    }
+    this._updateAllConnectors();
+    this.fitAll();
+    this._syncLiveCanvas();
+    this._emit('change');
+  }
+
+  _refreshStepBadges() {
+    let idx = 1;
+    for (const node of this.nodes.values()) {
+      const badge = node.el?.querySelector('.node-step-badge');
+      if (badge) badge.textContent = `S${idx}`;
+      idx++;
+    }
   }
 
   removeNode(id) {
@@ -65,7 +132,9 @@ export class FlowCanvas {
         note.attachedTo = null;
       }
     }
+    this._refreshStepBadges();
     this._updateStatus();
+    this._syncLiveCanvas();
     this._emit('change');
   }
 
@@ -125,7 +194,9 @@ export class FlowCanvas {
     this.connectors = [];
 
     this._clearSelection();
+    this._refreshStepBadges();
     this._updateStatus();
+    this._syncLiveCanvas();
     this._emit('change');
   }
 
@@ -146,18 +217,35 @@ export class FlowCanvas {
     if (!note) return;
     if (note.el) note.el.remove();
     this.notes.delete(id);
+    this._refreshStepBadges();
     this._updateStatus();
+    this._syncLiveCanvas();
     this._emit('change');
   }
 
-  addConnector(fromId, toId) {
-    if (fromId === toId) return;
-    if (this.connectors.some(c => c.fromId === fromId && c.toId === toId)) return;
+  addConnector(fromId, toId, label = '') {
+    if (fromId === toId) return null;
+    const existing = this.connectors.find(c => c.fromId === fromId && c.toId === toId);
+    if (existing) return existing;
     const id = uid('c');
-    const conn = { id, fromId, toId, pathEl: null };
+    const conn = { id, fromId, toId, label: label || '', quality: null, description: null, pathEl: null };
     this.connectors.push(conn);
     this._renderConnector(conn);
+    this._syncLiveCanvas();
     this._emit('change');
+    return conn;
+  }
+
+  updateConnector(fromId, toId, updates = {}) {
+    const conn = this.connectors.find(c => c.fromId === fromId && c.toId === toId);
+    if (!conn) return null;
+    if (updates.label !== undefined) conn.label = updates.label;
+    if (updates.quality !== undefined) conn.quality = updates.quality;
+    if (updates.description !== undefined) conn.description = updates.description;
+    this._renderConnectorUpdate(conn);
+    this._syncLiveCanvas();
+    this._emit('change');
+    return conn;
   }
 
   removeConnector(fromId, toId) {
@@ -240,17 +328,49 @@ export class FlowCanvas {
   exportState() {
     const nodes = [];
     for (const n of this.nodes.values()) {
-      nodes.push({ id: n.id, x: n.x, y: n.y, url: n.url, label: n.label, score: n.score, thumbnail: n.thumbnail });
+      nodes.push({
+        id: n.id,
+        x: n.x,
+        y: n.y,
+        url: n.url,
+        label: n.label,
+        stepGoal: n.stepGoal || '',
+        dropOffMetric: n.dropOffMetric || '',
+        score: n.score,
+        report: n.report || null,
+        thumbnail: n.thumbnail
+      });
     }
     const notes = [];
     for (const n of this.notes.values()) {
       notes.push({ id: n.id, x: n.x, y: n.y, text: n.text, attachedTo: n.attachedTo });
     }
     return {
-      nodes, notes,
-      connectors: this.connectors.map(c => ({ fromId: c.fromId, toId: c.toId, quality: c.quality || null, description: c.description || null })),
+      nodes,
+      notes,
+      connectors: this.connectors.map(c => ({
+        fromId: c.fromId,
+        toId: c.toId,
+        label: c.label || '',
+        quality: c.quality || null,
+        description: c.description || null
+      })),
+      flowReport: this.flowReport || null,
       viewport: { ...this.viewport }
     };
+  }
+
+  _syncLiveCanvas() {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        const state = this.exportState();
+        // Exclude base64 thumbnails from live storage sync if huge, keep metadata fast
+        const compactNodes = (state.nodes || []).map(n => ({ ...n, thumbnail: n.thumbnail ? n.thumbnail.slice(0, 60000) : null }));
+        chrome.storage.local.set({
+          synthux_live_flow_canvas: { ...state, nodes: compactNodes, updatedAt: new Date().toISOString() }
+        }).catch(() => {});
+      }
+    } catch {}
   }
 
   importState(data) {
@@ -261,15 +381,24 @@ export class FlowCanvas {
     this.nodes.clear();
     this.notes.clear();
     this.connectors = [];
+    this.flowReport = data.flowReport || null;
 
     // Import nodes
     for (const nd of (data.nodes || [])) {
-      const node = { ...nd, report: null, el: null };
+      const node = {
+        ...nd,
+        stepGoal: nd.stepGoal || '',
+        dropOffMetric: nd.dropOffMetric || '',
+        report: nd.report || null,
+        el: null
+      };
       this.nodes.set(node.id, node);
       this._renderNode(node);
-      // Restore thumbnail if present
-      if (node.thumbnail) this._renderNodeUpdate(node);
+      if (node.thumbnail || node.score != null || node.stepGoal || node.dropOffMetric) {
+        this._renderNodeUpdate(node);
+      }
     }
+    this._refreshStepBadges();
 
     // Import notes
     for (const nd of (data.notes || [])) {
@@ -280,10 +409,18 @@ export class FlowCanvas {
 
     // Import connectors
     for (const cd of (data.connectors || [])) {
-      const conn = { id: uid('c'), fromId: cd.fromId, toId: cd.toId, quality: cd.quality || null, description: cd.description || null, pathEl: null };
+      const conn = {
+        id: uid('c'),
+        fromId: cd.fromId,
+        toId: cd.toId,
+        label: cd.label || '',
+        quality: cd.quality || null,
+        description: cd.description || null,
+        pathEl: null
+      };
       this.connectors.push(conn);
       this._renderConnector(conn);
-      if (conn.quality) this._renderConnectorUpdate(conn);
+      if (conn.quality || conn.label) this._renderConnectorUpdate(conn);
     }
 
     // Restore viewport
@@ -299,11 +436,19 @@ export class FlowCanvas {
     if (maxNum > idCounter) idCounter = maxNum;
 
     this._updateStatus();
+    this._syncLiveCanvas();
+    if (this.flowReport && window.__synthux_showResults) {
+      window.__synthux_showResults(this.flowReport);
+    }
   }
 
   getPages() {
     return Array.from(this.nodes.values()).map(n => ({
-      id: n.id, url: n.url, label: n.label
+      id: n.id,
+      url: n.url,
+      label: n.label,
+      stepGoal: n.stepGoal || '',
+      dropOffMetric: n.dropOffMetric || ''
     }));
   }
 
@@ -314,7 +459,7 @@ export class FlowCanvas {
   }
 
   getConnectors() {
-    return this.connectors.map(c => ({ fromId: c.fromId, toId: c.toId }));
+    return this.connectors.map(c => ({ fromId: c.fromId, toId: c.toId, label: c.label || '' }));
   }
 
   // ─── Rendering ──────────────────────────────────────────────────
@@ -324,14 +469,19 @@ export class FlowCanvas {
     el.className = 'flow-node';
     el.dataset.id = node.id;
     el.style.transform = `translate(${node.x}px, ${node.y}px)`;
+    const stepNum = Array.from(this.nodes.keys()).indexOf(node.id) + 1;
     el.innerHTML = `
-      <div class="node-header">
-        <span class="node-drag">\u22EE\u22EE</span>
+      <div class="node-header" style="cursor:grab;">
+        <span class="node-step-badge">S${stepNum > 0 ? stepNum : this.nodes.size}</span>
         <span class="node-title">${this._esc(node.label)}</span>
         <button class="node-remove">\u00D7</button>
       </div>
       <div class="node-thumbnail node-thumbnail--empty"></div>
       <div class="node-url">${this._esc(this._shortenUrl(node.url))}</div>
+      <div class="node-meta-pills" ${!node.stepGoal && !node.dropOffMetric ? 'hidden' : ''}>
+        ${node.stepGoal ? `<div class="node-meta-pill">Goal: ${this._esc(node.stepGoal)}</div>` : ''}
+        ${node.dropOffMetric ? `<div class="node-meta-pill node-meta-pill--metric">Metric: ${this._esc(node.dropOffMetric)}</div>` : ''}
+      </div>
       <div class="node-footer">
         <span class="node-score">\u2014</span>
         <span class="node-score-label"></span>
@@ -343,13 +493,16 @@ export class FlowCanvas {
     node.el = el;
     this._canvasEl.appendChild(el);
 
-    // Events
-    el.querySelector('.node-drag').addEventListener('mousedown', e => this._onDragStart(e, node));
+    // Events — allow dragging from entire node header!
+    el.querySelector('.node-header').addEventListener('mousedown', e => {
+      if (e.target.closest('.node-remove')) return;
+      this._onDragStart(e, node);
+    });
     el.querySelector('.node-remove').addEventListener('click', () => this.removeNode(node.id));
     el.querySelector('.node-port--out').addEventListener('mousedown', e => this._onConnectStart(e, node));
     el.querySelector('.node-port--in').addEventListener('mouseup', () => this._onConnectEnd(node));
     el.addEventListener('click', e => {
-      if (e.target.closest('.node-remove, .node-port, .node-drag')) return;
+      if (e.target.closest('.node-remove, .node-port')) return;
       this._select('node', node.id);
       this._emit('nodeClick', node);
     });
@@ -357,6 +510,26 @@ export class FlowCanvas {
 
   _renderNodeUpdate(node) {
     if (!node.el) return;
+    node.el.style.transform = `translate(${node.x}px, ${node.y}px)`;
+    const titleEl = node.el.querySelector('.node-title');
+    if (titleEl) titleEl.textContent = node.label;
+    const urlEl = node.el.querySelector('.node-url');
+    if (urlEl) urlEl.textContent = this._shortenUrl(node.url);
+
+    const pillsEl = node.el.querySelector('.node-meta-pills');
+    if (pillsEl) {
+      if (node.stepGoal || node.dropOffMetric) {
+        pillsEl.hidden = false;
+        pillsEl.innerHTML = `
+          ${node.stepGoal ? `<div class="node-meta-pill">Goal: ${this._esc(node.stepGoal)}</div>` : ''}
+          ${node.dropOffMetric ? `<div class="node-meta-pill node-meta-pill--metric">Metric: ${this._esc(node.dropOffMetric)}</div>` : ''}
+        `;
+      } else {
+        pillsEl.hidden = true;
+        pillsEl.innerHTML = '';
+      }
+    }
+
     // Score
     const scoreEl = node.el.querySelector('.node-score');
     const labelEl = node.el.querySelector('.node-score-label');
@@ -364,6 +537,10 @@ export class FlowCanvas {
       scoreEl.textContent = node.score;
       scoreEl.className = 'node-score ' + (node.score >= 70 ? 'node-score--good' : node.score >= 50 ? 'node-score--warning' : 'node-score--bad');
       labelEl.textContent = '/100';
+    } else {
+      scoreEl.textContent = '\u2014';
+      scoreEl.className = 'node-score';
+      labelEl.textContent = '';
     }
     // Thumbnail
     const thumbEl = node.el.querySelector('.node-thumbnail');
@@ -381,7 +558,13 @@ export class FlowCanvas {
     el.dataset.id = note.id;
     el.style.transform = `translate(${note.x}px, ${note.y}px)`;
     el.innerHTML = `
-      <div class="note-handle">\uD83D\uDCCC</div>
+      <div class="note-handle">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="6" r="1"></circle><circle cx="15" cy="6" r="1"></circle>
+          <circle cx="9" cy="12" r="1"></circle><circle cx="15" cy="12" r="1"></circle>
+          <circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="18" r="1"></circle>
+        </svg>
+      </div>
       <textarea class="note-text" placeholder="Add a note...">${this._esc(note.text)}</textarea>
       <button class="note-remove">\u00D7</button>
     `;
@@ -410,6 +593,7 @@ export class FlowCanvas {
     path.addEventListener('click', (e) => {
       e.stopPropagation();
       this._select('connector', conn);
+      this._emit('connectorClick', conn);
     });
   }
 
@@ -475,7 +659,10 @@ export class FlowCanvas {
       if (this._connectFrom) {
         this._cancelConnect();
       }
-      this._dragState = null;
+      if (this._dragState) {
+        this._dragState = null;
+        this._syncLiveCanvas();
+      }
     });
 
     // Connect move
@@ -505,6 +692,7 @@ export class FlowCanvas {
         this._cancelConnect();
         this.selected = null;
         this._clearSelection();
+        this._emit('clearSelect');
       }
     });
 
@@ -513,6 +701,7 @@ export class FlowCanvas {
       if (e.target === this._canvasEl) {
         this.selected = null;
         this._clearSelection();
+        this._emit('clearSelect');
       }
     });
 
@@ -722,7 +911,12 @@ export class FlowCanvas {
 
     const addPageItem = document.createElement('div');
     addPageItem.className = 'context-menu-item';
-    addPageItem.innerHTML = `<span>➕</span> Add Page`;
+    addPageItem.innerHTML = `
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>Add Page</span>
+    `;
     addPageItem.addEventListener('click', (e) => {
       e.stopPropagation();
       const pos = this._screenToCanvas(clientX, clientY);
@@ -742,7 +936,13 @@ export class FlowCanvas {
 
     const addNoteItem = document.createElement('div');
     addNoteItem.className = 'context-menu-item';
-    addNoteItem.innerHTML = `<span>📌</span> Add Note`;
+    addNoteItem.innerHTML = `
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      <span>Add Note</span>
+    `;
     addNoteItem.addEventListener('click', (e) => {
       e.stopPropagation();
       const pos = this._screenToCanvas(clientX, clientY);

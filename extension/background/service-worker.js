@@ -253,6 +253,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true;
 
+    case 'CLEAR_REPORT_HISTORY':
+      chrome.storage.local.set({ reportHistory: [] }).then(() => {
+        sendResponse({ success: true, history: [] });
+      });
+      return true;
+
     // ─── Overlay Relay (Side Panel → Content Script) ─────────────
     case 'INJECT_OVERLAY':
       injectOverlayManager(payload?.tabId).then(sendResponse);
@@ -365,6 +371,7 @@ async function handleStartAnalysis(options) {
       rulePackId,
       profiles,
       heuristics: customHeuristics,
+      businessContext: options?.businessContext || null,
       provider,
       apiKey,
       onProgress: (progress) => {
@@ -574,6 +581,10 @@ async function addToHistory(report) {
       url: report.url || '',
       title: report.title || '',
       score: report.overallScore || 0,
+      wcagScore: report.accessibilityResults?.score ?? null,
+      goalScore: report.businessAlignment?.goalAlignmentScore ?? null,
+      contextName: report.businessAlignment?.contextName || null,
+      rulePackShortName: report.rulePackShortName || report.rulePackId || 'Nielsen 10',
       mode: report.mode || 'deep',
       model: report.model || '',
       timestamp: report.timestamp || new Date().toISOString(),
@@ -737,8 +748,12 @@ async function handleFlowAnalysis(payload, sender) {
     connectors: payload.connectors || [],
     notes: payload.notes || [],
     settings,
-    profiles: settings.synthux_selected_profiles,
-    mode: settings.synthux_selected_mode,
+    profiles: Array.isArray(payload.profiles) && payload.profiles.length > 0
+      ? payload.profiles
+      : settings.synthux_selected_profiles,
+    rulePackId: payload.rulePackId || settings.rulePackId || 'nielsen-10',
+    businessContext: payload.businessContext,
+    mode: payload.mode || settings.synthux_selected_mode,
     sourceTabId: sender.tab?.id || null
   }).then(result => {
     // Only broadcast if this session is still active
@@ -751,6 +766,7 @@ async function handleFlowAnalysis(payload, sender) {
         payload: { error: result.error, sessionId }
       }).catch(() => {});
     } else {
+      chrome.storage.local.set({ lastFlowReport: result }).catch(() => {});
       chrome.runtime.sendMessage({
         type: 'FLOW_COMPLETE',
         payload: { flowReport: result, sessionId }

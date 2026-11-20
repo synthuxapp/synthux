@@ -52,6 +52,45 @@ export class SynthuxApp extends LitElement {
       width: auto;
     }
 
+    .ver-pill {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--sx-accent, #3b82f6);
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      padding: 1px 6px;
+      border-radius: 10px;
+      letter-spacing: 0.3px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .flow-quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      color: var(--sx-text-secondary, #b4b4bc);
+      background: var(--sx-bg-tertiary, #202024);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      padding: 4px 8px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+
+    .flow-quick-btn:hover {
+      color: var(--sx-text-primary, #ededf0);
+      border-color: var(--sx-accent, #3b82f6);
+      background: rgba(59, 130, 246, 0.10);
+    }
+
     .status-badge {
       display: flex;
       align-items: center;
@@ -60,6 +99,29 @@ export class SynthuxApp extends LitElement {
       padding: 4px 10px;
       border-radius: 20px;
       font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: opacity 150ms ease;
+    }
+
+    .status-badge:hover {
+      opacity: 0.88;
+    }
+
+    .tab-pill {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 5px;
+      background: rgba(255,255,255,0.07);
+      color: var(--sx-text-secondary, #b4b4bc);
+    }
+
+    .tab.active .tab-pill {
+      background: rgba(59, 130, 246, 0.18);
+      color: var(--sx-accent, #3b82f6);
     }
 
     .status-badge.connected {
@@ -380,6 +442,30 @@ export class SynthuxApp extends LitElement {
     }
   }
 
+  async _clearAllHistory() {
+    try {
+      const result = await chrome.runtime.sendMessage({ type: 'CLEAR_REPORT_HISTORY' });
+      if (result?.success) {
+        this.reportHistory = [];
+      }
+    } catch (err) {
+      console.error('[synthux] Failed to clear history:', err);
+    }
+  }
+
+  async _openFlowBuilderWindow() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      let flowUrl = chrome.runtime.getURL('flow/index.html');
+      if (tab?.url && (tab.url.startsWith('http://') || tab.url.startsWith('https://'))) {
+        flowUrl += `?url=${encodeURIComponent(tab.url)}&title=${encodeURIComponent(tab.title || '')}`;
+      }
+      chrome.tabs.create({ url: flowUrl });
+    } catch {
+      chrome.tabs.create({ url: chrome.runtime.getURL('flow/index.html') });
+    }
+  }
+
   _setTab(tab) {
     this.activeTab = tab;
     if (tab === 'scan') this._checkOllamaStatus();
@@ -397,9 +483,15 @@ export class SynthuxApp extends LitElement {
   _getStatusInfo() {
     const s = this.ollamaStatus;
     const mcp = this.mcpStatus;
+    const pBadge = s?.provider === 'apple' ? 'Apple AI'
+      : s?.provider === 'chromeai' ? 'Chrome AI'
+      : s?.provider === 'gemini' ? 'Gemini'
+      : s?.provider === 'openai' ? 'OpenAI'
+      : s?.provider === 'claude' ? 'Claude'
+      : 'Connected';
     if (s?.connected && s?.versionChanged) return { cls: 'version-warn', label: `Updated (${s.newVersion})` };
-    if (s?.connected && mcp?.connected) return { cls: 'connected', label: 'Connected · MCP' };
-    if (s?.connected) return { cls: 'connected', label: 'Connected' };
+    if (s?.connected && mcp?.connected) return { cls: 'connected', label: `${pBadge} · MCP` };
+    if (s?.connected) return { cls: 'connected', label: pBadge };
     if (mcp?.connected) return { cls: 'connected', label: 'MCP Agent Ready' };
     if (s?.corsBlocked) return { cls: 'cors-error', label: 'CORS Error' };
     return { cls: 'disconnected', label: 'Offline' };
@@ -407,16 +499,29 @@ export class SynthuxApp extends LitElement {
 
   render() {
     const status = this._getStatusInfo();
+    const issueCount = this.report?.issues?.length || 0;
+    const historyCount = this.reportHistory?.length || 0;
 
     return html`
       <!-- Header -->
       <div class="header">
         <div class="logo">
           <img class="logo-img" src="../assets/logo.svg" alt="synthux" />
+          <span class="ver-pill">v2.2</span>
         </div>
-        <div class="status-badge ${status.cls}">
-          <span class="status-dot ${status.cls}"></span>
-          ${status.label}
+        <div class="header-actions">
+          <button class="flow-quick-btn" @click="${this._openFlowBuilderWindow}" title="Open Multi-Page Flow Builder">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="7" height="6" rx="1.5"></rect>
+              <rect x="15" y="14" width="7" height="6" rx="1.5"></rect>
+              <path d="M9 7h3a2 2 0 0 1 2 2v6a2 2 0 0 0 2 2h-1"></path>
+            </svg>
+            <span>Flow</span>
+          </button>
+          <button class="status-badge ${status.cls}" @click="${() => this._setTab('settings')}" title="Click to configure AI & MCP settings">
+            <span class="status-dot ${status.cls}"></span>
+            ${status.label}
+          </button>
         </div>
       </div>
 
@@ -433,13 +538,13 @@ export class SynthuxApp extends LitElement {
           role="tab"
           aria-selected="${this.activeTab === 'report'}"
           @click="${() => this._setTab('report')}"
-        >Report</button>
+        >Report${this.report ? html`<span class="tab-pill">${issueCount}</span>` : ''}</button>
         <button 
           class="tab ${this.activeTab === 'history' ? 'active' : ''}"
           role="tab"
           aria-selected="${this.activeTab === 'history'}"
           @click="${() => { this._setTab('history'); this._loadHistory(); }}"
-        >History</button>
+        >History${historyCount > 0 ? html`<span class="tab-pill">${historyCount}</span>` : ''}</button>
         <button 
           class="tab ${this.activeTab === 'settings' ? 'active' : ''}"
           role="tab"
@@ -473,6 +578,7 @@ export class SynthuxApp extends LitElement {
             showHistory
             @load-report="${this._loadHistoryReport}"
             @delete-report="${this._deleteHistoryReport}"
+            @clear-history="${this._clearAllHistory}"
           ></synthux-report>
         </div>
 

@@ -15,6 +15,13 @@ import { generateReport } from './report-generator.js';
 import { calculateCost, aggregateCosts } from './cost-calculator.js';
 import { checkVisionSupport } from './providers.js';
 import { captureAnnotatedScreenshot } from './screenshot.js';
+import {
+  getActiveBusinessContext,
+  getAllDepartments,
+  buildBusinessAlignmentPrompt,
+  parseBusinessAlignmentResponse,
+  buildDeterministicBusinessAlignment
+} from './business-context.js';
 
 export class Analyzer {
   constructor(options = {}) {
@@ -24,6 +31,7 @@ export class Analyzer {
     this.rulePackId = options.rulePackId || 'nielsen-10';
     this.profileIds = options.profiles || ['first-time', 'power-user', 'accessibility'];
     this.customHeuristics = options.heuristics || null; // custom mode: array of heuristic IDs
+    this.businessContext = options.businessContext || null;
     this.onProgress = options.onProgress || (() => {});
     this.cancelled = false;
 
@@ -52,8 +60,10 @@ export class Analyzer {
 
     this.cancelled = false;
 
-    // Step 1: Load heuristic rules for selected rule pack
+    // Step 1: Load heuristic rules for selected rule pack & resolve Business Context if enabled
     const rules = await loadHeuristics(this.rulePackId);
+    const activeBusinessContext = this.businessContext || await getActiveBusinessContext();
+    const allDepartments = await getAllDepartments();
     
     // Step 2: Run deterministic accessibility checks
     this.reportProgress('accessibility', 20, 'Running accessibility checks...');
@@ -77,6 +87,87 @@ export class Analyzer {
           accessibilityResults.score * 0.4 + axeScore * 0.6
         );
       }
+    }
+
+    // Instant WCAG & DOM Quick Check Mode (No AI wait — completes in ~1s)
+    if (this.mode === 'wcag-only') {
+      const instantIssues = [
+        ...(accessibilityResults.checks || [])
+          .filter(c => c.status === 'fail' || c.status === 'warning')
+          .map(c => ({
+            severity: c.status === 'fail' ? 'critical' : 'moderate',
+            priority: c.status === 'fail' ? 'high' : 'medium',
+            fixEffort: 'easy',
+            isQuickWin: c.status === 'fail',
+            description: `${c.name}: ${c.message}`,
+            element: '',
+            recommendation: `Resolve ${c.name} issue in DOM markup.`,
+            heuristic: 'WCAG 2.2 AA & DOM Health',
+            profile: 'Accessibility & DOM Scanner'
+          })),
+        ...(accessibilityResults.wcagViolations || []).map(v => ({
+          severity: v.impact === 'critical' || v.impact === 'serious' ? 'critical' : 'moderate',
+          priority: v.impact === 'critical' || v.impact === 'serious' ? 'high' : 'medium',
+          fixEffort: 'easy',
+          isQuickWin: v.impact === 'critical' || v.impact === 'serious',
+          description: `${v.help}: ${v.description}`,
+          element: v.nodes?.[0]?.target?.[0] || v.nodes?.[0]?.target || '',
+          recommendation: v.helpUrl ? `Fix WCAG violation (${v.id}). Reference: ${v.helpUrl}` : `Fix WCAG violation (${v.id}).`,
+          heuristic: 'axe-core WCAG 2.2 AA',
+          profile: 'Accessibility & DOM Scanner'
+        }))
+      ];
+
+      const businessAlignment = activeBusinessContext
+        ? buildDeterministicBusinessAlignment(activeBusinessContext, pageData, allDepartments)
+        : null;
+
+      let annotatedScreenshot = null;
+      if (instantIssues.length > 0 && tabId) {
+        try {
+          annotatedScreenshot = await captureAnnotatedScreenshot(tabId, instantIssues);
+        } catch {}
+      }
+
+      const instantReport = generateReport({
+        url,
+        title,
+        timestamp,
+        model: 'axe-core + DOM Engine',
+        mode: 'wcag-only',
+        provider: 'local',
+        rulePackId: rules.id || this.rulePackId,
+        rulePackName: 'Instant WCAG 2.2 AA & DOM Quick Audit',
+        rulePackShortName: 'Instant WCAG',
+        ruleCount: (accessibilityResults.checks || []).length,
+        overallScore: accessibilityResults.score,
+        profileResults: {
+          accessibility: {
+            profile: { id: 'accessibility', icon: '♿', name: { en: 'Instant WCAG & DOM' }, description: { en: 'Deterministic 1-second audit' } },
+            score: accessibilityResults.score,
+            evaluations: [
+              {
+                heuristicId: 'wcag-instant',
+                heuristicName: { en: 'WCAG 2.2 AA & DOM Checks' },
+                score: accessibilityResults.score,
+                summary: `${accessibilityResults.passCount} checks passed, ${accessibilityResults.warnCount} warnings, ${accessibilityResults.failCount} failures, ${(accessibilityResults.wcagViolations || []).length} axe-core WCAG violations.`,
+                issues: instantIssues,
+                positives: (accessibilityResults.checks || []).filter(c => c.status === 'pass').map(c => `${c.name}: ${c.message}`)
+              }
+            ]
+          }
+        },
+        accessibilityResults,
+        businessContext: activeBusinessContext || null,
+        businessAlignment,
+        issues: instantIssues,
+        screenshot,
+        annotatedScreenshot,
+        costSummary: { isLocal: true, totalTokens: 0, totalCost: 0, formatted: 'Free — Instant DOM & WCAG ✓' }
+      });
+
+      this.reportProgress('complete', 100, 'Instant WCAG audit complete!');
+      return instantReport;
     }
 
     // Step 3: Run AI evaluation for each profile
@@ -125,8 +216,8 @@ export class Analyzer {
           }
         );
 
-        // Build and send prompt (with vision instructions if screenshot available)
-        const prompt = buildPrompt(heuristic, profile, pageData, !!safeScreenshot);
+        // Build and send prompt (with vision instructions & business context if enabled)
+        const prompt = buildPrompt(heuristic, profile, pageData, !!safeScreenshot, activeBusinessContext);
 
         try {
           console.info(`[synthux] → Calling AI: ${heuristic.name.en} (model: ${this.model}, provider: ${this.providerId}, vision: ${!!safeScreenshot})`);
@@ -262,8 +353,48 @@ export class Analyzer {
       // Cost calculation failed — non-critical
     }
 
+    // Step 6.5: Evaluate Business Goal Alignment, Must-Haves & Department Lenses (if enabled)
+    let businessAlignment = null;
+    if (activeBusinessContext && !this.cancelled) {
+      this.reportProgress('analyzing', 90, `Evaluating Business Goals & Must-Haves (${activeBusinessContext.name})...`);
+      try {
+        const alignPrompt = buildBusinessAlignmentPrompt(
+          activeBusinessContext,
+          JSON.stringify({
+            url,
+            title,
+            headings: (pageData.structure?.headings || []).slice(0, 12),
+            ctas: pageData.content?.ctas || [],
+            forms: pageData.structure?.forms || [],
+            topIssues: sortedIssues.slice(0, 8).map(i => ({ severity: i.severity, description: i.description, element: i.element }))
+          }),
+          allDepartments
+        );
+        const alignRes = await this.client.evaluate(alignPrompt, {
+          model: this.model,
+          systemPrompt: 'You are a Principal Product & UX Strategist. Respond with valid JSON only.',
+          temperature: 0.2,
+          format: 'json'
+        });
+        if (alignRes?.success) {
+          businessAlignment = parseBusinessAlignmentResponse(alignRes.result, activeBusinessContext, pageData, allDepartments);
+          if (alignRes.meta) {
+            costResults.push({
+              inputTokens: alignRes.meta.inputTokens || 0,
+              outputTokens: alignRes.meta.outputTokens || 0,
+              thinkingTokens: alignRes.meta.thinkingTokens || 0
+            });
+          }
+        } else {
+          businessAlignment = buildDeterministicBusinessAlignment(activeBusinessContext, pageData, allDepartments);
+        }
+      } catch {
+        businessAlignment = buildDeterministicBusinessAlignment(activeBusinessContext, pageData, allDepartments);
+      }
+    }
+
     // Step 7: Capture annotated viewport screenshot (non-blocking fallback) and generate report
-    this.reportProgress('generating', 92, 'Generating report...');
+    this.reportProgress('generating', 94, 'Generating report...');
 
     let annotatedScreenshot = null;
     if (sortedIssues.length > 0) {
@@ -288,6 +419,8 @@ export class Analyzer {
       overallScore,
       profileResults,
       accessibilityResults,
+      businessContext: activeBusinessContext || null,
+      businessAlignment,
       issues: sortedIssues,
       screenshot,
       annotatedScreenshot,

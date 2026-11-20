@@ -130,6 +130,39 @@ export class SynthuxSettings extends LitElement {
       border-color: rgba(239, 68, 68, 0.2);
     }
 
+    .backup-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .backup-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      margin: 0;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      background: var(--sx-bg-tertiary, #202024);
+      color: var(--sx-text-secondary, #b4b4bc);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 150ms ease;
+      font-family: inherit;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    .backup-btn:hover {
+      border-color: var(--sx-border-hover, rgba(255,255,255,0.14));
+      color: var(--sx-text-primary, #ededf0);
+      background: rgba(255,255,255,0.04);
+    }
+
     .save-btn {
       width: 100%;
       padding: 10px;
@@ -487,6 +520,62 @@ export class SynthuxSettings extends LitElement {
     } catch {}
   }
 
+  async _exportWorkspaceBackup() {
+    try {
+      const data = await chrome.storage.local.get([
+        'customProfiles',
+        'customRulePacks',
+        'synthux_business_context_state',
+        'synthux_flows',
+        'reportHistory'
+      ]);
+      const backup = {
+        synthuxBackupVersion: '2.2.0',
+        exportedAt: new Date().toISOString(),
+        customProfiles: data.customProfiles || [],
+        customRulePacks: data.customRulePacks || [],
+        businessContextState: data.synthux_business_context_state || null,
+        savedFlows: data.synthux_flows || [],
+        reportHistory: data.reportHistory || []
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `synthux-workspace-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      this._saved = true;
+      setTimeout(() => { this._saved = false; }, 2000);
+    } catch (err) {
+      console.error('[synthux] Workspace export failed:', err);
+    }
+  }
+
+  async _importWorkspaceBackup(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const updates = {};
+      if (Array.isArray(parsed.customProfiles)) updates.customProfiles = parsed.customProfiles;
+      if (Array.isArray(parsed.customRulePacks)) updates.customRulePacks = parsed.customRulePacks;
+      if (parsed.businessContextState && typeof parsed.businessContextState === 'object') {
+        updates.synthux_business_context_state = parsed.businessContextState;
+      }
+      if (Array.isArray(parsed.savedFlows)) updates.synthux_flows = parsed.savedFlows;
+      if (Array.isArray(parsed.reportHistory)) updates.reportHistory = parsed.reportHistory;
+      await chrome.storage.local.set(updates);
+      window.dispatchEvent(new CustomEvent('profiles-changed'));
+      window.dispatchEvent(new CustomEvent('business-context-changed'));
+      this._saved = true;
+      setTimeout(() => { this._saved = false; }, 2000);
+    } catch (err) {
+      console.error('[synthux] Workspace import failed:', err);
+    }
+  }
+
   updated(changedProperties) {
     // When ollamaStatus arrives from parent, auto-populate models for Ollama
     if (changedProperties.has('ollamaStatus') && this.ollamaStatus?.connected && this.providerId === 'ollama') {
@@ -762,7 +851,7 @@ export class SynthuxSettings extends LitElement {
           <div class="field">
             <label class="field-label">Provider</label>
             <select class="field-select" .value="${this.providerId}" @change="${this._onProviderChange}">
-              ${providers.map(p => html`<option value="${p.id}" ?selected="${p.id === this.providerId}">${p.icon} ${p.name}</option>`)}
+              ${providers.map(p => html`<option value="${p.id}" ?selected="${p.id === this.providerId}">${p.name}</option>`)}
             </select>
           </div>
 
@@ -1036,14 +1125,50 @@ export class SynthuxSettings extends LitElement {
         </div>
       </div>
 
+      <div class="section" style="margin-top: 20px;">
+        <div class="section-header">Workspace Backup &amp; Portability</div>
+        <div class="settings-card">
+          <div style="display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--sx-text-primary, #ededf0); margin-bottom: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--sx-accent, #3b82f6); flex-shrink: 0;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Export / Import Workspace (.json)</span>
+          </div>
+          <div style="font-size: 11px; color: var(--sx-text-tertiary, #8a8a96); line-height: 1.45; margin-bottom: 12px;">
+            Backup or share your Custom Personas, Rule Packs, Business Contexts, Custom Departments, and Flows (API keys are excluded).
+          </div>
+          <div class="backup-actions">
+            <button class="backup-btn" @click="${this._exportWorkspaceBackup}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Export Backup</span>
+            </button>
+            <label class="backup-btn">
+              <input type="file" accept=".json,application/json" style="display:none;" @change="${this._importWorkspaceBackup}" />
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span>Import Backup</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
       <div class="save-indicator ${this._saved ? 'visible' : ''}" style="text-align: center; padding: 8px; font-size: 11px; color: var(--sx-success, #22c55e); opacity: ${this._saved ? '1' : '0'}; transition: opacity 300ms ease;">✓ Auto-saved</div>
 
 
-      <div class="section" style="margin-top: 32px;">
+      <div class="section" style="margin-top: 24px;">
         <div class="section-header">About</div>
         <div class="settings-card about-card">
           <div class="about-name">synthux</div>
-          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '2.1.1'}</div>
+          <div class="about-version">v${chrome.runtime?.getManifest?.()?.version || '2.2.0'}</div>
           <div class="about-desc">AI-powered UX audit. Open source. Privacy first.</div>
           <div class="about-links">
             <a class="about-link" href="https://synthux.app" target="_blank">Website</a>

@@ -14,6 +14,15 @@ import {
   saveCustomRulePack,
   deleteCustomRulePack
 } from '../../../extension/core/heuristics.js';
+import {
+  BUILT_IN_DEPARTMENTS,
+  getBusinessContextState,
+  saveBusinessContextState,
+  upsertBusinessContextProfile,
+  deleteBusinessContextProfile,
+  upsertCustomDepartment,
+  deleteCustomDepartment
+} from '../../../extension/core/business-context.js';
 import './synthux-score.js';
 
 export class SynthuxScanner extends LitElement {
@@ -38,7 +47,12 @@ export class SynthuxScanner extends LitElement {
     _copiedCmd: { type: String, state: true },
     _versionDismissed: { type: Boolean, state: true },
     _showCorsWizard: { type: Boolean, state: true },
-    _checkingConnection: { type: Boolean, state: true }
+    _checkingConnection: { type: Boolean, state: true },
+    _bizState: { type: Object, state: true },
+    _showBizEditor: { type: Boolean, state: true },
+    _editingBizNew: { type: Boolean, state: true },
+    _showCustomDeptForm: { type: Boolean, state: true },
+    _selectedDeptsDraft: { type: Array, state: true }
   };
 
   static styles = css`
@@ -413,32 +427,71 @@ export class SynthuxScanner extends LitElement {
     /* ─── Flow Analysis Button ──────────────── */
     .flow-btn {
       width: 100%;
-      margin-top: 10px;
-      padding: 10px 14px;
-      background: var(--sx-bg-tertiary, #202024);
-      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
-      border-radius: 8px;
-      color: var(--sx-text-secondary, #b4b4bc);
+      margin-top: 8px;
+      padding: 11px 12px;
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      border-radius: 10px;
+      color: var(--sx-text-primary, #ededf0);
       font-family: inherit;
-      font-size: 12px;
-      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
       transition: all 150ms ease;
     }
 
     .flow-btn:hover {
       border-color: var(--sx-accent, #3b82f6);
       background: rgba(59, 130, 246, 0.06);
+    }
+
+    .flow-btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.24);
+      color: var(--sx-accent, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-btn-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .flow-btn-title {
+      font-size: 12px;
+      font-weight: 600;
       color: var(--sx-text-primary, #ededf0);
+      line-height: 1.3;
     }
 
     .flow-desc {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 400;
       color: var(--sx-text-tertiary, #8a8a96);
+      margin-top: 2px;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .flow-btn-arrow {
+      color: var(--sx-text-tertiary, #8a8a96);
+      flex-shrink: 0;
+      transition: transform 150ms ease, color 150ms ease;
+    }
+
+    .flow-btn:hover .flow-btn-arrow {
+      color: var(--sx-accent, #3b82f6);
+      transform: translateX(2px);
     }
 
     /* ─── Progress Display ───────────────────── */
@@ -991,6 +1044,259 @@ export class SynthuxScanner extends LitElement {
       color: var(--sx-error, #ef4444);
       margin-bottom: 8px;
     }
+
+    /* ─── Instant WCAG Button in Page Card ────── */
+    .page-info-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .page-info-meta {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .instant-wcag-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(34, 197, 94, 0.28);
+      background: rgba(34, 197, 94, 0.10);
+      color: #22c55e;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 150ms ease;
+      white-space: nowrap;
+    }
+
+    .instant-wcag-btn:hover:not(:disabled) {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: #22c55e;
+    }
+
+    .instant-wcag-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ─── Business, Goal & Department Context Card ─── */
+    .biz-card {
+      background: var(--sx-bg-card, #1c1c1f);
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 18px;
+      transition: border-color 150ms ease;
+    }
+
+    .biz-card.enabled {
+      border-color: rgba(59, 130, 246, 0.38);
+      background: linear-gradient(180deg, rgba(59,130,246,0.06), rgba(28,28,31,0.95));
+    }
+
+    .biz-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .biz-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .biz-icon-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: rgba(59, 130, 246, 0.10);
+      border: 1px solid rgba(59, 130, 246, 0.22);
+      color: var(--sx-accent, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .biz-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sx-text-primary, #ededf0);
+      line-height: 1.3;
+    }
+
+    .biz-sub {
+      font-size: 11px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    .biz-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+      transition: background 180ms ease;
+    }
+
+    .biz-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #8a8a96;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .biz-switch.on {
+      background: rgba(59, 130, 246, 0.3);
+    }
+
+    .biz-switch.on::after {
+      transform: translateX(16px);
+      background: #3b82f6;
+    }
+
+    .biz-controls-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .biz-select {
+      flex: 1;
+      min-width: 0;
+      height: 30px;
+      padding: 0 26px 0 9px;
+      border-radius: 6px;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      background-color: var(--sx-bg-primary, #111113);
+      color: var(--sx-text-primary, #ededf0);
+      font-size: 11px;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8a96' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+
+    .biz-select:focus {
+      border-color: var(--sx-accent, #3b82f6);
+    }
+
+    .biz-mini-btn {
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      background: var(--sx-bg-tertiary, #202024);
+      color: var(--sx-text-secondary, #b4b4bc);
+      font-size: 11px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: all 150ms ease;
+    }
+
+    .biz-mini-btn:hover {
+      border-color: var(--sx-accent, #3b82f6);
+      color: var(--sx-text-primary, #ededf0);
+    }
+
+    .biz-summary-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 9px;
+    }
+
+    .biz-pill {
+      font-size: 10px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+      color: var(--sx-text-secondary, #b4b4bc);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .biz-editor {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--sx-border, rgba(255,255,255,0.06));
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dept-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 4px;
+    }
+
+    .dept-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--sx-border, rgba(255,255,255,0.08));
+      background: var(--sx-bg-primary, #111113);
+      color: var(--sx-text-tertiary, #8a8a96);
+      transition: all 150ms ease;
+    }
+
+    .dept-chip.active {
+      border-color: var(--sx-accent, #3b82f6);
+      background: rgba(59,130,246,0.12);
+      color: var(--sx-text-primary, #ededf0);
+    }
+
+    .dept-del {
+      font-size: 9px;
+      color: var(--sx-text-tertiary, #8a8a96);
+      margin-left: 2px;
+      padding: 0 2px;
+    }
+
+    .dept-del:hover {
+      color: var(--sx-error, #ef4444);
+    }
   `;
 
   constructor() {
@@ -1016,11 +1322,17 @@ export class SynthuxScanner extends LitElement {
     this._versionDismissed = false;
     this._showCorsWizard = false;
     this._checkingConnection = false;
+    this._bizState = { enabled: false, activeContextId: 'default-context', customDepartments: [], contexts: [] };
+    this._showBizEditor = false;
+    this._editingBizNew = false;
+    this._showCustomDeptForm = false;
+    this._selectedDeptsDraft = ['product-ux', 'marketing-cro'];
 
     this._fetchPageInfo();
     this._loadCustomProfiles();
     this._loadSettings();
     this._loadRulePacks();
+    this._loadBusinessContext();
     chrome.tabs?.onActivated?.addListener(() => this._fetchPageInfo());
     chrome.tabs?.onUpdated?.addListener((_, info) => {
       if (info.status === 'complete') this._fetchPageInfo();
@@ -1028,9 +1340,160 @@ export class SynthuxScanner extends LitElement {
 
     // Listen for custom profile changes from settings
     window.addEventListener('profiles-changed', () => this._loadCustomProfiles());
+    window.addEventListener('business-context-changed', () => this._loadBusinessContext());
+    chrome.storage?.onChanged?.addListener((changes) => {
+      if (changes.synthux_business_context_state) {
+        this._loadBusinessContext();
+      }
+    });
     // Close dropdown on outside click
     this._onDocClick = () => { this._openMenuId = null; };
     document.addEventListener('click', this._onDocClick);
+  }
+
+  async _loadBusinessContext() {
+    try {
+      this._bizState = await getBusinessContextState();
+      const active = this._activeBizProfile;
+      if (active) {
+        this._selectedDeptsDraft = [...(active.departments || ['product-ux', 'marketing-cro'])];
+      }
+    } catch {}
+  }
+
+  get _activeBizProfile() {
+    const list = this._bizState?.contexts || [];
+    return list.find(c => c.id === this._bizState?.activeContextId) || list[0] || null;
+  }
+
+  get _allDepartmentsList() {
+    return [...BUILT_IN_DEPARTMENTS, ...(this._bizState?.customDepartments || [])];
+  }
+
+  async _toggleBusinessContextEnabled() {
+    if (this.isAnalyzing) return;
+    const nextEnabled = !this._bizState?.enabled;
+    this._bizState = await saveBusinessContextState({
+      ...this._bizState,
+      enabled: nextEnabled
+    });
+  }
+
+  async _selectBusinessContext(e) {
+    const id = e.target.value;
+    this._bizState = await saveBusinessContextState({
+      ...this._bizState,
+      activeContextId: id
+    });
+    const active = this._activeBizProfile;
+    if (active) {
+      this._selectedDeptsDraft = [...(active.departments || ['product-ux', 'marketing-cro'])];
+    }
+  }
+
+  _openBizEditor(isNew = false) {
+    this._editingBizNew = isNew;
+    this._showBizEditor = true;
+    const active = isNew ? null : this._activeBizProfile;
+    this._selectedDeptsDraft = active?.departments?.length
+      ? [...active.departments]
+      : ['product-ux', 'marketing-cro'];
+  }
+
+  _toggleDraftDept(deptId) {
+    const list = [...(this._selectedDeptsDraft || [])];
+    const idx = list.indexOf(deptId);
+    if (idx >= 0) {
+      if (list.length > 1) list.splice(idx, 1);
+    } else {
+      list.push(deptId);
+    }
+    this._selectedDeptsDraft = list;
+  }
+
+  async _handleSaveBizContext() {
+    const root = this.shadowRoot;
+    if (!root) return;
+    const active = this._editingBizNew ? null : this._activeBizProfile;
+    const companyName = root.getElementById('biz-company')?.value?.trim() || '';
+    const productName = root.getElementById('biz-product')?.value?.trim() || '';
+    const industry = root.getElementById('biz-industry')?.value?.trim() || 'SaaS / Web Application';
+    const primaryGoal = root.getElementById('biz-goal')?.value?.trim() || '';
+    const valueProposition = root.getElementById('biz-valprop')?.value?.trim() || '';
+    const mustHaves = (root.getElementById('biz-musts')?.value || '')
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean);
+    const metrics = (root.getElementById('biz-metrics')?.value || '')
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const { state } = await upsertBusinessContextProfile({
+      id: active?.id || undefined,
+      name: [companyName, productName].filter(Boolean).join(' — ') || primaryGoal.slice(0, 32) || 'Company Context',
+      companyName,
+      productName,
+      industry,
+      primaryGoal,
+      valueProposition,
+      mustHaves,
+      metrics,
+      departments: this._selectedDeptsDraft
+    }, { setActive: true, enabled: true });
+
+    this._bizState = state;
+    this._showBizEditor = false;
+    this._editingBizNew = false;
+  }
+
+  async _handleDeleteBizContext() {
+    const active = this._activeBizProfile;
+    if (!active) return;
+    this._bizState = await deleteBusinessContextProfile(active.id);
+    this._showBizEditor = false;
+  }
+
+  async _handleAddCustomDepartment() {
+    const root = this.shadowRoot;
+    const name = root?.getElementById('cdept-name')?.value?.trim();
+    const focus = root?.getElementById('cdept-focus')?.value?.trim() || '';
+    if (!name) return;
+
+    const { state, department } = await upsertCustomDepartment({
+      name,
+      icon: '',
+      focus: focus || name,
+      defaultCriteria: focus || name
+    });
+    this._bizState = state;
+    if (!this._selectedDeptsDraft.includes(department.id)) {
+      this._selectedDeptsDraft = [...this._selectedDeptsDraft, department.id];
+    }
+    this._showCustomDeptForm = false;
+  }
+
+  async _handleDeleteCustomDept(e, deptId) {
+    e.stopPropagation();
+    this._bizState = await deleteCustomDepartment(deptId);
+    this._selectedDeptsDraft = this._selectedDeptsDraft.filter(id => id !== deptId);
+  }
+
+  async _startInstantWcagAudit() {
+    if (this.isAnalyzing || !this._isAnalyzablePage) return;
+    this.dispatchEvent(new CustomEvent('analysis-start'));
+    try {
+      await chrome.runtime.sendMessage({
+        type: 'START_ANALYSIS',
+        payload: {
+          mode: 'wcag-only',
+          rulePackId: this.selectedRulePack || 'nielsen-10',
+          profiles: ['accessibility']
+        }
+      });
+    } catch {
+      this.dispatchEvent(new CustomEvent('analysis-end'));
+    }
   }
 
   async _loadSettings() {
@@ -1340,8 +1803,8 @@ export class SynthuxScanner extends LitElement {
             <button class="kebab-btn" @click="${(e) => { e.stopPropagation(); this._openMenuId = this._openMenuId === id ? null : id; }}" title="Options">⋮</button>
             ${this._openMenuId === id ? html`
               <div class="profile-dropdown">
-                <button class="dropdown-item" @click="${(e) => { e.stopPropagation(); this._openMenuId = null; this._editProfile(id); }}">✎ Edit</button>
-                <button class="dropdown-item danger" @click="${(e) => { e.stopPropagation(); this._openMenuId = null; this._removeProfile(id); }}">✕ Delete</button>
+                <button class="dropdown-item" @click="${(e) => { e.stopPropagation(); this._openMenuId = null; this._editProfile(id); }}">Edit</button>
+                <button class="dropdown-item danger" @click="${(e) => { e.stopPropagation(); this._openMenuId = null; this._removeProfile(id); }}">Delete</button>
               </div>
             ` : ''}
           </div>
@@ -1459,6 +1922,142 @@ export class SynthuxScanner extends LitElement {
     }
   }
 
+  _renderBusinessContextCard() {
+    const enabled = Boolean(this._bizState?.enabled);
+    const contexts = this._bizState?.contexts || [];
+    const active = this._activeBizProfile;
+    const allDepts = this._allDepartmentsList;
+    const draft = this._editingBizNew ? {} : (active || {});
+
+    return html`
+      <div class="section-header-row" style="margin-top: 4px;">
+        <div class="section-header" style="margin-bottom:0;">Business &amp; Goal Context</div>
+        <span style="font-size:10px;color:${enabled ? 'var(--sx-accent,#3b82f6)' : 'var(--sx-text-tertiary,#8a8a96)'};font-weight:600;">
+          ${enabled ? 'Active' : 'Optional (Off)'}
+        </span>
+      </div>
+      <div class="biz-card ${enabled ? 'enabled' : ''}" style="margin-top:8px;">
+        <div class="biz-top">
+          <div class="biz-title-wrap">
+            <div class="biz-icon-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </div>
+            <div>
+              <div class="biz-title">Company, Must-Haves &amp; Departments</div>
+              <div class="biz-sub">Evaluate against product goals, metrics &amp; non-negotiables</div>
+            </div>
+          </div>
+          <button
+            class="biz-switch ${enabled ? 'on' : ''}"
+            @click="${this._toggleBusinessContextEnabled}"
+            title="${enabled ? 'Business Context is ON — click to disable' : 'Enable Business & Goal Context in analysis'}"
+          ></button>
+        </div>
+
+        <div class="biz-controls-row">
+          <select class="biz-select" @change="${this._selectBusinessContext}" .value="${active?.id || ''}">
+            ${contexts.map(c => html`<option value="${c.id}" ?selected="${c.id === active?.id}">${c.name}</option>`)}
+          </select>
+          <button class="biz-mini-btn" @click="${() => { this._showBizEditor = !this._showBizEditor; this._editingBizNew = false; }}" title="Edit selected context">
+            ${this._showBizEditor && !this._editingBizNew ? 'Close' : 'Edit'}
+          </button>
+          <button class="biz-mini-btn" @click="${() => this._openBizEditor(true)}" title="Create new company/product context">+ New</button>
+        </div>
+
+        ${active && !this._showBizEditor ? html`
+          <div class="biz-summary-pills">
+            ${active.primaryGoal ? html`<span class="biz-pill">Goal: ${active.primaryGoal.slice(0, 32)}${active.primaryGoal.length > 32 ? '…' : ''}</span>` : ''}
+            <span class="biz-pill">${(active.mustHaves || []).length} Must-Haves</span>
+            <span class="biz-pill">${(active.departments || []).length} Departments</span>
+            ${(active.metrics || []).length > 0 ? html`<span class="biz-pill">${active.metrics.length} Metrics</span>` : ''}
+          </div>
+        ` : ''}
+
+        ${this._showBizEditor ? html`
+          <div class="biz-editor">
+            <div class="pf-row">
+              <div class="pf-field">
+                <label class="pf-label">Company / Brand</label>
+                <input type="text" class="pf-input" id="biz-company" placeholder="e.g. Acme Corp" .value="${draft.companyName || ''}" />
+              </div>
+              <div class="pf-field">
+                <label class="pf-label">Product / Project</label>
+                <input type="text" class="pf-input" id="biz-product" placeholder="e.g. Checkout Flow" .value="${draft.productName || ''}" />
+              </div>
+            </div>
+            <div class="pf-row">
+              <div class="pf-field">
+                <label class="pf-label">Industry / Sector</label>
+                <input type="text" class="pf-input" id="biz-industry" placeholder="e.g. B2B SaaS / Fintech / E-Commerce" .value="${draft.industry || 'SaaS / Web Application'}" />
+              </div>
+              <div class="pf-field">
+                <label class="pf-label">Value Proposition</label>
+                <input type="text" class="pf-input" id="biz-valprop" placeholder="e.g. 5-min no-code setup" .value="${draft.valueProposition || ''}" />
+              </div>
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">Primary Page / Flow Goal *</label>
+              <input type="text" class="pf-input" id="biz-goal" placeholder="e.g. Convert free trial signups without credit card friction" .value="${draft.primaryGoal || ''}" />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">Non-Negotiable Must-Haves (1 per line)</label>
+              <textarea class="pack-textarea" id="biz-musts" style="min-height:56px;" placeholder="Free trial CTA visible above the fold&#10;No credit card required badge next to CTA&#10;GDPR / KVKK consent &amp; trust logos visible">${(draft.mustHaves || []).join('\n')}</textarea>
+            </div>
+            <div class="pf-field">
+              <label class="pf-label">Marketing &amp; Usage Metrics / Bottlenecks (1 per line)</label>
+              <textarea class="pack-textarea" id="biz-metrics" style="min-height:46px;" placeholder="Bounce Rate: 68%&#10;Cart Abandonment: 74%&#10;Mobile Signup Conversion: 1.2%">${(draft.metrics || []).join('\n')}</textarea>
+            </div>
+            <div class="pf-field">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <label class="pf-label">Department Lenses (Select or Add Custom)</label>
+                <button class="pack-import-link" @click="${() => { this._showCustomDeptForm = !this._showCustomDeptForm; }}">
+                  ${this._showCustomDeptForm ? 'Close' : '+ Add Department'}
+                </button>
+              </div>
+              <div class="dept-chips">
+                ${allDepts.map(dept => {
+                  const isOn = (this._selectedDeptsDraft || []).includes(dept.id);
+                  return html`
+                    <button class="dept-chip ${isOn ? 'active' : ''}" @click="${() => this._toggleDraftDept(dept.id)}" title="${dept.focus || ''}">
+                      <span>${dept.name?.en || dept.name}</span>
+                      ${dept.isCustom ? html`
+                        <span class="dept-del" title="Remove custom department" @click="${(e) => this._handleDeleteCustomDept(e, dept.id)}">×</span>
+                      ` : ''}
+                    </button>
+                  `;
+                })}
+              </div>
+            </div>
+
+            ${this._showCustomDeptForm ? html`
+              <div style="background:rgba(0,0,0,0.25);padding:8px;border-radius:6px;border:1px solid var(--sx-border,rgba(255,255,255,0.06));display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:10px;font-weight:600;color:var(--sx-accent,#3b82f6);">New Custom Department</div>
+                <input type="text" class="pf-input" id="cdept-name" placeholder="Department Name (e.g. Brand &amp; SEO)" />
+                <input type="text" class="pf-input" id="cdept-focus" placeholder="Department criteria &amp; focus (e.g. Tone consistency, heading SEO, trust)" />
+                <div class="pf-actions">
+                  <button class="pf-save" @click="${this._handleAddCustomDepartment}">Add Department</button>
+                  <button class="pf-cancel" @click="${() => { this._showCustomDeptForm = false; }}">Cancel</button>
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="pf-actions" style="margin-top:4px;">
+              <button class="pf-save" @click="${this._handleSaveBizContext}">Save &amp; Enable Context</button>
+              ${!this._editingBizNew && contexts.length > 1 ? html`
+                <button class="pf-cancel" style="color:var(--sx-error,#ef4444);" @click="${this._handleDeleteBizContext}">Delete</button>
+              ` : ''}
+              <button class="pf-cancel" @click="${() => { this._showBizEditor = false; this._editingBizNew = false; }}">Cancel</button>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
   render() {
     const isConnected = this.ollamaStatus?.connected;
     const customValid = this.mode !== 'custom' || this._selectedHeuristics.length > 0;
@@ -1467,8 +2066,23 @@ export class SynthuxScanner extends LitElement {
     return html`
       ${this.pageInfo ? html`
         <div class="page-info">
-          <div class="page-title">${this.pageInfo.title}</div>
-          <div class="page-url">${this.pageInfo.url}</div>
+          <div class="page-info-top">
+            <div class="page-info-meta">
+              <div class="page-title">${this.pageInfo.title}</div>
+              <div class="page-url">${this.pageInfo.url}</div>
+            </div>
+            <button
+              class="instant-wcag-btn"
+              ?disabled="${this.isAnalyzing || !this._isAnalyzablePage}"
+              @click="${this._startInstantWcagAudit}"
+              title="Run 1-second deterministic WCAG 2.2 AA &amp; DOM health audit (No AI wait)"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Instant WCAG</span>
+            </button>
+          </div>
           ${!this._isAnalyzablePage && this.pageInfo.url ? html`
             <div class="page-warning">Navigate to a website to analyze.</div>
           ` : ''}
@@ -1580,6 +2194,8 @@ export class SynthuxScanner extends LitElement {
           : '';
       })()}
 
+      ${this._renderBusinessContextCard()}
+
       <div class="section-header">Mode</div>
       <div class="mode-selector">
         <button class="mode-btn ${this.mode === 'quick' ? 'active' : ''}" @click="${() => this._setMode('quick')}">
@@ -1651,15 +2267,25 @@ export class SynthuxScanner extends LitElement {
         </div>
       ` : ''}
 
-      <div class="section-header" style="margin-top: 20px;">Beta Features</div>
+      <div class="section-header" style="margin-top: 20px;">Multi-Page Journey Studio</div>
       <button
         class="flow-btn"
         @click="${this._openFlowBuilder}"
       >
-        <span style="display:flex;align-items:center;gap:6px;">
-          <span>Flow Analysis</span>
-        </span>
-        <span class="flow-desc">Multi-page canvas builder</span>
+        <div class="flow-btn-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="7" height="6" rx="1.5"></rect>
+            <rect x="15" y="14" width="7" height="6" rx="1.5"></rect>
+            <path d="M9 7h3a2 2 0 0 1 2 2v6a2 2 0 0 0 2 2h-1"></path>
+          </svg>
+        </div>
+        <div class="flow-btn-content">
+          <div class="flow-btn-title">Flow Builder</div>
+          <div class="flow-desc">Visual canvas, open tabs &amp; business goal flows</div>
+        </div>
+        <svg class="flow-btn-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
       </button>
     `;
   }

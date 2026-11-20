@@ -65,7 +65,7 @@ Or via **Streamable HTTP**:
 
 ---
 
-## Available MCP Tools (14 Tools)
+## Available MCP Tools (16 Tools)
 
 | Tool | Description |
 | :--- | :--- |
@@ -74,12 +74,14 @@ Or via **Streamable HTTP**:
 | `synthux_list_tabs` | List open web tabs in Chrome |
 | `synthux_scan_page` | Extract DOM structure, headings, landmarks, forms, navigation, CTAs, contrast, and performance |
 | `synthux_run_wcag_audit` | Run deterministic DOM accessibility checks + live `axe-core` WCAG 2.2 AA audit |
-| `synthux_run_ux_audit` | Run full autonomous UX audit via Local Ollama or BYOK Cloud API |
-| `synthux_prepare_external_audit` | Prepare DOM + WCAG + Screenshot + Sectoral Rule Pack prompts for external MCP Agent evaluation |
-| `synthux_submit_external_audit` | Submit external MCP Agent evaluations to render live Heatmap, Annotated Screenshot, and v2.0 Report |
+| `synthux_run_ux_audit` | Run full autonomous UX audit via Local Ollama, Apple Intelligence, Chrome AI, or BYOK Cloud API |
+| `synthux_prepare_external_audit` | Prepare DOM + WCAG + Screenshot + Sectoral Rule Pack + Business Context prompts for external MCP Agent evaluation |
+| `synthux_submit_external_audit` | Submit external MCP Agent evaluations to render live Heatmap, Annotated Screenshot, and v2.2 Report |
 | `synthux_run_flow_audit` | Run multi-page Flow Builder user journey evaluation across 2+ URLs |
 | `synthux_visual_overlay` | Trigger live `highlight`, `heatmap`, `clear_all`, `annotated_screenshot`, or `full_screenshot` |
 | `synthux_manage_rule_packs` | List, inspect, import/validate custom JSON rule packs, or delete custom rule packs |
 | `synthux_manage_personas` | List, create custom synthetic user personas, or delete custom personas |
-| `synthux_configure_ai` | Configure Local Ollama or Cloud AI provider settings and test connectivity |
-| `synthux_get_reports` | List report history or export reports in Enhanced Markdown v2.0 or JSON format |
+| `synthux_manage_business_context` | Manage Company/Product Goal Context, Must-Haves, Metrics, Custom Departments, and generate user discovery questions |
+| `synthux_manage_flows` | Read, add/edit/remove steps, connectors, notes, auto-layout, and save/load Flow Builder 2.0 canvases |
+| `synthux_configure_ai` | Configure Local Ollama, Apple Intelligence, Chrome Built-in AI, or Cloud AI provider settings and test connectivity |
+| `synthux_get_reports` | Retrieve latest report, history, Flow reports, Before vs After comparison (`compare`), AI Fix Prompt (`fix_prompt`), or workspace backup |

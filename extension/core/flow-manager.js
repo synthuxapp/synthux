@@ -9,6 +9,13 @@ import { AIClient } from './ai-client.js';
 import { captureScreenshot } from './screenshot.js';
 import { getProfileAsync } from './profiles.js';
 import { checkVisionSupport } from './providers.js';
+import {
+  getActiveBusinessContext,
+  getAllDepartments,
+  buildBusinessContextPromptBlock,
+  parseBusinessAlignmentResponse,
+  buildDeterministicBusinessAlignment
+} from './business-context.js';
 
 export class FlowManager {
   constructor(options = {}) {
@@ -31,9 +38,11 @@ export class FlowManager {
   /**
    * Run full flow analysis
    */
-  async analyzeFlow({ pages, connectors, notes, settings, profiles, mode, sourceTabId }) {
+  async analyzeFlow({ pages, connectors, notes, settings, profiles, mode, rulePackId, businessContext, sourceTabId }) {
     this.cancelled = false;
     const scannedPages = [];
+    const activeBusinessContext = businessContext !== undefined ? businessContext : await getActiveBusinessContext();
+    const allDepartments = await getAllDepartments();
 
     // Create a background tab for analysis
     const analyzeTab = await chrome.tabs.create({
@@ -88,11 +97,13 @@ export class FlowManager {
 
         if (this.cancelled) break;
 
-        // Save page details
+        // Save page details (including optional stepGoal & dropOffMetric)
         scannedPages.push({
           id: page.id,
           url: page.url,
           label: page.label,
+          stepGoal: page.stepGoal || '',
+          dropOffMetric: page.dropOffMetric || '',
           pageData,
           screenshot
         });
@@ -136,7 +147,7 @@ export class FlowManager {
     let aiResult = null;
     let aiError = null;
     try {
-      aiResult = await this._analyzeJourney(scannedPages, connectors, notes, settings, profiles);
+      aiResult = await this._analyzeJourney(scannedPages, connectors, notes, settings, profiles, activeBusinessContext, allDepartments, rulePackId);
     } catch (err) {
       console.error('[flow] Journey analysis failed:', err);
       aiError = err.message || err;
@@ -156,11 +167,21 @@ export class FlowManager {
       const report = {
         overallScore: score,
         summary: aiPage ? aiPage.summary : 'No summary.',
-        issues: aiPage?.issues ? aiPage.issues.map(issueText => ({
-          title: issueText,
-          description: issueText,
-          severity: 'moderate'
-        })) : []
+        issues: aiPage?.issues ? aiPage.issues.map(issueItem => {
+          if (typeof issueItem === 'object' && issueItem !== null) {
+            return {
+              title: issueItem.title || issueItem.description || 'Step Issue',
+              description: issueItem.description || issueItem.title || '',
+              severity: ['critical', 'moderate', 'minor'].includes(issueItem.severity) ? issueItem.severity : 'moderate',
+              recommendation: issueItem.recommendation || ''
+            };
+          }
+          return {
+            title: String(issueItem),
+            description: String(issueItem),
+            severity: 'moderate'
+          };
+        }) : []
       };
 
       return {
@@ -176,9 +197,31 @@ export class FlowManager {
       return { ...n, attachedToLabel: node?.label || null };
     });
 
+    const mergedPageData = {
+      meta: { title: pages.map(p => p.label).join(' → ') },
+      structure: {
+        headings: scannedPages.flatMap(s => s.pageData?.structure?.headings || []),
+        forms: scannedPages.flatMap(s => s.pageData?.structure?.forms || [])
+      },
+      content: {
+        ctas: scannedPages.flatMap(s => s.pageData?.content?.ctas || [])
+      }
+    };
+
+    const businessAlignment = activeBusinessContext
+      ? (aiResult.businessAlignment
+          ? parseBusinessAlignmentResponse(aiResult.businessAlignment, activeBusinessContext, mergedPageData, allDepartments)
+          : buildDeterministicBusinessAlignment(activeBusinessContext, mergedPageData, allDepartments))
+      : null;
+
     return {
       type: 'flow',
+      version: '2.2.0',
       flowScore: aiResult.flowScore || 50,
+      rulePackId: rulePackId || settings?.rulePackId || 'nielsen-10',
+      profiles: profiles || ['first-time', 'power-user', 'accessibility'],
+      businessContext: activeBusinessContext || null,
+      businessAlignment,
       pages: finalPages,
       crossPage: aiResult.crossPage || { score: 50, findings: [] },
       transitions: aiResult.transitions || [],
@@ -190,7 +233,7 @@ export class FlowManager {
 
   // ─── Journey Analysis ───────────────────────────────────────────
 
-  async _analyzeJourney(steps, connectors, notes, settings, profileIds) {
+  async _analyzeJourney(steps, connectors, notes, settings, profileIds, businessContext = null, allDepartments = [], rulePackId = 'nielsen-10') {
     const client = new AIClient(settings.ollamaEndpoint, {
       provider: settings.providerId,
       apiKey: settings.apiKey
@@ -214,7 +257,7 @@ export class FlowManager {
       const domSummary = this._summarizePageData(s.pageData);
       return `Step ${idx + 1} (Page ID: "${s.id}"):
 - Label: ${s.label}
-- URL: ${s.url}
+- URL: ${s.url}${s.stepGoal ? `\n- Expected Step Goal / Action: ${s.stepGoal}` : ''}${s.dropOffMetric ? `\n- Step Metric / Drop-Off: ${s.dropOffMetric}` : ''}
 - DOM Summary:
 ${domSummary}`;
     }).join('\n\n');
@@ -223,7 +266,8 @@ ${domSummary}`;
     const connectorsContext = connectors.map((c, idx) => {
       const fromPage = steps.find(s => s.id === c.fromId);
       const toPage = steps.find(s => s.id === c.toId);
-      return `- Transition ${idx + 1}: From "${fromPage?.label || c.fromId}" (ID: ${c.fromId}) to "${toPage?.label || c.toId}" (ID: ${c.toId})`;
+      const actionLabel = c.label || c.action ? ` [Expected User Action: "${c.label || c.action}"]` : '';
+      return `- Transition ${idx + 1}: From "${fromPage?.label || c.fromId}" (ID: ${c.fromId}) to "${toPage?.label || c.toId}" (ID: ${c.toId})${actionLabel}`;
     }).join('\n');
 
     // Generate notes context
@@ -234,7 +278,38 @@ ${domSummary}`;
         }).join('\n')
       : 'None';
 
-    const prompt = `You are a UX evaluation expert analyzing a multi-page user journey (flow).
+    const businessBlock = businessContext ? buildBusinessContextPromptBlock(businessContext, allDepartments) : '';
+    const businessJsonSchema = businessContext ? `,
+  "businessAlignment": {
+    "goalAlignmentScore": <0-100 score for how well this flow achieves the company's primary goal>,
+    "goalSummary": "<1-2 sentence strategic summary of flow goal alignment>",
+    "mustHavesAudit": [
+      {
+        "item": "<must-have requirement>",
+        "status": "pass|partial|missing",
+        "evidence": "<where in the flow it was satisfied or missing>",
+        "recommendation": "<concrete fix>"
+      }
+    ],
+    "metricInsights": [
+      {
+        "metric": "<metric or bottleneck>",
+        "rootCause": "<which step or transition causes this bottleneck>",
+        "action": "<how to fix>"
+      }
+    ],
+    "departmentFindings": [
+      {
+        "departmentId": "<dept id>",
+        "departmentName": "<dept name>",
+        "score": <0-100>,
+        "summary": "<key department takeaway>",
+        "actionItems": ["<action 1>", "<action 2>"]
+      }
+    ]
+  }` : '';
+
+    const prompt = `You are a UX evaluation expert analyzing a multi-page user journey (flow) using the "${rulePackId}" framework.
 
 ## User Journey Details
 
@@ -246,7 +321,7 @@ ${connectorsContext || 'None (no transitions between pages defined)'}
 
 ### User Context & Sticky Notes
 ${notesContext}
-
+${businessBlock}
 ## User Persona Perspectives / Profiles
 You must evaluate this user journey from the perspectives of the following user profiles. Consider how each profile experiences the pages and transitions:
 
@@ -258,7 +333,7 @@ Evaluate this flow as a unified user journey along 4 main dimensions:
 1. Navigation Consistency — Are global headers, footers, and menus identical/logical across all steps?
 2. Visual & Brand Consistency — Are design tokens, typography, form styles, and spacing cohesive?
 3. Flow Logic & Progression — Is it clear where to go next? Are there dead ends, friction-filled gates, or missing back routes?
-4. Terminology Consistency — Do fields, labels, buttons, and terms mean the same thing in every step?
+4. Terminology & Goal Consistency — Do fields, labels, buttons, terms, and business must-haves align in every step?
 
 Also evaluate each page for its own friction score in the context of this journey.
 Also evaluate each transition connector to determine if it is "smooth" (logical progression, low friction), "friction" (some confusion or extra steps), or "high-friction" (broken flow, missing links, or severe visual deviation).
@@ -297,7 +372,7 @@ You must respond with ONLY a valid JSON object. Do NOT include markdown fences, 
         "severity": "critical|moderate|minor"
       }
     ]
-  }
+  }${businessJsonSchema}
 }`;
 
     // Dynamically check if the selected model supports vision (image input)

@@ -6,6 +6,7 @@
  */
 
 import { getProfile } from './profiles.js';
+import { buildBusinessContextPromptBlock } from './business-context.js';
 
 export const MAX_CUSTOM_RULE_PACKS = 10;
 
@@ -263,8 +264,9 @@ export function selectHeuristics(rules, mode = 'deep', profileId = null) {
  * Build an evaluation prompt for a single heuristic + profile combination
  * Strict JSON-only output instructions to prevent comment leakage
  */
-export function buildPrompt(heuristic, profile, pageData, hasVision = false) {
+export function buildPrompt(heuristic, profile, pageData, hasVision = false, businessContext = null) {
   const pageSummary = summarizePageData(pageData);
+  const businessBlock = businessContext ? buildBusinessContextPromptBlock(businessContext) : '';
 
   const visionBlock = hasVision ? `
 ## Visual Analysis (Screenshot Attached)
@@ -297,7 +299,7 @@ ${Object.entries(rubric).map(([range, desc]) => `- ${range}: ${desc}`).join('\n'
 
 ## Page Data
 ${pageSummary}
-${visionBlock}
+${visionBlock}${businessBlock}
 ## Your Perspective
 ${profile.systemPrompt}
 

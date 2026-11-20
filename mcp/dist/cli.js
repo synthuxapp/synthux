@@ -160,6 +160,639 @@ When evaluating this web page, adopt this persona fully. Consider:
 Evaluate from YOUR perspective \u2014 not as a generic user.`;
 }
 
+// extension/core/business-context.js
+var BUILT_IN_DEPARTMENTS = [
+  {
+    id: "product-ux",
+    name: { en: "Product & UX Design", tr: "\xDCr\xFCn & UX Tasar\u0131m" },
+    icon: "",
+    focus: "Task completion speed, cognitive load, information hierarchy, interaction feedback, and design system consistency.",
+    defaultCriteria: "Minimize friction on primary user flows, keep visual hierarchy clear, and provide immediate state feedback."
+  },
+  {
+    id: "marketing-cro",
+    name: { en: "Marketing & Growth (CRO)", tr: "Pazarlama & B\xFCy\xFCme (CRO)" },
+    icon: "",
+    focus: "Value proposition clarity within 5 seconds, CTA prominence, social proof, trust signals, and bounce/drop-off prevention.",
+    defaultCriteria: "Ensure above-the-fold headline communicates clear value, primary CTA stands out, and conversion barriers are eliminated."
+  },
+  {
+    id: "sales-revenue",
+    name: { en: "Sales & Revenue", tr: "Sat\u0131\u015F & Gelir" },
+    icon: "",
+    focus: "Lead capture / checkout friction, pricing & package transparency, enterprise trust indicators, and objection handling.",
+    defaultCriteria: "Reduce form fields to essential inputs, clarify pricing/tier differences, and surface risk-reversal guarantees."
+  },
+  {
+    id: "legal-compliance",
+    name: { en: "Legal, Privacy & Compliance", tr: "Hukuk, Gizlilik & Uyumluluk" },
+    icon: "",
+    focus: "GDPR/KVKK/CCPA consent clarity, transparent terms/fees disclosure, accessibility compliance (WCAG 2.2 AA / EAA), and zero dark patterns.",
+    defaultCriteria: "Ensure mandatory disclosures, privacy links, consent checkboxes, and accessible controls are clearly visible and unambiguous."
+  },
+  {
+    id: "engineering-qa",
+    name: { en: "Engineering & Frontend QA", tr: "Yaz\u0131l\u0131m & Frontend QA" },
+    icon: "",
+    focus: "Semantic HTML landmarks, form validation states, responsive layout resilience, DOM complexity, and ARIA correctness.",
+    defaultCriteria: "Verify all interactive controls have accessible names, forms have explicit validation states, and DOM selectors are clean."
+  }
+];
+var STORAGE_KEY = "synthux_business_context_state";
+var MAX_CONTEXT_PROFILES = 15;
+var MAX_CUSTOM_DEPARTMENTS = 20;
+var DEFAULT_BUSINESS_STATE = {
+  enabled: false,
+  activeContextId: "default-context",
+  customDepartments: [],
+  contexts: [
+    {
+      id: "default-context",
+      name: "Default Product Context",
+      companyName: "",
+      productName: "",
+      industry: "SaaS / Web Application",
+      primaryGoal: "",
+      valueProposition: "",
+      targetAudience: "",
+      mustHaves: [],
+      metrics: [],
+      departments: ["product-ux", "marketing-cro"],
+      departmentNotes: {},
+      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  ]
+};
+function normalizeDepartment(raw = {}, index = 0) {
+  const nameStr = typeof raw.name === "object" && raw.name !== null ? String(raw.name.en || raw.name.tr || `Department ${index + 1}`).trim() : String(raw.name || `Department ${index + 1}`).trim();
+  const nameTr = typeof raw.name === "object" && raw.name !== null ? String(raw.name.tr || nameStr).trim() : nameStr;
+  const id = String(raw.id || nameStr).toLowerCase().replace(/[^a-z0-9-_]+/g, "-").replace(/^-+|-+$/g, "") || `custom-dept-${Date.now()}`;
+  return {
+    id,
+    name: { en: nameStr, tr: nameTr },
+    icon: "",
+    focus: String(raw.focus || raw.criteria || raw.description || nameStr).trim(),
+    defaultCriteria: String(raw.defaultCriteria || raw.criteria || raw.focus || "").trim(),
+    isCustom: true
+  };
+}
+function normalizeBusinessContext(raw = {}) {
+  const companyName = String(raw.companyName || "").trim();
+  const productName = String(raw.productName || "").trim();
+  const name = String(
+    raw.name || [companyName, productName].filter(Boolean).join(" \u2014 ") || "Product Context"
+  ).trim();
+  const id = String(raw.id || name).toLowerCase().replace(/[^a-z0-9-_]+/g, "-").replace(/^-+|-+$/g, "") || `ctx-${Date.now()}`;
+  const mustHaves = Array.isArray(raw.mustHaves) ? raw.mustHaves.map((item) => String(item || "").trim()).filter(Boolean) : typeof raw.mustHaves === "string" ? raw.mustHaves.split(/\n|;/).map((s) => s.trim()).filter(Boolean) : [];
+  const metrics = Array.isArray(raw.metrics) ? raw.metrics.map((m) => {
+    if (typeof m === "string") return m.trim();
+    if (m && typeof m === "object") {
+      const label = String(m.name || m.label || m.metric || "").trim();
+      const val = String(m.value || "").trim();
+      const target = m.target ? ` (Target: ${m.target})` : "";
+      return [label, val].filter(Boolean).join(": ") + target;
+    }
+    return "";
+  }).filter(Boolean) : typeof raw.metrics === "string" ? raw.metrics.split(/\n|;/).map((s) => s.trim()).filter(Boolean) : [];
+  const departments = Array.isArray(raw.departments) && raw.departments.length > 0 ? raw.departments.map((d) => String(d).trim()).filter(Boolean) : ["product-ux", "marketing-cro"];
+  const departmentNotes = raw.departmentNotes && typeof raw.departmentNotes === "object" ? raw.departmentNotes : {};
+  return {
+    id,
+    name,
+    companyName,
+    productName,
+    industry: String(raw.industry || "General Web / Digital Product").trim(),
+    primaryGoal: String(raw.primaryGoal || "").trim(),
+    valueProposition: String(raw.valueProposition || "").trim(),
+    targetAudience: String(raw.targetAudience || "").trim(),
+    mustHaves,
+    metrics,
+    departments,
+    departmentNotes,
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+}
+var memoryFallbackState = structuredClone(DEFAULT_BUSINESS_STATE);
+async function getBusinessContextState() {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      const data = await chrome.storage.local.get(STORAGE_KEY);
+      if (data?.[STORAGE_KEY] && typeof data[STORAGE_KEY] === "object") {
+        const st = data[STORAGE_KEY];
+        return {
+          enabled: Boolean(st.enabled),
+          activeContextId: st.activeContextId || st.contexts?.[0]?.id || "default-context",
+          customDepartments: Array.isArray(st.customDepartments) ? st.customDepartments : [],
+          contexts: Array.isArray(st.contexts) && st.contexts.length > 0 ? st.contexts.map(normalizeBusinessContext) : structuredClone(DEFAULT_BUSINESS_STATE.contexts)
+        };
+      }
+    }
+  } catch {
+  }
+  return structuredClone(memoryFallbackState);
+}
+async function saveBusinessContextState(nextState) {
+  const cleanState = {
+    enabled: Boolean(nextState.enabled),
+    activeContextId: nextState.activeContextId || nextState.contexts?.[0]?.id || "default-context",
+    customDepartments: Array.isArray(nextState.customDepartments) ? nextState.customDepartments.slice(0, MAX_CUSTOM_DEPARTMENTS) : [],
+    contexts: Array.isArray(nextState.contexts) && nextState.contexts.length > 0 ? nextState.contexts.slice(0, MAX_CONTEXT_PROFILES).map(normalizeBusinessContext) : structuredClone(DEFAULT_BUSINESS_STATE.contexts)
+  };
+  memoryFallbackState = structuredClone(cleanState);
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      await chrome.storage.local.set({ [STORAGE_KEY]: cleanState });
+    }
+  } catch {
+  }
+  return cleanState;
+}
+async function getAllDepartments() {
+  const state = await getBusinessContextState();
+  return [...BUILT_IN_DEPARTMENTS, ...state.customDepartments || []];
+}
+async function getActiveBusinessContext() {
+  const state = await getBusinessContextState();
+  if (!state.enabled) return null;
+  const active = state.contexts.find((c) => c.id === state.activeContextId) || state.contexts[0] || null;
+  if (!active) return null;
+  const allDepts = [...BUILT_IN_DEPARTMENTS, ...state.customDepartments || []];
+  const resolvedDepartments = (active.departments || []).map((id) => {
+    const dept = allDepts.find((d) => d.id === id);
+    if (!dept) return null;
+    return {
+      ...dept,
+      customCriteria: active.departmentNotes?.[id] || dept.defaultCriteria || dept.focus
+    };
+  }).filter(Boolean);
+  return {
+    ...active,
+    enabled: true,
+    resolvedDepartments
+  };
+}
+async function upsertBusinessContextProfile(rawProfile, options = {}) {
+  const state = await getBusinessContextState();
+  const normalized = normalizeBusinessContext(rawProfile);
+  const idx = state.contexts.findIndex((c) => c.id === normalized.id);
+  if (idx >= 0) {
+    state.contexts[idx] = normalized;
+  } else {
+    state.contexts.unshift(normalized);
+  }
+  if (options.setActive !== false) {
+    state.activeContextId = normalized.id;
+  }
+  if (typeof options.enabled === "boolean") {
+    state.enabled = options.enabled;
+  }
+  await saveBusinessContextState(state);
+  return { state, profile: normalized };
+}
+async function deleteBusinessContextProfile(contextId) {
+  const state = await getBusinessContextState();
+  state.contexts = state.contexts.filter((c) => c.id !== contextId);
+  if (state.contexts.length === 0) {
+    state.contexts = structuredClone(DEFAULT_BUSINESS_STATE.contexts);
+  }
+  if (!state.contexts.some((c) => c.id === state.activeContextId)) {
+    state.activeContextId = state.contexts[0].id;
+  }
+  return await saveBusinessContextState(state);
+}
+async function upsertCustomDepartment(rawDept) {
+  const state = await getBusinessContextState();
+  const normalized = normalizeDepartment(rawDept, state.customDepartments.length);
+  const builtInIds = new Set(BUILT_IN_DEPARTMENTS.map((d) => d.id));
+  if (builtInIds.has(normalized.id)) {
+    normalized.id = `custom-${normalized.id}`;
+  }
+  const idx = state.customDepartments.findIndex((d) => d.id === normalized.id);
+  if (idx >= 0) {
+    state.customDepartments[idx] = normalized;
+  } else {
+    state.customDepartments.push(normalized);
+  }
+  await saveBusinessContextState(state);
+  return { state, department: normalized };
+}
+async function deleteCustomDepartment(deptId) {
+  const state = await getBusinessContextState();
+  state.customDepartments = state.customDepartments.filter((d) => d.id !== deptId);
+  state.contexts = state.contexts.map((ctx) => ({
+    ...ctx,
+    departments: (ctx.departments || []).filter((id) => id !== deptId)
+  }));
+  return await saveBusinessContextState(state);
+}
+function buildBusinessContextPromptBlock(businessContext, allDepartments = BUILT_IN_DEPARTMENTS) {
+  if (!businessContext || businessContext.enabled === false) return "";
+  const companyLine = [businessContext.companyName, businessContext.productName].filter(Boolean).join(" / ");
+  const depts = (businessContext.resolvedDepartments || []).length > 0 ? businessContext.resolvedDepartments : (businessContext.departments || []).map((id) => allDepartments.find((d) => d.id === id)).filter(Boolean);
+  const lines = [
+    "",
+    "## \u{1F3E2} Company, Product & Goal Context (ACTIVE \u2014 Must Factor Into Evaluation)",
+    companyLine ? `- **Company / Product:** ${companyLine} (${businessContext.industry || "Digital Product"})` : `- **Industry:** ${businessContext.industry || "Digital Product"}`,
+    businessContext.primaryGoal ? `- **Primary Page / Flow Goal:** ${businessContext.primaryGoal}` : "",
+    businessContext.valueProposition ? `- **Core Value Proposition:** ${businessContext.valueProposition}` : "",
+    businessContext.targetAudience ? `- **Target Audience:** ${businessContext.targetAudience}` : ""
+  ].filter(Boolean);
+  if (Array.isArray(businessContext.mustHaves) && businessContext.mustHaves.length > 0) {
+    lines.push("- **Non-Negotiable Must-Haves (Check if present, clear, and effective on the page):**");
+    businessContext.mustHaves.forEach((item, i) => {
+      lines.push(`  ${i + 1}. ${item}`);
+    });
+  }
+  if (Array.isArray(businessContext.metrics) && businessContext.metrics.length > 0) {
+    lines.push("- **Current Marketing & Usage Metrics / Bottlenecks (Diagnose UX root causes for these):**");
+    businessContext.metrics.forEach((m) => {
+      lines.push(`  - ${m}`);
+    });
+  }
+  if (depts.length > 0) {
+    lines.push("- **Active Department Lenses:**");
+    depts.forEach((d) => {
+      const dName = d.name?.en || d.name || d.id;
+      const note = businessContext.departmentNotes?.[d.id] || d.customCriteria || d.defaultCriteria || d.focus;
+      lines.push(`  - **${d.icon || "\u{1F3DB}\uFE0F"} ${dName}:** ${note}`);
+    });
+  }
+  lines.push("");
+  return lines.join("\n");
+}
+function buildBusinessAlignmentPrompt(businessContext, pageSummary, allDepartments = BUILT_IN_DEPARTMENTS) {
+  const ctxBlock = buildBusinessContextPromptBlock(businessContext, allDepartments);
+  const depts = (businessContext.resolvedDepartments || []).length > 0 ? businessContext.resolvedDepartments : (businessContext.departments || []).map((id) => allDepartments.find((d) => d.id === id)).filter(Boolean);
+  return `You are a Principal Product, CRO, and UX Strategist. Evaluate the following web page against the company's specific business goals, non-negotiable must-haves, marketing/usage metrics, and department perspectives.
+${ctxBlock}
+## Extracted Page Data
+${pageSummary}
+
+## STRICT JSON Response Rules
+Respond ONLY with a valid JSON object matching this exact schema (no markdown fences, no comments):
+{
+  "goalAlignmentScore": 78,
+  "goalSummary": "1-2 sentence assessment of how effectively the page achieves its primary business goal and value proposition.",
+  "mustHavesAudit": [
+    {
+      "item": "Exact must-have requirement text",
+      "status": "pass|partial|missing",
+      "evidence": "What was found or missing in the DOM/visual layout",
+      "recommendation": "Concrete fix if partial or missing"
+    }
+  ],
+  "metricInsights": [
+    {
+      "metric": "The metric or bottleneck provided (e.g. Bounce rate 68%)",
+      "rootCause": "Likely UX/DOM cause observed on this page",
+      "action": "High-impact change to improve this metric"
+    }
+  ],
+  "departmentFindings": [
+    ${depts.map((d) => `{
+      "departmentId": "${d.id}",
+      "departmentName": "${d.name?.en || d.name || d.id}",
+      "icon": "${d.icon || "\u{1F3DB}\uFE0F"}",
+      "score": 75,
+      "summary": "Key takeaway for ${d.name?.en || d.id}",
+      "actionItems": ["Concrete action item 1", "Concrete action item 2"]
+    }`).join(",\n    ")}
+  ]
+}`;
+}
+function buildDeterministicBusinessAlignment(businessContext, pageData = {}, allDepartments = BUILT_IN_DEPARTMENTS) {
+  if (!businessContext) return null;
+  const bodyText = JSON.stringify({
+    title: pageData.meta?.title || "",
+    description: pageData.meta?.description || "",
+    headings: (pageData.structure?.headings || []).map((h) => h.text),
+    ctas: pageData.content?.ctas || [],
+    forms: pageData.structure?.forms || []
+  }).toLowerCase();
+  const mustHavesAudit = (businessContext.mustHaves || []).map((item) => {
+    const keywords = item.toLowerCase().replace(/[^a-z0-9ğüşıöç\s]/gi, " ").split(/\s+/).filter((w) => w.length > 3);
+    const matchedCount = keywords.filter((kw) => bodyText.includes(kw)).length;
+    const ratio = keywords.length > 0 ? matchedCount / keywords.length : 0.5;
+    const status = ratio >= 0.6 ? "pass" : ratio > 0 ? "partial" : "missing";
+    return {
+      item,
+      status,
+      evidence: status === "pass" ? "Matching content/CTA elements detected in page DOM." : status === "partial" ? "Partially referenced in DOM; prominence or explicit copy may need strengthening." : "Not clearly detected in primary headings, CTAs, or form labels.",
+      recommendation: status === "pass" ? "Maintain visibility across desktop and mobile viewports." : `Explicitly surface "${item}" near the primary conversion area.`
+    };
+  });
+  const passCount = mustHavesAudit.filter((m) => m.status === "pass").length;
+  const partialCount = mustHavesAudit.filter((m) => m.status === "partial").length;
+  const totalMust = mustHavesAudit.length;
+  const goalAlignmentScore = totalMust > 0 ? Math.round((passCount + partialCount * 0.5) / totalMust * 100) : pageData.content?.ctas?.length > 0 ? 78 : 62;
+  const metricInsights = (businessContext.metrics || []).map((metric) => ({
+    metric,
+    rootCause: (pageData.content?.ctas?.length || 0) === 0 ? "Low CTA prominence and unclear primary conversion path in initial viewport." : (pageData.structure?.forms?.[0]?.fields?.length || 0) > 5 ? `High form field count (${pageData.structure.forms[0].fields.length} fields) creating completion friction.` : "Information density and hierarchy between headline, trust signals, and primary CTA.",
+    action: `Align primary CTA and above-the-fold copy directly with goal: "${businessContext.primaryGoal || "conversion"}".`
+  }));
+  const depts = (businessContext.resolvedDepartments || []).length > 0 ? businessContext.resolvedDepartments : (businessContext.departments || []).map((id) => allDepartments.find((d) => d.id === id)).filter(Boolean);
+  const departmentFindings = depts.map((d) => ({
+    departmentId: d.id,
+    departmentName: d.name?.en || d.name || d.id,
+    icon: "",
+    score: goalAlignmentScore,
+    summary: businessContext.departmentNotes?.[d.id] || d.defaultCriteria || d.focus,
+    actionItems: [
+      `Verify page satisfies ${d.name?.en || d.id} focus: ${d.focus}`,
+      ...mustHavesAudit.filter((m) => m.status !== "pass").slice(0, 2).map((m) => m.recommendation)
+    ]
+  }));
+  return {
+    contextName: businessContext.name,
+    companyName: businessContext.companyName,
+    productName: businessContext.productName,
+    industry: businessContext.industry,
+    primaryGoal: businessContext.primaryGoal,
+    valueProposition: businessContext.valueProposition,
+    goalAlignmentScore,
+    goalSummary: businessContext.primaryGoal ? `Evaluated against primary goal: "${businessContext.primaryGoal}". ${passCount}/${totalMust} non-negotiable must-haves verified.` : `Evaluated with ${businessContext.name} context across ${departmentFindings.length} department lens(es).`,
+    mustHavesAudit,
+    metricInsights,
+    departmentFindings
+  };
+}
+function parseBusinessAlignmentResponse(rawResponse, businessContext, pageData, allDepartments = BUILT_IN_DEPARTMENTS) {
+  const fallback = buildDeterministicBusinessAlignment(businessContext, pageData, allDepartments);
+  if (!rawResponse) return fallback;
+  try {
+    let text = typeof rawResponse === "string" ? rawResponse : JSON.stringify(rawResponse);
+    text = text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+    const firstBrace = text.indexOf("{");
+    const lastBrace = text.lastIndexOf("}");
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      text = text.slice(firstBrace, lastBrace + 1);
+    }
+    const parsed = JSON.parse(text);
+    return {
+      ...fallback,
+      goalAlignmentScore: Number.isFinite(Number(parsed.goalAlignmentScore)) ? Math.max(0, Math.min(100, Math.round(Number(parsed.goalAlignmentScore)))) : fallback.goalAlignmentScore,
+      goalSummary: String(parsed.goalSummary || fallback.goalSummary).trim(),
+      mustHavesAudit: Array.isArray(parsed.mustHavesAudit) && parsed.mustHavesAudit.length > 0 ? parsed.mustHavesAudit.map((m) => ({
+        item: String(m.item || "").trim(),
+        status: ["pass", "partial", "missing"].includes(String(m.status).toLowerCase()) ? String(m.status).toLowerCase() : "partial",
+        evidence: String(m.evidence || "").trim(),
+        recommendation: String(m.recommendation || "").trim()
+      })) : fallback.mustHavesAudit,
+      metricInsights: Array.isArray(parsed.metricInsights) && parsed.metricInsights.length > 0 ? parsed.metricInsights.map((mi) => ({
+        metric: String(mi.metric || "").trim(),
+        rootCause: String(mi.rootCause || mi.likelyUxCause || "").trim(),
+        action: String(mi.action || mi.recommendation || "").trim()
+      })) : fallback.metricInsights,
+      departmentFindings: Array.isArray(parsed.departmentFindings) && parsed.departmentFindings.length > 0 ? parsed.departmentFindings.map((df) => ({
+        departmentId: String(df.departmentId || "dept").trim(),
+        departmentName: String(df.departmentName || df.departmentId || "Department").trim(),
+        icon: "",
+        score: Number.isFinite(Number(df.score)) ? Math.max(0, Math.min(100, Math.round(Number(df.score)))) : fallback.goalAlignmentScore,
+        summary: String(df.summary || "").trim(),
+        actionItems: Array.isArray(df.actionItems) ? df.actionItems.map((a) => String(a).trim()).filter(Boolean) : []
+      })) : fallback.departmentFindings
+    };
+  } catch {
+    return fallback;
+  }
+}
+function generateDiscoveryQuestions({ url = "", title = "", pageData = null, flowPages = null, currentContext = null } = {}) {
+  const isFlow = Array.isArray(flowPages) && flowPages.length > 1;
+  const detectedCtas = pageData?.content?.ctas?.slice(0, 4)?.join(", ") || "";
+  const detectedForms = pageData?.structure?.forms?.length || 0;
+  return {
+    contextStatus: currentContext?.enabled ? "configured_and_enabled" : "not_configured_or_disabled",
+    targetSummary: isFlow ? `Multi-page flow (${flowPages.length} pages: ${flowPages.map((p) => p.label || p.url).join(" \u2192 ")})` : `${title || "Web Page"} (${url || "active tab"})`,
+    agentInstruction: 'Ask the user these concise questions to capture their company/product context, non-negotiable must-haves, department priorities, and metrics. Once the user replies, call synthux_manage_business_context with action="save" and enabled=true.',
+    questions: [
+      {
+        id: "company_and_goal",
+        questionTr: `1. Firma / \xDCr\xFCn ve Birincil Hedef: Bu ${isFlow ? "ak\u0131\u015F\u0131n" : "sayfan\u0131n"} ait oldu\u011Fu firma/\xFCr\xFCn nedir ve kullan\u0131c\u0131n\u0131n burada tamamlamas\u0131n\u0131 istedi\u011Finiz birincil d\xF6n\xFC\u015F\xFCm hedefi nedir?${detectedCtas ? ` (Sayfada tespit edilen CTA'lar: ${detectedCtas})` : ""}`,
+        questionEn: `1. Company / Product & Primary Goal: Which company/product does this ${isFlow ? "flow" : "page"} belong to, and what is the primary conversion or user goal?${detectedCtas ? ` (Detected CTAs: ${detectedCtas})` : ""}`,
+        mapsToFields: ["companyName", "productName", "industry", "primaryGoal", "valueProposition"]
+      },
+      {
+        id: "must_haves",
+        questionTr: `2. Olmazsa Olmazlar (Must-Haves): Firma veya \xFCr\xFCn i\xE7in bu ${isFlow ? "ak\u0131\u015Fta" : "sayfada"} kesinlikle bulunmas\u0131, vurgulanmas\u0131 veya korunmas\u0131 gereken kritik unsurlar nelerdir? (\xD6rn. "\xDCcretsiz deneme CTA's\u0131 ilk ekranda olmal\u0131", "Kredi kart\u0131 gerekmez ibaresi", "G\xFCven rozetleri / KVKK onay\u0131")`,
+        questionEn: `2. Non-Negotiable Must-Haves: What elements, trust signals, disclosures, or features MUST be clearly visible on this ${isFlow ? "flow" : "page"}?`,
+        mapsToFields: ["mustHaves"]
+      },
+      {
+        id: "departments",
+        questionTr: "3. Departman Perspektifleri: Analizde hangi departmanlar\u0131n bak\u0131\u015F a\xE7\u0131s\u0131na odaklanal\u0131m? (Haz\u0131r: Product & UX, Marketing & CRO, Sales & Revenue, Legal & Compliance, Engineering & QA \u2014 veya eklemek istedi\u011Finiz \xF6zel bir departman ve kriteri var m\u0131?)",
+        questionEn: "3. Department Lenses: Which departments should evaluate this page/flow? (Built-in: Product & UX, Marketing & CRO, Sales & Revenue, Legal & Compliance, Engineering & QA \u2014 or any custom department?)",
+        mapsToFields: ["departments", "departmentNotes", "customDepartments"]
+      },
+      {
+        id: "metrics",
+        questionTr: `4. Pazarlama ve Kullan\u0131m Metrikleri (Opsiyonel): Elimizde bu ${isFlow ? "ak\u0131\u015Fa" : "sayfaya"} dair mevcut bir metrik veya bilinen bir darbo\u011Faz var m\u0131? (\xD6rn. Bounce rate %65, Sepet terk %70, ${detectedForms > 0 ? "Form terk oran\u0131, " : ""}Mobil d\xF6n\xFC\u015F\xFCm oran\u0131)`,
+        questionEn: "4. Marketing & Usage Metrics (Optional): Are there any current analytics metrics or known bottlenecks (e.g., bounce rate, drop-off step, conversion rate) we should diagnose?",
+        mapsToFields: ["metrics"]
+      }
+    ]
+  };
+}
+function normalizeIssueKey(issue) {
+  const el = String(issue.element || "").trim().toLowerCase();
+  const desc = String(issue.description || issue.title || "").toLowerCase().replace(/[^a-z0-9ğüşıöç\s]/gi, "").split(/\s+/).slice(0, 7).join(" ");
+  return `${el}::${desc}`;
+}
+function collectUniqueIssues(report) {
+  if (!report) return [];
+  if (report.type === "flow" && Array.isArray(report.pages)) {
+    const flowIssues = [];
+    report.pages.forEach((p) => {
+      const label = p.page?.label || p.page?.url || "Step";
+      (p.report?.issues || []).forEach((iss) => {
+        flowIssues.push({
+          severity: iss.severity || "moderate",
+          element: label,
+          description: typeof iss === "string" ? iss : iss.description || iss.title || "",
+          recommendation: iss.recommendation || ""
+        });
+      });
+    });
+    (report.crossPage?.findings || []).forEach((f) => {
+      flowIssues.push({
+        severity: f.severity || "moderate",
+        element: "Cross-Page",
+        description: `${f.title}: ${f.description}`,
+        recommendation: ""
+      });
+    });
+    return flowIssues;
+  }
+  if (Array.isArray(report.issues) && report.issues.length > 0) {
+    return report.issues;
+  }
+  const map = /* @__PURE__ */ new Map();
+  Object.values(report.profileResults || {}).forEach((pr) => {
+    (pr.evaluations || []).forEach((ev) => {
+      (ev.issues || []).forEach((iss) => {
+        const key = normalizeIssueKey(iss);
+        if (!map.has(key)) map.set(key, iss);
+      });
+    });
+  });
+  return Array.from(map.values());
+}
+function compareReports(baseReport, targetReport) {
+  if (!baseReport || !targetReport) {
+    throw new Error("Both baseReport (older) and targetReport (newer) are required for comparison.");
+  }
+  const baseScore = baseReport.overallScore ?? baseReport.flowScore ?? baseReport.score ?? 0;
+  const targetScore = targetReport.overallScore ?? targetReport.flowScore ?? targetReport.score ?? 0;
+  const overallScoreDelta = targetScore - baseScore;
+  const baseA11y = baseReport.accessibilityResults?.score ?? null;
+  const targetA11y = targetReport.accessibilityResults?.score ?? null;
+  const accessibilityScoreDelta = baseA11y !== null && targetA11y !== null ? targetA11y - baseA11y : null;
+  const baseGoal = baseReport.businessAlignment?.goalAlignmentScore ?? null;
+  const targetGoal = targetReport.businessAlignment?.goalAlignmentScore ?? null;
+  const goalAlignmentDelta = baseGoal !== null && targetGoal !== null ? targetGoal - baseGoal : null;
+  const baseIssues = collectUniqueIssues(baseReport);
+  const targetIssues = collectUniqueIssues(targetReport);
+  const baseMap = new Map(baseIssues.map((i) => [normalizeIssueKey(i), i]));
+  const targetMap = new Map(targetIssues.map((i) => [normalizeIssueKey(i), i]));
+  const resolvedIssues = [];
+  const persistentIssues = [];
+  const newIssues = [];
+  for (const [key, issue] of baseMap.entries()) {
+    if (targetMap.has(key)) {
+      persistentIssues.push(issue);
+    } else {
+      resolvedIssues.push(issue);
+    }
+  }
+  for (const [key, issue] of targetMap.entries()) {
+    if (!baseMap.has(key)) {
+      newIssues.push(issue);
+    }
+  }
+  const baseMust = baseReport.businessAlignment?.mustHavesAudit || [];
+  const targetMust = targetReport.businessAlignment?.mustHavesAudit || [];
+  const mustHavesProgress = targetMust.map((tm) => {
+    const bm = baseMust.find((b) => b.item === tm.item);
+    return {
+      item: tm.item,
+      beforeStatus: bm ? bm.status : "untracked",
+      afterStatus: tm.status,
+      improved: bm ? bm.status !== "pass" && tm.status === "pass" : tm.status === "pass"
+    };
+  });
+  const sign = (n) => n > 0 ? `+${n}` : `${n}`;
+  const mdLines = [
+    "# synthux Before vs After Audit Comparison",
+    "",
+    "| Metric | Before (Base) | After (Target) | Change (Delta) |",
+    "|:---|:---:|:---:|:---:|",
+    `| **URL / Flow** | ${baseReport.url || baseReport.name || "Base"} | ${targetReport.url || targetReport.name || "Target"} | \u2014 |`,
+    `| **Overall UX Score** | **${baseScore}/100** | **${targetScore}/100** | **${sign(overallScoreDelta)}** |`
+  ];
+  if (accessibilityScoreDelta !== null) {
+    mdLines.push(`| **Accessibility (WCAG)** | ${baseA11y}/100 | ${targetA11y}/100 | **${sign(accessibilityScoreDelta)}** |`);
+  }
+  if (goalAlignmentDelta !== null) {
+    mdLines.push(`| **Business Goal Alignment** | ${baseGoal}/100 | ${targetGoal}/100 | **${sign(goalAlignmentDelta)}** |`);
+  }
+  mdLines.push(`| **Total Issues** | ${baseIssues.length} | ${targetIssues.length} | **${sign(targetIssues.length - baseIssues.length)}** (${resolvedIssues.length} resolved, ${newIssues.length} new) |`);
+  mdLines.push("");
+  if (resolvedIssues.length > 0) {
+    mdLines.push(`## Resolved Issues (${resolvedIssues.length})`);
+    resolvedIssues.forEach((i) => {
+      mdLines.push(`- ~~**[${(i.severity || "moderate").toUpperCase()}]** ${i.description}~~ ${i.element ? `(\`${i.element}\`)` : ""}`);
+    });
+    mdLines.push("");
+  }
+  if (newIssues.length > 0) {
+    mdLines.push(`## New / Regression Issues (${newIssues.length})`);
+    newIssues.forEach((i) => {
+      mdLines.push(`- **[${(i.severity || "moderate").toUpperCase()}]** ${i.description} ${i.element ? `(\`${i.element}\`)` : ""}`);
+    });
+    mdLines.push("");
+  }
+  if (persistentIssues.length > 0) {
+    mdLines.push(`## Persistent Issues (${persistentIssues.length})`);
+    persistentIssues.forEach((i) => {
+      mdLines.push(`- **[${(i.severity || "moderate").toUpperCase()}]** ${i.description} ${i.element ? `(\`${i.element}\`)` : ""}`);
+    });
+    mdLines.push("");
+  }
+  return {
+    baseId: baseReport.id || null,
+    targetId: targetReport.id || null,
+    url: targetReport.url || baseReport.url || null,
+    baseTimestamp: baseReport.timestamp || null,
+    targetTimestamp: targetReport.timestamp || null,
+    scores: {
+      baseScore,
+      targetScore,
+      overallScoreDelta,
+      baseA11y,
+      targetA11y,
+      accessibilityScoreDelta,
+      baseGoal,
+      targetGoal,
+      goalAlignmentDelta
+    },
+    counts: {
+      baseTotalIssues: baseIssues.length,
+      targetTotalIssues: targetIssues.length,
+      resolvedCount: resolvedIssues.length,
+      newCount: newIssues.length,
+      persistentCount: persistentIssues.length
+    },
+    resolvedIssues,
+    newIssues,
+    persistentIssues,
+    mustHavesProgress,
+    markdown: mdLines.join("\n")
+  };
+}
+function generateAiFixPrompt(report) {
+  if (!report) return "";
+  const issues = collectUniqueIssues(report);
+  const criticalAndHigh = issues.filter((i) => i.severity === "critical" || i.priority === "high" || i.isQuickWin);
+  const targetList = criticalAndHigh.length > 0 ? criticalAndHigh : issues.slice(0, 10);
+  const lines = [
+    `Please fix the following UX, Accessibility (WCAG 2.2 AA), and Business Goal issues identified by synthux on ${report.url || report.title || "this page"} (Current UX Score: ${report.overallScore ?? report.flowScore ?? 0}/100):`,
+    ""
+  ];
+  if (report.businessAlignment) {
+    const ba = report.businessAlignment;
+    lines.push(`### Business & Product Goal Context (${ba.goalAlignmentScore}/100)`);
+    if (ba.primaryGoal) lines.push(`- **Primary Goal:** ${ba.primaryGoal}`);
+    const missingMusts = (ba.mustHavesAudit || []).filter((m) => m.status !== "pass");
+    if (missingMusts.length > 0) {
+      lines.push("- **Missing / Partial Non-Negotiable Must-Haves to Implement:**");
+      missingMusts.forEach((m) => {
+        lines.push(`  - [${m.status.toUpperCase()}] **${m.item}** -> ${m.recommendation || m.evidence}`);
+      });
+    }
+    lines.push("");
+  }
+  lines.push(`### Priority UX & Accessibility Fixes (${targetList.length})`);
+  targetList.forEach((issue, idx) => {
+    lines.push(`${idx + 1}. **[${(issue.severity || "moderate").toUpperCase()}${issue.isQuickWin ? " \xB7 QUICK WIN" : ""}]** ${issue.description}`);
+    if (issue.element) lines.push(`   - **Selector:** \`${issue.element}\``);
+    if (issue.recommendation) lines.push(`   - **Required Change:** ${issue.recommendation}`);
+    if (issue.codeFix?.after) {
+      lines.push(`   - **Suggested Code (\`${issue.codeFix.language || "html"}\`):**
+\`\`\`${issue.codeFix.language || "html"}
+${issue.codeFix.after}
+\`\`\``);
+    }
+  });
+  if (report.accessibilityResults?.wcagViolations?.length > 0) {
+    lines.push("");
+    lines.push(`### axe-core WCAG 2.2 AA Violations (${report.accessibilityResults.wcagViolations.length})`);
+    report.accessibilityResults.wcagViolations.slice(0, 6).forEach((v) => {
+      const targets = (v.nodes || []).slice(0, 2).map((n) => n.target).join(", ");
+      lines.push(`- **[${(v.impact || "serious").toUpperCase()}] ${v.help}**: ${v.description}${targets ? ` (Targets: \`${targets}\`)` : ""}`);
+    });
+  }
+  return lines.join("\n");
+}
+
 // extension/core/heuristics.js
 var BUILT_IN_RULE_PACKS = [
   {
@@ -280,8 +913,9 @@ function selectHeuristics(rules, mode = "deep", profileId = null) {
   }
   return allRules;
 }
-function buildPrompt(heuristic, profile, pageData, hasVision = false) {
+function buildPrompt(heuristic, profile, pageData, hasVision = false, businessContext = null) {
   const pageSummary = summarizePageData(pageData);
+  const businessBlock = businessContext ? buildBusinessContextPromptBlock(businessContext) : "";
   const visionBlock = hasVision ? `
 ## Visual Analysis (Screenshot Attached)
 A screenshot of the page is attached. Analyze BOTH the structural DOM data AND the visual screenshot together.
@@ -311,7 +945,7 @@ ${Object.entries(rubric).map(([range, desc]) => `- ${range}: ${desc}`).join("\n"
 
 ## Page Data
 ${pageSummary}
-${visionBlock}
+${visionBlock}${businessBlock}
 ## Your Perspective
 ${profile.systemPrompt}
 
@@ -886,13 +1520,15 @@ function generateReport(data) {
     overallScore,
     profileResults,
     accessibilityResults,
+    businessContext = null,
+    businessAlignment = null,
     issues,
     screenshot,
     annotatedScreenshot = null,
     costSummary
   } = data;
-  return {
-    version: "2.0.0",
+  const reportObj = {
+    version: "2.2.0",
     url,
     title,
     timestamp,
@@ -906,13 +1542,17 @@ function generateReport(data) {
     overallScore,
     profileResults,
     accessibilityResults,
+    businessContext,
+    businessAlignment,
     issues,
     annotatedScreenshot: annotatedScreenshot || null,
     visionEnabled: !!screenshot,
-    costSummary: costSummary || null,
-    markdown: generateMarkdown(data),
-    json: generateJSON(data)
+    costSummary: costSummary || null
   };
+  reportObj.aiFixPrompt = generateAiFixPrompt(reportObj);
+  reportObj.markdown = generateMarkdown(data);
+  reportObj.json = generateJSON(data);
+  return reportObj;
 }
 function generateMarkdown(data) {
   const {
@@ -956,6 +1596,12 @@ function generateMarkdown(data) {
   if (accessibilityResults) {
     lines.push(`| **Accessibility (WCAG)** | **${accessibilityResults.score}/100** ${getScoreEmoji(accessibilityResults.score)} | \`${renderScoreBar(accessibilityResults.score)}\` (${accessibilityResults.wcagViolations?.length || 0} WCAG violations) |`);
   }
+  if (data.businessAlignment) {
+    const ba = data.businessAlignment;
+    const passCount = (ba.mustHavesAudit || []).filter((m) => m.status === "pass").length;
+    const totalMust = (ba.mustHavesAudit || []).length;
+    lines.push(`| **\u{1F3E2} Business Goal Alignment** | **${ba.goalAlignmentScore}/100** ${getScoreEmoji(ba.goalAlignmentScore)} | \`${renderScoreBar(ba.goalAlignmentScore)}\` (${totalMust > 0 ? `${passCount}/${totalMust} Must-Haves Passed` : ba.contextName || "Active"}) |`);
+  }
   Object.values(profileResults).forEach((pr) => {
     const pName = pr.profile?.name?.en || pr.profile?.name || "Profile";
     lines.push(`| **${pr.profile?.icon || "\u{1F464}"} ${pName}** | **${pr.score}/100** ${getScoreEmoji(pr.score)} | \`${renderScoreBar(pr.score)}\` |`);
@@ -963,6 +1609,57 @@ function generateMarkdown(data) {
   lines.push(`| **Total Unique Issues** | **${issues.length}** | \u{1F534} ${critical.length} Critical \xB7 \u{1F7E1} ${moderate.length} Moderate \xB7 \u{1F7E2} ${minor.length} Minor |`);
   lines.push(`| **Quick Wins** | **${quickWins.length}** | \u26A1 High-impact, easy-effort fixes ready for immediate action |`);
   lines.push("");
+  if (data.businessAlignment) {
+    const ba = data.businessAlignment;
+    lines.push("---");
+    lines.push("");
+    lines.push(`## \u{1F3E2} Business Goal, Must-Haves & Department Alignment \u2014 ${ba.goalAlignmentScore}/100`);
+    lines.push("");
+    if (ba.companyName || ba.productName) {
+      lines.push(`- **Company / Product:** ${[ba.companyName, ba.productName].filter(Boolean).join(" \u2014 ")} (${ba.industry || "Digital Product"})`);
+    }
+    if (ba.primaryGoal) {
+      lines.push(`- **Primary Goal:** ${ba.primaryGoal}`);
+    }
+    if (ba.goalSummary) {
+      lines.push(`- **Strategic Summary:** ${ba.goalSummary}`);
+    }
+    lines.push("");
+    if (Array.isArray(ba.mustHavesAudit) && ba.mustHavesAudit.length > 0) {
+      lines.push("### \u{1F4CC} Non-Negotiable Must-Haves Checklist");
+      lines.push("");
+      lines.push("| Must-Have Requirement | Status | Evidence & Action |");
+      lines.push("|:---|:---:|:---|");
+      ba.mustHavesAudit.forEach((m) => {
+        const badge = m.status === "pass" ? "\u2705 PASS" : m.status === "partial" ? "\u26A0\uFE0F PARTIAL" : "\u274C MISSING";
+        const detail = [m.evidence, m.status !== "pass" && m.recommendation ? `**Fix:** ${m.recommendation}` : ""].filter(Boolean).join(" \xB7 ").replace(/\|/g, "\\|");
+        lines.push(`| **${m.item.replace(/\|/g, "\\|")}** | ${badge} | ${detail} |`);
+      });
+      lines.push("");
+    }
+    if (Array.isArray(ba.metricInsights) && ba.metricInsights.length > 0) {
+      lines.push("### \u{1F4C8} Marketing & Usage Metric Root-Cause Analysis");
+      lines.push("");
+      ba.metricInsights.forEach((mi) => {
+        lines.push(`- **Metric / Bottleneck:** \`${mi.metric}\``);
+        if (mi.rootCause) lines.push(`  - **UX Root Cause:** ${mi.rootCause}`);
+        if (mi.action) lines.push(`  - **Recommended Action:** ${mi.action}`);
+      });
+      lines.push("");
+    }
+    if (Array.isArray(ba.departmentFindings) && ba.departmentFindings.length > 0) {
+      lines.push("### \u{1F3DB}\uFE0F Department-Specific Insights");
+      lines.push("");
+      ba.departmentFindings.forEach((df) => {
+        lines.push(`#### ${df.icon || "\u{1F3DB}\uFE0F"} ${df.departmentName} \u2014 ${df.score}/100`);
+        if (df.summary) lines.push(`> ${df.summary}`);
+        (df.actionItems || []).forEach((act) => {
+          lines.push(`- ${act}`);
+        });
+        lines.push("");
+      });
+    }
+  }
   if (issues.length > 0) {
     const majorProjects = issues.filter((i) => i.priority === "high" && i.fixEffort !== "easy");
     const fillIns = issues.filter((i) => i.priority !== "high" && i.fixEffort === "easy");
@@ -1127,12 +1824,12 @@ function generateMarkdown(data) {
   }
   lines.push("---");
   lines.push("");
-  lines.push("*Generated by [synthux v2.0](https://synthux.app) \u2014 Open Source AI-Powered UX Audit.*");
+  lines.push("*Generated by [synthux v2.2](https://synthux.app) \u2014 Open Source AI-Powered UX Audit.*");
   return lines.join("\n");
 }
 function generateJSON(data) {
   return {
-    version: "2.0.0",
+    version: "2.2.0",
     url: data.url,
     title: data.title,
     timestamp: data.timestamp,
@@ -1141,6 +1838,7 @@ function generateJSON(data) {
     rulePackId: data.rulePackId || "nielsen-10",
     rulePackName: data.rulePackName || "Nielsen's 10 Usability Heuristics",
     overallScore: data.overallScore,
+    businessAlignment: data.businessAlignment || null,
     profiles: Object.fromEntries(
       Object.entries(data.profileResults || {}).map(([id, pr]) => [
         id,
@@ -1219,7 +1917,7 @@ var PROVIDERS = {
   ollama: {
     id: "ollama",
     name: "Ollama (Local)",
-    icon: "\u{1F5A5}\uFE0F",
+    icon: "",
     authType: "none",
     defaultEndpoint: "http://localhost:11434",
     models: [],
@@ -1334,7 +2032,7 @@ var PROVIDERS = {
   openai: {
     id: "openai",
     name: "OpenAI",
-    icon: "\u{1F7E2}",
+    icon: "",
     authType: "bearer",
     defaultEndpoint: "https://api.openai.com",
     models: [
@@ -1426,7 +2124,7 @@ var PROVIDERS = {
   gemini: {
     id: "gemini",
     name: "Google Gemini",
-    icon: "\u{1F535}",
+    icon: "",
     authType: "query_param",
     defaultEndpoint: "https://generativelanguage.googleapis.com",
     models: [
@@ -1534,7 +2232,7 @@ var PROVIDERS = {
   claude: {
     id: "claude",
     name: "Anthropic Claude",
-    icon: "\u{1F7E0}",
+    icon: "",
     authType: "x-api-key",
     defaultEndpoint: "https://api.anthropic.com",
     models: [
@@ -1645,7 +2343,7 @@ var PROVIDERS = {
   apple: {
     id: "apple",
     name: "Apple Intelligence (macOS)",
-    icon: "\uF8FF",
+    icon: "",
     authType: "none",
     defaultEndpoint: "http://127.0.0.1:17483",
     models: [
@@ -1754,7 +2452,7 @@ var PROVIDERS = {
   chromeai: {
     id: "chromeai",
     name: "Chrome Built-in AI",
-    icon: "\u{1F310}",
+    icon: "",
     authType: "none",
     defaultEndpoint: "chrome://on-device-internals",
     models: [
@@ -2095,7 +2793,7 @@ var PORT = Number(process.env.SYNTHUX_MCP_PORT || 17483);
 var REQUIRED_TOKEN = (process.env.SYNTHUX_MCP_TOKEN || "").trim();
 var SERVER_INFO = {
   name: "synthux-mcp",
-  version: "2.1.1"
+  version: "2.2.0"
 };
 var PROTOCOL_VERSION = "2024-11-05";
 var localState = {
@@ -2103,6 +2801,8 @@ var localState = {
   customProfiles: [],
   lastReport: null,
   reportHistory: [],
+  savedFlows: [],
+  liveFlowCanvas: { nodes: [], notes: [], connectors: [], flowReport: null, viewport: { x: 0, y: 0, zoom: 1 } },
   aiSettings: {
     ollamaEndpoint: process.env.OLLAMA_HOST || "http://localhost:11434",
     ollamaModel: process.env.SYNTHUX_MODEL || "gemma4",
@@ -2730,6 +3430,98 @@ var MCP_TOOLS = [
     }
   },
   {
+    name: "synthux_manage_business_context",
+    description: 'Manage Company, Product, Primary Goal, Non-Negotiable Must-Haves, Marketing/Usage Metrics, and Department Lenses (5 built-in + custom user-defined departments). Also generates interactive discovery questions (action="discover_questions") for the AI agent to ask the user before running a business-aware UX or Flow audit.',
+    inputSchema: {
+      type: "object",
+      properties: {
+        action: {
+          type: "string",
+          enum: ["get", "list", "discover_questions", "save", "update", "toggle", "select", "delete", "add_department", "delete_department"],
+          default: "get"
+        },
+        enabled: { type: "boolean", description: "Enable or disable Business & Goal Context in audits" },
+        contextId: { type: "string", description: "Context profile ID for select or delete" },
+        context: {
+          type: "object",
+          description: 'Company & Product context profile (for action="save" or "update")',
+          properties: {
+            id: { type: "string" },
+            name: { type: "string" },
+            companyName: { type: "string" },
+            productName: { type: "string" },
+            industry: { type: "string" },
+            primaryGoal: { type: "string" },
+            valueProposition: { type: "string" },
+            targetAudience: { type: "string" },
+            mustHaves: { type: "array", items: { type: "string" }, description: "Non-negotiable requirements that must be present on the page/flow" },
+            metrics: { type: "array", items: { type: "string" }, description: 'Current marketing/usage metrics or bottlenecks (e.g. "Bounce rate: 68%")' },
+            departments: { type: "array", items: { type: "string" }, description: 'Active department lens IDs (e.g. ["product-ux", "marketing-cro"])' },
+            departmentNotes: { type: "object", description: "Custom evaluation notes per department ID" }
+          }
+        },
+        department: {
+          type: "object",
+          description: 'Custom department definition (for action="add_department")',
+          properties: {
+            id: { type: "string" },
+            name: { type: "string" },
+            icon: { type: "string" },
+            focus: { type: "string" },
+            defaultCriteria: { type: "string" }
+          }
+        },
+        departmentId: { type: "string", description: "Department ID for delete_department" }
+      }
+    }
+  },
+  {
+    name: "synthux_manage_flows",
+    description: "Read, create, edit, auto-layout, save, load, and control the multi-page Flow Builder 2.0 canvas and saved user journey flows in real time. Any edits made here synchronize live with the open Flow Builder window in Chrome.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        action: {
+          type: "string",
+          enum: [
+            "open_canvas",
+            "get_canvas",
+            "list_saved",
+            "get_saved",
+            "add_node",
+            "update_node",
+            "remove_node",
+            "add_connector",
+            "update_connector",
+            "remove_connector",
+            "add_note",
+            "remove_note",
+            "auto_layout",
+            "clear_canvas",
+            "save_flow",
+            "load_flow",
+            "delete_flow",
+            "submit_external_flow"
+          ],
+          default: "get_canvas"
+        },
+        flowId: { type: "string", description: "Saved flow ID for get_saved, load_flow, or delete_flow" },
+        name: { type: "string", description: "Flow name for save_flow, get_saved, or load_flow" },
+        nodeId: { type: "string", description: "Node ID for update_node or remove_node" },
+        url: { type: "string", description: "Step URL for add_node or update_node" },
+        label: { type: "string", description: "Step label (for add_node/update_node) or connector trigger label (for add_connector/update_connector)" },
+        stepGoal: { type: "string", description: "Expected user goal/action on this step" },
+        dropOffMetric: { type: "string", description: 'Step metric or drop-off percentage (e.g. "Drop-off: 42%")' },
+        fromId: { type: "string", description: "Source node ID for connector actions" },
+        toId: { type: "string", description: "Target node ID for connector actions" },
+        text: { type: "string", description: "Sticky note text for add_note" },
+        attachedTo: { type: "string", description: "Node ID to attach sticky note to" },
+        noteId: { type: "string", description: "Note ID for remove_note" },
+        flowReport: { type: "object", description: "External Agent-Brain evaluated flowReport object for submit_external_flow" }
+      }
+    }
+  },
+  {
     name: "synthux_configure_ai",
     description: "Read or update synthux AI provider configuration (Local Ollama, Apple Intelligence macOS 26/27 FoundationModels, Chrome Built-in AI Gemini Nano, or Cloud Gemini/OpenAI/Claude) and test provider connectivity.",
     inputSchema: {
@@ -2745,22 +3537,26 @@ var MCP_TOOLS = [
         endpoint: { type: "string" },
         enableVision: { type: "boolean" },
         rulePackId: { type: "string" },
-        analysisMode: { type: "string", enum: ["quick", "deep", "custom"] }
+        analysisMode: { type: "string", enum: ["quick", "deep", "custom", "wcag-only"] }
       }
     }
   },
   {
     name: "synthux_get_reports",
-    description: "Retrieve the latest UX audit report, list report history, or export a report in Enhanced Markdown v2.0 or JSON format.",
+    description: "Retrieve the latest UX audit report, list report history, inspect saved Flow Builder reports, compare Before vs After reports (Audit Diff: resolved, new, persistent issues & Must-Haves progress), generate an AI Coding Agent Fix Prompt, or export/import full workspace backups.",
     inputSchema: {
       type: "object",
       properties: {
         action: {
           type: "string",
-          enum: ["latest", "history", "by_id"],
+          enum: ["latest", "history", "by_id", "compare", "fix_prompt", "flows", "flow_by_id", "delete_report", "clear_history", "export_workspace", "import_workspace"],
           default: "latest"
         },
-        id: { type: "string", description: 'Report ID when action="by_id"' },
+        id: { type: "string", description: 'Report ID or Flow ID when action="by_id", "flow_by_id", "fix_prompt", or "delete_report"' },
+        baseId: { type: "string", description: 'Older (Before) report ID when action="compare" (optional; auto-selects previous report if omitted)' },
+        targetId: { type: "string", description: 'Newer (After) report ID when action="compare" (optional; defaults to latest report)' },
+        includeAnnotatedScreenshot: { type: "boolean", description: "Include numbered annotated viewport screenshot data URL in report response (default: false)" },
+        workspace: { type: "object", description: 'Workspace backup JSON object when action="import_workspace"' },
         format: {
           type: "string",
           enum: ["json", "markdown"],
@@ -2882,6 +3678,13 @@ async function executeToolCall(name, args = {}) {
       const rules = loadRulePackFromDisk(rulePackId);
       const accessibilityResults = runAccessibilityChecks(pageData);
       const evaluationTasks = [];
+      let businessContext = args.businessContext || null;
+      if (!businessContext) {
+        businessContext = await getActiveBusinessContext();
+      }
+      if (args.includeBusinessContext === false) {
+        businessContext = null;
+      }
       for (const pid of profileIds) {
         const profile = getProfile(pid) || localState.customProfiles.find((p) => p.id === pid);
         if (!profile) continue;
@@ -2893,10 +3696,12 @@ async function executeToolCall(name, args = {}) {
             heuristicId: heuristic.id,
             heuristicName: heuristic.name?.en || heuristic.name,
             weight: heuristic.weight || 1,
-            prompt: buildPrompt(heuristic, profile, pageData, false)
+            prompt: buildPrompt(heuristic, profile, pageData, false, businessContext)
           });
         }
       }
+      const allDepartments = await getAllDepartments();
+      const businessAlignmentPrompt = businessContext ? buildBusinessAlignmentPrompt(businessContext, pageData, allDepartments) : null;
       return {
         success: true,
         executionMode: "standalone-engine",
@@ -2908,6 +3713,14 @@ async function executeToolCall(name, args = {}) {
         },
         mode,
         profiles: profileIds,
+        businessContext,
+        businessAlignmentPrompt,
+        discoveryQuestions: generateDiscoveryQuestions({
+          url: args.url || "",
+          title: args.title || pageData.meta?.title || "",
+          pageData,
+          currentContext: businessContext
+        }),
         accessibilityResults,
         evaluationTasks
       };
@@ -2927,6 +3740,13 @@ async function executeToolCall(name, args = {}) {
         accessibility: { hasLangAttr: true, contrastResults: [], tabOrderIssues: [], unlabeledInteractives: [] }
       };
       const accessibilityResults = runAccessibilityChecks(pageData);
+      let businessContext = args.businessContext || null;
+      if (!businessContext) {
+        businessContext = await getActiveBusinessContext();
+      }
+      if (args.includeBusinessContext === false) {
+        businessContext = null;
+      }
       const rawEvaluations = Array.isArray(args.evaluations) ? args.evaluations : [];
       const profileGroups = /* @__PURE__ */ new Map();
       for (const item of rawEvaluations) {
@@ -2979,6 +3799,13 @@ async function executeToolCall(name, args = {}) {
           });
         });
       });
+      const allDepartments = await getAllDepartments();
+      let businessAlignment = null;
+      if (args.businessAlignment) {
+        businessAlignment = typeof args.businessAlignment === "string" ? parseBusinessAlignmentResponse(args.businessAlignment, businessContext, pageData, allDepartments) : args.businessAlignment;
+      } else if (businessContext) {
+        businessAlignment = buildDeterministicBusinessAlignment(businessContext, pageData, allDepartments);
+      }
       const report = generateReport({
         url: args.url || "https://synthux.app",
         title: args.title || pageData.meta?.title || "MCP Audited Page",
@@ -2994,18 +3821,23 @@ async function executeToolCall(name, args = {}) {
         profileResults,
         accessibilityResults,
         issues: allIssues,
+        businessContext,
+        businessAlignment,
         screenshot: null,
         annotatedScreenshot: null,
         costSummary: null
       });
       localState.lastReport = report;
       localState.reportHistory.unshift({
-        id: `mcp-${Date.now()}`,
+        id: `mcp-${Date.now()}-${Math.floor(Math.random() * 1e3)}`,
         url: report.url,
         title: report.title,
         score: report.overallScore,
         mode: report.mode,
         model: report.model,
+        rulePackShortName: report.rulePackShortName,
+        businessCompany: report.businessContext?.companyName || null,
+        goalScore: report.businessAlignment?.goalAlignmentScore ?? null,
         timestamp: report.timestamp,
         report
       });
@@ -3123,6 +3955,298 @@ async function executeToolCall(name, args = {}) {
         }
       };
     }
+    case "synthux_manage_business_context": {
+      if (extConnected) {
+        return await sendExtensionCommand("MANAGE_BUSINESS_CONTEXT", args, 15e3);
+      }
+      const action = args.action || "get";
+      const state = await getBusinessContextState();
+      const contexts = state.contexts || [];
+      if (action === "get" || action === "list") {
+        const activeProfile = contexts.find((p) => p.id === state.activeContextId) || contexts[0] || null;
+        return {
+          success: true,
+          enabled: state.enabled,
+          activeContextId: state.activeContextId,
+          activeProfileId: state.activeContextId,
+          activeProfile,
+          contexts,
+          profiles: contexts,
+          builtInDepartments: BUILT_IN_DEPARTMENTS,
+          customDepartments: state.customDepartments || [],
+          allDepartments: await getAllDepartments()
+        };
+      }
+      if (action === "set_active" || action === "toggle" || action === "select") {
+        const nextEnabled = typeof args.enabled === "boolean" ? args.enabled : state.enabled;
+        const nextId = args.profileId || args.contextId || args.activeContextId || state.activeContextId;
+        const updated = await saveBusinessContextState({
+          ...state,
+          enabled: nextEnabled,
+          activeContextId: nextId
+        });
+        return {
+          success: true,
+          enabled: updated.enabled,
+          activeContextId: updated.activeContextId,
+          activeProfileId: updated.activeContextId,
+          activeProfile: (updated.contexts || []).find((p) => p.id === updated.activeContextId) || null
+        };
+      }
+      if (action === "save" || action === "update") {
+        const profileInput = args.profile || args.context || args;
+        const { state: updated, profile: saved } = await upsertBusinessContextProfile(profileInput, {
+          setActive: args.setActive !== false,
+          enabled: typeof args.enabled === "boolean" ? args.enabled : true
+        });
+        return {
+          success: true,
+          profile: saved,
+          enabled: updated.enabled,
+          activeContextId: updated.activeContextId,
+          activeProfileId: updated.activeContextId,
+          state: updated
+        };
+      }
+      if (action === "delete") {
+        const targetId = args.profileId || args.contextId || args.id;
+        if (!targetId) throw new Error("profileId is required to delete a business context profile.");
+        const updated = await deleteBusinessContextProfile(targetId);
+        return {
+          success: true,
+          enabled: updated.enabled,
+          activeContextId: updated.activeContextId,
+          activeProfileId: updated.activeContextId,
+          contexts: updated.contexts,
+          profiles: updated.contexts
+        };
+      }
+      if (action === "add_department") {
+        const deptInput = args.department || {
+          id: args.departmentId || args.id,
+          name: args.name,
+          icon: args.icon,
+          focus: args.focus || args.criteria,
+          defaultCriteria: args.defaultCriteria || args.criteria || args.focus
+        };
+        if (!deptInput || !deptInput.name) {
+          throw new Error("department.name is required to add a custom department.");
+        }
+        const { department: dept, state: updated } = await upsertCustomDepartment(deptInput);
+        return {
+          success: true,
+          department: dept,
+          state: updated,
+          allDepartments: await getAllDepartments()
+        };
+      }
+      if (action === "delete_department") {
+        const targetDeptId = args.departmentId || args.id;
+        if (!targetDeptId) throw new Error("departmentId is required to delete a custom department.");
+        const updated = await deleteCustomDepartment(targetDeptId);
+        return {
+          success: true,
+          customDepartments: updated.customDepartments,
+          state: updated,
+          allDepartments: await getAllDepartments()
+        };
+      }
+      if (action === "discover_questions") {
+        const targetId = args.profileId || args.contextId || state.activeContextId;
+        const activeProfile = contexts.find((p) => p.id === targetId) || args.profile || null;
+        const discovery = generateDiscoveryQuestions({
+          url: args.url || "",
+          title: args.title || "",
+          pageData: args.pageData || null,
+          flowPages: args.flowPages || null,
+          currentContext: activeProfile
+        });
+        return {
+          success: true,
+          discoveryQuestions: discovery,
+          discovery,
+          activeProfile
+        };
+      }
+      throw new Error(`Unknown business context action: ${action}`);
+    }
+    case "synthux_manage_flows": {
+      if (extConnected) {
+        return await sendExtensionCommand("MANAGE_FLOWS", args, 3e4);
+      }
+      const action = args.action || "get_canvas";
+      const canvas = localState.liveFlowCanvas;
+      if (action === "get_canvas") {
+        return {
+          success: true,
+          mode: "standalone-engine",
+          canvas,
+          nodeCount: (canvas.nodes || []).length,
+          connectorCount: (canvas.connectors || []).length,
+          noteCount: (canvas.notes || []).length,
+          hasReport: !!canvas.flowReport
+        };
+      }
+      if (action === "set_canvas") {
+        const next = args.canvas || {};
+        localState.liveFlowCanvas = {
+          nodes: Array.isArray(next.nodes) ? next.nodes : canvas.nodes || [],
+          notes: Array.isArray(next.notes) ? next.notes : canvas.notes || [],
+          connectors: Array.isArray(next.connectors) ? next.connectors : canvas.connectors || [],
+          flowReport: next.flowReport !== void 0 ? next.flowReport : canvas.flowReport || null,
+          viewport: next.viewport || canvas.viewport || { x: 0, y: 0, zoom: 1 }
+        };
+        return { success: true, canvas: localState.liveFlowCanvas };
+      }
+      if (action === "clear_canvas") {
+        localState.liveFlowCanvas = { nodes: [], notes: [], connectors: [], flowReport: null, viewport: { x: 0, y: 0, zoom: 1 } };
+        return { success: true, canvas: localState.liveFlowCanvas };
+      }
+      if (action === "add_node") {
+        const n = args.node || {};
+        const count = (canvas.nodes || []).length;
+        const newNode = {
+          id: n.id || `node-${Date.now()}-${Math.floor(Math.random() * 1e3)}`,
+          title: n.title || `Step ${count + 1}`,
+          url: n.url || "",
+          stepGoal: n.stepGoal || "",
+          dropOffMetric: n.dropOffMetric || "",
+          x: typeof n.x === "number" ? n.x : 100 + count % 4 * 280,
+          y: typeof n.y === "number" ? n.y : 120 + Math.floor(count / 4) * 230,
+          screenshot: n.screenshot || null,
+          domData: n.domData || null,
+          tabId: n.tabId || null,
+          analysisResult: n.analysisResult || null,
+          status: n.status || "idle",
+          order: count
+        };
+        canvas.nodes.push(newNode);
+        if (args.connectFromNodeId) {
+          canvas.connectors.push({
+            id: `conn-${Date.now()}`,
+            fromNodeId: args.connectFromNodeId,
+            toNodeId: newNode.id,
+            label: args.connectorLabel || "",
+            transitionScore: null,
+            transitionIssues: []
+          });
+        }
+        return { success: true, node: newNode, canvas };
+      }
+      if (action === "update_node") {
+        const nodeId = args.nodeId || args.node?.id;
+        const target = (canvas.nodes || []).find((n) => n.id === nodeId);
+        if (!target) throw new Error(`Flow node ${nodeId} not found.`);
+        const patch = args.node || args;
+        if (patch.title !== void 0) target.title = patch.title;
+        if (patch.url !== void 0) target.url = patch.url;
+        if (patch.stepGoal !== void 0) target.stepGoal = patch.stepGoal;
+        if (patch.dropOffMetric !== void 0) target.dropOffMetric = patch.dropOffMetric;
+        if (typeof patch.x === "number") target.x = patch.x;
+        if (typeof patch.y === "number") target.y = patch.y;
+        return { success: true, node: target, canvas };
+      }
+      if (action === "remove_node") {
+        const nodeId = args.nodeId;
+        canvas.nodes = (canvas.nodes || []).filter((n) => n.id !== nodeId);
+        canvas.connectors = (canvas.connectors || []).filter((c) => c.fromNodeId !== nodeId && c.toNodeId !== nodeId);
+        return { success: true, canvas };
+      }
+      if (action === "add_connector") {
+        const c = args.connector || args;
+        if (!c.fromNodeId || !c.toNodeId) throw new Error("fromNodeId and toNodeId are required.");
+        const newConn = {
+          id: `conn-${Date.now()}`,
+          fromNodeId: c.fromNodeId,
+          toNodeId: c.toNodeId,
+          label: c.label || "",
+          transitionScore: null,
+          transitionIssues: []
+        };
+        canvas.connectors.push(newConn);
+        return { success: true, connector: newConn, canvas };
+      }
+      if (action === "remove_connector") {
+        canvas.connectors = (canvas.connectors || []).filter((c) => c.id !== args.connectorId);
+        return { success: true, canvas };
+      }
+      if (action === "add_note") {
+        const nt = args.note || args;
+        const newNote = {
+          id: `note-${Date.now()}`,
+          text: nt.text || "",
+          color: nt.color || "yellow",
+          x: typeof nt.x === "number" ? nt.x : 140,
+          y: typeof nt.y === "number" ? nt.y : 100
+        };
+        canvas.notes.push(newNote);
+        return { success: true, note: newNote, canvas };
+      }
+      if (action === "auto_layout") {
+        (canvas.nodes || []).forEach((node, idx) => {
+          node.x = 80 + idx % 4 * 280;
+          node.y = 100 + Math.floor(idx / 4) * 240;
+          node.order = idx;
+        });
+        return { success: true, canvas };
+      }
+      if (action === "list_saved") {
+        return {
+          success: true,
+          flows: localState.savedFlows.map((f) => ({
+            id: f.id,
+            name: f.name,
+            stepCount: f.stepCount || (f.nodes || []).length,
+            overallFlowScore: f.flowReport?.overallFlowScore ?? null,
+            goalAlignmentScore: f.flowReport?.businessAlignment?.goalAlignmentScore ?? null,
+            timestamp: f.timestamp
+          }))
+        };
+      }
+      if (action === "get_saved") {
+        const flow = localState.savedFlows.find((f) => f.id === args.flowId);
+        if (!flow) throw new Error(`Saved flow ${args.flowId} not found.`);
+        return { success: true, flow };
+      }
+      if (action === "save_flow") {
+        const flowEntry = {
+          id: args.flowId || `flow-${Date.now()}`,
+          name: args.name || `Flow (${(canvas.nodes || []).length} steps)`,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          stepCount: (canvas.nodes || []).length,
+          nodes: canvas.nodes || [],
+          notes: canvas.notes || [],
+          connectors: canvas.connectors || [],
+          flowReport: canvas.flowReport || null
+        };
+        localState.savedFlows = [flowEntry, ...localState.savedFlows.filter((f) => f.id !== flowEntry.id)];
+        return { success: true, flow: flowEntry };
+      }
+      if (action === "load_saved") {
+        const flow = localState.savedFlows.find((f) => f.id === args.flowId);
+        if (!flow) throw new Error(`Saved flow ${args.flowId} not found.`);
+        localState.liveFlowCanvas = {
+          nodes: flow.nodes || [],
+          notes: flow.notes || [],
+          connectors: flow.connectors || [],
+          flowReport: flow.flowReport || null,
+          viewport: { x: 0, y: 0, zoom: 1 }
+        };
+        return { success: true, canvas: localState.liveFlowCanvas };
+      }
+      if (action === "delete_saved") {
+        localState.savedFlows = localState.savedFlows.filter((f) => f.id !== args.flowId);
+        return { success: true, count: localState.savedFlows.length };
+      }
+      if (action === "open_window") {
+        return {
+          success: true,
+          mode: "standalone-engine",
+          note: "Connect the Chrome extension over WebSocket to launch the visual Flow Builder window in Chrome."
+        };
+      }
+      throw new Error(`Unknown flow management action: ${action}`);
+    }
     case "synthux_get_reports": {
       if (extConnected) {
         return await sendExtensionCommand("GET_REPORTS", args, 15e3);
@@ -3138,9 +4262,81 @@ async function executeToolCall(name, args = {}) {
             score: r.score,
             mode: r.mode,
             model: r.model,
+            rulePackShortName: r.rulePackShortName || r.report?.rulePackShortName || "Nielsen 10",
+            businessCompany: r.businessCompany || r.report?.businessContext?.companyName || null,
+            goalScore: r.goalScore ?? r.report?.businessAlignment?.goalAlignmentScore ?? null,
+            issueCount: (r.report?.issues || []).length,
             timestamp: r.timestamp
           }))
         };
+      }
+      if (action === "flows") {
+        return {
+          success: true,
+          flows: localState.savedFlows,
+          liveFlowReport: localState.liveFlowCanvas?.flowReport || null
+        };
+      }
+      if (action === "flow_by_id" && args.id) {
+        const flow = localState.savedFlows.find((f) => f.id === args.id);
+        if (!flow) throw new Error(`Flow ${args.id} not found.`);
+        return { success: true, flow };
+      }
+      if (action === "compare") {
+        if (localState.reportHistory.length < 2) {
+          throw new Error("At least 2 reports in history are required to run a Before/After audit comparison.");
+        }
+        const targetEntry = args.targetId ? localState.reportHistory.find((r) => r.id === args.targetId) : localState.reportHistory[0];
+        if (!targetEntry) throw new Error("Target (After) report not found.");
+        const baseEntry = args.baseId ? localState.reportHistory.find((r) => r.id === args.baseId) : localState.reportHistory.find((r) => r.id !== targetEntry.id && r.url === targetEntry.url) || localState.reportHistory.find((r) => r.id !== targetEntry.id);
+        if (!baseEntry) throw new Error("Base (Before) report not found.");
+        const comparison = compareReports(baseEntry.report || baseEntry, targetEntry.report || targetEntry);
+        return {
+          success: true,
+          comparison: args.format === "markdown" ? comparison.markdown : comparison
+        };
+      }
+      if (action === "fix_prompt") {
+        const targetReport = args.id ? localState.reportHistory.find((r) => r.id === args.id)?.report : localState.lastReport || localState.reportHistory[0]?.report;
+        if (!targetReport) throw new Error("No report found to generate an AI fix prompt.");
+        return {
+          success: true,
+          url: targetReport.url,
+          title: targetReport.title,
+          fixPrompt: targetReport.aiFixPrompt || generateAiFixPrompt(targetReport)
+        };
+      }
+      if (action === "delete_report" && args.id) {
+        localState.reportHistory = localState.reportHistory.filter((r) => r.id !== args.id);
+        return { success: true, remainingCount: localState.reportHistory.length };
+      }
+      if (action === "clear_history") {
+        localState.reportHistory = [];
+        return { success: true, remainingCount: 0 };
+      }
+      if (action === "export_workspace") {
+        const businessContextState = await getBusinessContextState();
+        return {
+          success: true,
+          workspace: {
+            version: "2.2.0",
+            exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
+            businessContextState,
+            customProfiles: localState.customProfiles,
+            customRulePacks: localState.customRulePacks,
+            savedFlows: localState.savedFlows,
+            reportHistory: localState.reportHistory
+          }
+        };
+      }
+      if (action === "import_workspace" && args.workspace) {
+        const ws = args.workspace;
+        if (ws.businessContextState) await saveBusinessContextState(ws.businessContextState);
+        if (Array.isArray(ws.customProfiles)) localState.customProfiles = ws.customProfiles;
+        if (Array.isArray(ws.customRulePacks)) localState.customRulePacks = ws.customRulePacks;
+        if (Array.isArray(ws.savedFlows)) localState.savedFlows = ws.savedFlows;
+        if (Array.isArray(ws.reportHistory)) localState.reportHistory = ws.reportHistory;
+        return { success: true, importedAt: (/* @__PURE__ */ new Date()).toISOString() };
       }
       if (action === "by_id" && args.id) {
         const entry = localState.reportHistory.find((r) => r.id === args.id);
