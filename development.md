@@ -4,6 +4,67 @@ Bu dosya, **synthux** projesinin geliştirme geçmişini, mimari kararlarını v
 
 ---
 
+## 20 Kasım 2026 — v2.2.0 Sürümü (Firma/Hedef & Özel Departman Bağlamı, Flow Builder 2.0, Öncesi/Sonrası Rapor Farkı ve 16 Araçlı MCP Eşliği)
+
+### 1. Firma, Ürün Hedefi, Olmazsa Olmazlar (`Must-Haves`) ve Özel Departman Motoru
+- **Merkezi İş Bağlamı Modülü (`extension/core/business-context.js`):**
+  - Kullanıcıların web sayfalarını ve çok sayfalı akışları ister bağımsız UX/WCAG kurallarıyla, ister firma ve ürün hedefleriyle birlikte değerlendirebilmesini sağlayan **isteğe bağlı (opt-in)** bağlam motoru geliştirildi.
+  - **Desteklenen Veri Alanları:** Firma/Marka Adı (`companyName`), Ürün/Proje (`productName`), Sektör (`industry`), Birincil Dönüşüm Hedefi (`primaryGoal`), Değer Önerisi (`valueProposition`), Hedef Kitle (`targetAudience`), **Olmazsa Olmazlar (`mustHaves`)** ve **Pazarlama / Kullanım Metrikleri (`metrics`)**.
+  - **5 Yerleşik + Kullanıcı Tanımlı Özel Departmanlar (`+ Add Department`):**
+    - Yerleşik departman lensleri: `Product & UX Design` (`product-ux`), `Marketing & Growth (CRO)` (`marketing-cro`), `Sales & Revenue` (`sales-revenue`), `Legal, Privacy & Compliance` (`legal-compliance`), `Engineering & Frontend QA` (`engineering-qa`).
+    - Kullanıcıların kendi özel departmanlarını ve denetim kriterlerini (`upsertCustomDepartment`, `deleteCustomDepartment`) ekleyip silebilmesi sağlandı.
+  - **Uyumluluk ve Darboğaz Raporlaması (`extension/core/analyzer.js`, `extension/core/report-generator.js`, `extension/core/pdf-export.js`):**
+    - Her bir *Must-Have* maddesi için sayfada/akışta **`PASS` / `PARTIAL` / `MISSING`** doğrulama tablosu, metrik darboğaz teşhisi (`metricInsights`) ve departman bazlı puanlama (`departmentFindings`) hem Side Panel arayüzüne hem de Markdown ve vektörel PDF raporlarına eklendi.
+
+---
+
+### 2. Chrome Extension Side Panel Arayüz Yenilemesi ve Yeni Denetim Araçları
+- **SVG İkonografi ve Hizalama Standartları (`src/sidepanel/app.js`, `src/sidepanel/components/*`, `extension/core/providers.js`):**
+  - Tüm sekmelerdeki ve açılır kutulardaki (`Provider`, `Business Context`, `Report`, `History`, `Settings`) emojiler kaldırılarak yerlerine çizgisel monokrom SVG ikonlar yerleştirildi.
+  - `Report` alt aksiyon çubuğundaki 4 buton (`Copy MD`, `Fix Prompt`, `.MD`, `PDF`) 4 eşit sütunlu (`grid-template-columns: repeat(4, 1fr)`), sabit `34px` yükseklikte ve tek satır (`white-space: nowrap`) olarak hizalandı.
+  - `Settings > Workspace Backup` kartındaki `Export Backup` ve `Import Backup` butonları `.backup-actions` (`1fr 1fr` grid, `margin: 0`, `height: 34px`) ile eşitlendi.
+- **Scan Sekmesi (`src/sidepanel/components/synthux-scanner.js`):**
+  - **`Instant WCAG` (1 Saniye Modu):** Yapay zeka yanıtı beklemeden 1 saniyede deterministik `axe-core` WCAG 2.2 AA ve DOM erişilebilirlik raporu üreten `wcag-only` analiz modu eklendi.
+  - **`Business & Goal Context` Kartı:** Çoklu firma profili seçici/düzenleyici, Must-Haves, metrikler ve özel departman ekleme arayüzü eklendi.
+  - **`Flow Builder` Başlatıcı Kartı:** Sol SVG ikon kutusu, ortada başlık + alt açıklama ve sağda yön oku bulunan tek satır kırılmasız kart düzenine geçirildi.
+- **Report ve History Sekmeleri (`src/sidepanel/components/synthux-report.js`):**
+  - **4'lü KPI Şeridi:** `UX Score`, `WCAG 2.2`, `Goal Fit` ve `Quick Wins`.
+  - **İnteraktif 2×2 Öncelik Matrisi + Sorun Arama:** Matris hücrelerine (`Quick Wins`, `Major Projects`, `Fill-Ins`, `Backlog`) tıklayarak sorun filtreleme, metin/selektör arama kutusu ve `Expand All / Collapse` kontrolü eklendi.
+  - **`Fix Prompt` (AI Kodlama Ajanı İstemi):** `generateAiFixPrompt()` ile rapordaki öncelikli UX, WCAG ve eksik Must-Have bulgularını AI kodlama ajanlarına doğrudan yapıştırılabilir mühendislik istemi olarak kopyalama özelliği eklendi.
+  - **`Compare (Diff)` — Öncesi / Sonrası Rapor Karşılaştırma:** `compareReports()` motoru ile geçmişteki herhangi iki raporu seçerek skor değişimini (`overallScoreDelta`), çözülen sorunları (`resolvedIssues`) ve yeni oluşan sorunları (`newIssues`) karşılaştırma ve Markdown olarak kopyalama özelliği eklendi.
+- **Settings Sekmesi (`src/sidepanel/components/synthux-settings.js`):**
+  - **`Export / Import Workspace (.json)`:** Özel personaları, kural paketlerini, firma/departman profillerini, kayıtlı akışları ve rapor geçmişini (API anahtarları hariç) tek JSON dosyasıyla yedekleme ve geri yükleme özelliği eklendi.
+
+---
+
+### 3. Flow Builder 2.0 Penceresi Yeniden Tasarımı (`extension/flow/`)
+- **Segmentli SVG İkon Araç Çubuğu (`extension/flow/index.html`, `extension/flow/style.css`):**
+  - Üst bardaki yazılı buton kalabalığı kaldırıldı: `Add Page`, `Pin Tab` ve `Analyze Flow` ana aksiyonları dışında kalan tüm araçlar (`Open Tabs`, `Add Sticky Note`, `Auto-Layout`, `Clear Canvas`, `Save Flow`, `Saved Flows`, `Export JSON`, `Import JSON`, `Zoom/Fit`) gruplanmış (`tb-icon-group`) `28x28` SVG ikon butonlarına dönüştürüldü.
+  - Alt konfigürasyon çubuğuna (`flow-config-bar`) Kural Paketi seçici, Persona çipleri ve tema uyumlu özel anahtarlı (`flow-biz-switch`) `Goal Context` seçici eklendi.
+- **Akıllı Tuval ve Denetçi Özellikleri (`extension/flow/flow-canvas.js`, `extension/flow/flow-toolbar.js`, `extension/flow/flow-results-panel.js`, `extension/core/flow-manager.js`):**
+  - Yeni eklenen adımların üst üste binmesini önleyen otomatik `+270px` yatay yerleşim, `Auto-Layout` hizalama ve `S1, S2...` adım numaralandırması eklendi.
+  - **Açık Tarayıcı Sekmeleri Seçicisi (`Open Tabs`):** Chrome'da açık olan birden fazla sekmeyi seçip tek tıkla birbirine bağlı akış adımlarına dönüştürme modalı eklendi.
+  - **Adım ve Geçiş Denetçisi (`Step & Transition Inspector`):** Her adım için beklenen hedef (`stepGoal`) ve terk oranı (`dropOffMetric`), her bağlantı oku için geçiş tetikleyicisi (`label`) tanımlama paneli eklendi.
+  - **4 Sekmeli Sonuç Çekmecesi:** `Overview`, `Steps`, `Links` ve `Goals` sekmeleri + Flow JSON dışa/içe aktarma ve analiz durdurma (`Cancel`) desteği eklendi.
+
+---
+
+### 4. %100 MCP ↔ Kullanıcı Eşliği (16 MCP Aracı — `synthux-mcp@2.2.0`)
+- **Yeni ve Güncellenen MCP Araçları (`mcp/server.js`, `extension/core/mcp-bridge.js`, `mcp/test-suite.js`):**
+  1. `synthux_manage_business_context`: Firma/hedef profillerini okuma/kaydetme/silme, özel departman ekleme/silme (`add_department`, `delete_department`) ve bağlı AI ajanının kullanıcıya bağlam soruları yöneltmesini sağlayan `action: "discover_questions"` desteği.
+  2. `synthux_manage_flows`: Canlı Flow Builder tuvalini iki yönlü okuma ve düzenleme (`get_canvas`, `add_node`, `update_node`, `remove_node`, `add_connector`, `add_note`, `auto_layout`, `clear_canvas`, `save_flow`, `load_flow`, `list_saved`, `submit_external_flow`).
+  3. `synthux_get_reports`: Öncesi/Sonrası rapor karşılaştırma (`action: "compare"`), AI düzeltme istemi üretme (`action: "fix_prompt"`), Flow raporlarını okuma (`flows`, `flow_by_id`) ve çalışma alanı yedekleme (`export_workspace`, `import_workspace`).
+- **Website (`synthux.app`) Özellik Kartlarının Sadeleştirilmesi (`website/index.html`, `website/style.css`, `website/i18n.js`, `firebase.json`):**
+  - Ana sayfadaki `#features` bölümü 6 dilde (`en`, `tr`, `de`, `zh`, `fr`, `it`) 3x2 (6 temel kart) yapısına indirgendi; kartlardaki versiyon etiketleri kaldırıldı, başlıklar tek satıra ve açıklamalar 2 satırlık net metinlere sadeleştirildi.
+  - `firebase.json` içindeki `.js` ve `.css` önbellek başlığı `public, max-age=0, must-revalidate` olarak güncellendi (`?v=2.2.3`).
+- **Yayınlanan Paketler (`v2.2.0`):**
+  - **npm Paketi:** `synthux-mcp@2.2.0` (`https://www.npmjs.com/package/synthux-mcp`)
+  - **Chrome Web Store Paketi:** `synthux-v2.2.0.zip` (ana dizinde hazır)
+  - **GitHub:** `main` dalına push edildi
+  - **Firebase Hosting:** `https://synthux.app`
+
+---
+
 ## 📅 9 Kasım 2026 — v2.1.1 Sürümü (Apple Intelligence macOS FoundationModels, Chrome Built-in AI & Website UX/SEO Yenilemesi)
 
 ### 1.  Apple Intelligence (`FoundationModels.framework` — macOS 26 / 27) Entegrasyonu
