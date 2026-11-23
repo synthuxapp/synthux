@@ -122,6 +122,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
+  // Privacy-first Lite YouTube Facade: loads youtube-nocookie iframe only on user click
+  document.querySelectorAll('.video-facade[data-video-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const videoId = btn.dataset.videoId;
+      if (!videoId) return;
+      const isHttpOrigin = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+      if (!isHttpOrigin) {
+        window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      const wrapper = btn.closest('.video-wrapper');
+      if (!wrapper) return;
+      const iframe = document.createElement('iframe');
+      const params = new URLSearchParams({
+        autoplay: '1',
+        rel: '0',
+        origin: window.location.origin
+      });
+      iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?${params.toString()}`;
+      iframe.title = btn.dataset.videoTitle || 'synthux product demo video';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+      iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      iframe.allowFullscreen = true;
+      wrapper.innerHTML = '';
+      wrapper.appendChild(iframe);
+      iframe.focus();
+    });
+  });
+
   // Fetch latest version from GitHub manifest.json and sync both hero badge and nav pill
   const versionBadge = document.getElementById('version-badge');
   const navVerPills = document.querySelectorAll('.nav-ver-pill');

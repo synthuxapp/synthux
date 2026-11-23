@@ -4,6 +4,24 @@ Bu dosya, **synthux** projesinin geliştirme geçmişini, mimari kararlarını v
 
 ---
 
+## 23 Kasım 2026 — Website (`synthux.app`) Tanıtım Videosu & YouTube Kanal Entegrasyonu
+
+### 1. "See It in Action" Alanının Privacy-First Video Oynatıcıya Dönüştürülmesi
+- **Statik Görselin Kaldırılması (`website/assets/screenshot.png`):**
+  - Ana sayfadaki `#screenshot` bölümünde yer alan 324 KB statik ekran görüntüsü kaldırıldı.
+  - Yerine 16:9 yerel kapak görselleri (`website/assets/promo-poster.webp` — 51 KB, `website/assets/promo-poster.jpg` — 81 KB fallback) eklendi (`<picture>`, `width="1280" height="720"`, `loading="lazy"`, `fetchpriority="low"`).
+- **Lite YouTube Facade (`website/index.html`, `website/style.css`, `website/script.js`):**
+  - İlk sayfa yüklemesinde 3. parti YouTube script'i ve çerez yüklemeyen tıklamayla açılan (click-to-load) gizlilik odaklı oynatıcı eklendi.
+  - Kullanıcı oynat butonuna (`<button type="button" class="video-facade">`) tıkladığında `https://www.youtube-nocookie.com/embed/1ZQ6gCrClHo?autoplay=1&rel=0&origin=...` iframe'i `referrerpolicy="strict-origin-when-cross-origin"` ile yüklenir; yerel `file://` önizlemesinde Hata 153'ü önlemek için YouTube bağlantısı yeni sekmede açılır.
+  - Oynatıcı altına YouTube eğitim serisi bağlantısı (`https://www.youtube.com/@synthuxapp`) ve klavye/erişilebilirlik (`:focus-visible`, `prefers-reduced-motion`, `<noscript>` fallback) desteği eklendi.
+
+### 2. Çoklu Dil (`i18n.js`), Footer & SEO Güncellemeleri
+- **6 Dilli Çeviri (`website/i18n.js`):** `screenshotSubtitle`, `videoWatchTour`, `videoChannelCta` ve `footerYoutube` anahtarları `en`, `tr`, `de`, `zh`, `fr`, `it` dillerinde güncellendi.
+- **Footer & SEO (`website/index.html`):** Footer `Community` sütununa resmi YouTube kanalı (`https://www.youtube.com/@synthuxapp`) eklendi, `<head>` bölümüne `VideoObject` JSON-LD yapılandırılmış verisi eklendi ve önbellek yenileme sürümleri güncellendi (`style.css?v=2.2.4`, `i18n.js?v=2.2.4`, `script.js?v=2.2.5`).
+- **Yayın:** Firebase Hosting (`synthux-app` / `https://synthux.app`) güncellendi.
+
+---
+
 ## 20 Kasım 2026 — v2.2.0 Sürümü (Firma/Hedef & Özel Departman Bağlamı, Flow Builder 2.0, Öncesi/Sonrası Rapor Farkı ve 16 Araçlı MCP Eşliği)
 
 ### 1. Firma, Ürün Hedefi, Olmazsa Olmazlar (`Must-Haves`) ve Özel Departman Motoru
